@@ -1,0 +1,50 @@
+# ---- Node / frontend ----
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+.eslintcache
+coverage/
+.turbo/
+pnpm-debug.log*
+npm-debug.log*
+yarn-error.log*
+
+# ---- Rust / Tauri ----
+target/
+**/target/
+*.rs.bk
+Cargo.lock.orig
+src-tauri/gen/
+src-tauri/target/
+
+# ---- Build output / packaging ----
+*.exe
+*.msi
+*.dmg
+*.deb
+*.rpm
+*.AppImage
+release-artifacts/
+
+# ---- Editors / OS ----
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.shared.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Env / secrets ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- App runtime data (never commit) ----
+/data/
+drafts/
+logs/
