@@ -1,0 +1,39 @@
+name: "✨ Feature request"
+description: Propose a feature or enhancement
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before proposing, please check the **non-goals** in
+        [docs/00_Project_Vision.md](../blob/main/docs/00_Project_Vision.md) §6 and the
+        [Future Features](../blob/main/docs/19_Future_Features.md) verdict tables — this
+        project is deliberately Markdown-only and rejects some categories by policy.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What are you trying to accomplish? What's painful today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: fit
+    attributes:
+      label: Vision fit self-check
+      description: Does this stay within a focused, fast, private, Markdown-only editor?
+      options:
+        - "Yes — it's core Markdown editing/viewing"
+        - "Maybe — it could be a future plugin"
+        - "Unsure — happy to discuss"
+    validations:
+      required: true

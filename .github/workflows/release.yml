@@ -1,0 +1,26 @@
+name: Release
+
+# Placeholder. The real Windows release pipeline (Tauri build → NSIS/MSI + portable →
+# sign → SBOM + checksums → draft GitHub Release) is implemented in Stage 13.
+# See ROADMAP.md and docs/18_Release_Checklist.md.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish release artifacts
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Not yet implemented
+        shell: bash
+        run: |
+          echo "::notice::Release pipeline is a Stage 13 deliverable."
+          echo "Tag: ${GITHUB_REF_NAME:-<none>}"
+          echo "This placeholder intentionally does not publish artifacts yet."

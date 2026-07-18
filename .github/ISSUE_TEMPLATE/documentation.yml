@@ -1,0 +1,30 @@
+name: "📝 Documentation issue"
+description: Report an error, gap, or improvement in the docs
+labels: ["documentation", "triage"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Document / location
+      description: Which file or page? Link or path (e.g. docs/03_System_Architecture.md §4).
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type of issue
+      options:
+        - Incorrect / outdated information
+        - Missing information
+        - Unclear / confusing
+        - Typo / formatting
+        - Broken link or cross-reference
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What's wrong, and what would be correct or clearer?
+    validations:
+      required: true

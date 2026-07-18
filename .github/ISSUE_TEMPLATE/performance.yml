@@ -1,0 +1,46 @@
+name: "⚡ Performance issue"
+description: Report slow startup, high memory, lag, or a budget regression
+labels: ["performance", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Performance is a P0 feature with hard budgets
+        ([docs/09_Performance_Strategy.md](../blob/main/docs/09_Performance_Strategy.md) §1).
+        Concrete numbers help enormously.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Startup time
+        - Idle memory
+        - Typing latency
+        - Preview / rendering
+        - Large file handling
+        - Workspace search
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: measurement
+    attributes:
+      label: Measurement
+      description: What did you observe vs the budget? Include numbers and how you measured.
+      placeholder: |
+        e.g. Cold start ~1.2 s (budget < 500 ms), measured with ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS build, CPU, RAM, disk (SSD/HDD), file size / workspace size, tab count.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+    validations:
+      required: true

@@ -1,0 +1,33 @@
+version: 2
+updates:
+  # Frontend (npm/pnpm) — manifests appear in Stage 1; Dependabot no-ops until then.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels: ["dependencies", "frontend"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Rust core (Cargo) — appears in Stage 1.
+  - package-ecosystem: "cargo"
+    directory: "/src-tauri"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels: ["dependencies", "rust"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # GitHub Actions themselves.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "ci(deps)"

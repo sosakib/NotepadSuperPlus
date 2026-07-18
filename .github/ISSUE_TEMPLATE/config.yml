@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Questions & ideas (Discussions)
+    url: https://github.com/sosakib/NotepadSuperPlus/discussions
+    about: Ask questions, share themes, or float ideas before they become issues.
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/sosakib/NotepadSuperPlus/security/advisories/new
+    about: Please report vulnerabilities privately, not as public issues.

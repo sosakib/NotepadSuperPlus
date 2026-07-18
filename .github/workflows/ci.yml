@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Stage 0: verify the repository scaffold is intact. Real lint/typecheck/test/build
+  # jobs are added in Stage 1 when the toolchain lands (see ROADMAP.md).
+  scaffold-check:
+    name: Scaffold integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required project files exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            README.md LICENSE CHANGELOG.md ROADMAP.md
+            CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md MAINTAINERS.md
+            .gitignore
+            .github/dependabot.yml
+            .github/PULL_REQUEST_TEMPLATE.md
+            .github/ISSUE_TEMPLATE/bug_report.yml
+            .github/ISSUE_TEMPLATE/feature_request.yml
+            .github/ISSUE_TEMPLATE/documentation.yml
+            .github/ISSUE_TEMPLATE/performance.yml
+            .github/ISSUE_TEMPLATE/config.yml
+          )
+          missing=0
+          for f in "${required[@]}"; do
+            if [[ ! -f "$f" ]]; then echo "::error::missing required file: $f"; missing=1; fi
+          done
+          exit $missing
+      - name: Verify documentation set (docs/00..20)
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for n in $(seq -w 0 20); do
+            if ! ls docs/${n}_*.md >/dev/null 2>&1; then
+              echo "::error::missing documentation file docs/${n}_*.md"; missing=1
+            fi
+          done
+          exit $missing
+
+  # --- Placeholders activated in Stage 1 (kept here so the pipeline shape is visible) ---
+  # lint-and-typecheck:   # pnpm lint, pnpm typecheck, cargo fmt --check, cargo clippy -D warnings
+  # test:                 # vitest (unit + conformance), cargo test --workspace
+  # build:                # pnpm build, cargo build (+ tauri build smoke on windows-latest)
+  # perf:                 # relative startup/latency budget check (docs/09)
