@@ -1,0 +1,73 @@
+/*
+ * Minimal Stage 1 styles. The real design-token system (primitive -> semantic ->
+ * component layers, theming) lands with the shell in Stage 2 / themes in Stage 9
+ * (docs/04_UI_UX_Guidelines.md §3).
+ */
+
+:root {
+  --bg-app: #1e1e22;
+  --fg-primary: #e6e6ea;
+  --fg-secondary: #9a9aa5;
+  --accent: #5b8cff;
+  --font-ui: -apple-system, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Cascadia Code", "Consolas", ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-app: #ffffff;
+    --fg-primary: #1a1a1e;
+    --fg-secondary: #5c5c66;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--fg-primary);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  user-select: none;
+}
+
+.app-shell h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 650;
+}
+
+.tagline {
+  margin: 0;
+  color: var(--fg-secondary);
+}
+
+.meta {
+  margin-top: 0.5rem;
+  color: var(--fg-secondary);
+  font-size: 0.85rem;
+}
+
+.meta code,
+code {
+  font-family: var(--font-mono);
+  color: var(--accent);
+}

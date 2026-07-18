@@ -5,15 +5,20 @@ name: CodeQL
 # See ROADMAP.md and docs/08_Security_Model.md §6.
 
 on:
-  push:
-    branches: [main, develop]
-    paths: ["src/**", "src-tauri/**"]
-  pull_request:
-    branches: [main, develop]
-    paths: ["src/**", "src-tauri/**"]
   workflow_dispatch:
+  # Automatic runs are disabled for now: uploading CodeQL results (SARIF) to code
+  # scanning requires a PUBLIC repository or GitHub Advanced Security. On the current
+  # private/free plan the "Perform CodeQL Analysis" upload step fails with
+  # "Resource not accessible by integration". Re-enable these triggers once the repo
+  # is public or GHAS is available (planned: Stage 11 — docs/08 §6).
+  # push:
+  #   branches: [main, develop]
+  #   paths: ["src/**", "src-tauri/**"]
+  # pull_request:
+  #   branches: [main, develop]
+  #   paths: ["src/**", "src-tauri/**"]
   # schedule:
-  #   - cron: "0 3 * * 1"   # enabled in Stage 11
+  #   - cron: "0 3 * * 1"
 
 permissions:
   contents: read

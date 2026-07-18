@@ -1,0 +1,4 @@
+# Single-package (flat) layout for now. When packages/markdown-core or packages/themes
+# are extracted (revisited at Stage 4 — see ROADMAP.md), add them here.
+packages:
+  - "."
