@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUiStore } from "../state/ui.ts";
+import { useDocumentsStore } from "../state/documents.ts";
 import { THEMES } from "../theme/themes.ts";
 
 /** Bottom status bar: message on the left; view mode, zoom, theme, version on the right. */
@@ -8,6 +9,9 @@ export function StatusBar() {
   const viewMode = useUiStore((s) => s.viewMode);
   const zoom = useUiStore((s) => s.zoom);
   const resolvedTheme = useUiStore((s) => s.resolvedTheme);
+  const cursorLine = useUiStore((s) => s.cursorLine);
+  const cursorCol = useUiStore((s) => s.cursorCol);
+  const language = useDocumentsStore((s) => (s.activeId ? s.docs[s.activeId]?.languageId : null));
   const [version, setVersion] = useState("dev");
 
   useEffect(() => {
@@ -34,7 +38,10 @@ export function StatusBar() {
         <span className="statusbar__item">{statusMessage}</span>
       </div>
       <div className="statusbar__right">
-        <span className="statusbar__item statusbar__item--muted">Ln —, Col —</span>
+        {language ? <span className="statusbar__item">{language}</span> : null}
+        <span className="statusbar__item statusbar__num">
+          Ln {cursorLine}, Col {cursorCol}
+        </span>
         <span className="statusbar__item">{viewMode}</span>
         <span className="statusbar__item statusbar__num">{zoomPct}</span>
         <span className="statusbar__item">{THEMES[resolvedTheme].name}</span>

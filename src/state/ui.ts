@@ -20,6 +20,9 @@ export interface UiState {
   zoom: number;
   paletteOpen: boolean;
   statusMessage: string;
+  wordWrap: boolean;
+  cursorLine: number;
+  cursorCol: number;
 
   setTheme: (setting: ThemeSetting) => void;
   cycleTheme: () => void;
@@ -34,6 +37,8 @@ export interface UiState {
   setPaletteOpen: (open: boolean) => void;
   togglePalette: () => void;
   setStatus: (message: string) => void;
+  toggleWordWrap: () => void;
+  setCursor: (line: number, col: number) => void;
 }
 
 const clamp = (n: number, min: number, max: number): number => Math.min(max, Math.max(min, n));
@@ -50,6 +55,9 @@ export const useUiStore = create<UiState>((set, get) => ({
   zoom: 0,
   paletteOpen: false,
   statusMessage: "Ready",
+  wordWrap: true,
+  cursorLine: 1,
+  cursorCol: 1,
 
   setTheme: (setting) => set({ themeSetting: setting, resolvedTheme: resolveTheme(setting) }),
   cycleTheme: () => {
@@ -70,6 +78,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   setPaletteOpen: (open) => set({ paletteOpen: open }),
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),
   setStatus: (message) => set({ statusMessage: message }),
+  toggleWordWrap: () => set((s) => ({ wordWrap: !s.wordWrap })),
+  setCursor: (line, col) => set({ cursorLine: line, cursorCol: col }),
 }));
 
 export const SIDEBAR_BOUNDS = { min: SIDEBAR_MIN, max: SIDEBAR_MAX };
