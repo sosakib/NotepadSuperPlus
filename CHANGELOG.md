@@ -10,6 +10,15 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Stage 2 — Core Application Shell.** The application chrome, with no Markdown yet:
+  a design-token **theme engine** (dark / light / high-contrast, follow-OS); a layout of
+  title bar, activity rail, resizable/collapsible sidebar (Explorer/Outline/Search
+  placeholders), editor area with a view-mode switch (source/preview/split) and tab-bar
+  placeholder, and a status bar; a **command registry** feeding a fuzzy **command palette**
+  (Ctrl+Shift+P) and a global **keyboard manager**; UI primitives (Button, IconButton,
+  Tooltip, Kbd, EmptyState, Resizer); a Zustand `ui` store; and the first component test
+  suite (Vitest + Testing Library, 31 tests) wired into CI. Native OS menu bar is deferred
+  to Stage 7 (per docs/05 §4).
 - **Stage 1 — Workspace & Build System.** Toolchain wired end to end: Tauri 2 + Rust core
   (`src-tauri`), React 18 + TypeScript (strict) + Vite frontend, pnpm workspace. The app is an
   intentionally empty window that proves the stack: a single `app_version` IPC command bridges
