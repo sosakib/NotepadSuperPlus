@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { useDocumentsStore } from "../state/documents.ts";
+import { useWorkspaceStore } from "../state/workspace.ts";
 import { unwatch } from "../ipc/fs.ts";
 import { reloadPath } from "./fileActions.ts";
+import { refreshDir, parentDir } from "./workspaceActions.ts";
 
 interface ChangePayload {
   path: string;
@@ -22,10 +24,19 @@ export function useFsWatcher(): void {
       try {
         unlisten = await listen<ChangePayload>("fs:changed", (event) => {
           const { path, kind } = event.payload;
+
+          // Keep the workspace tree in sync with changes inside the open folder.
+          const wsRoot = useWorkspaceStore.getState().root;
+          if (wsRoot && path.startsWith(wsRoot)) {
+            const dir = parentDir(path);
+            if (useWorkspaceStore.getState().children[dir]) void refreshDir(dir);
+          }
+
           const store = useDocumentsStore.getState();
           const docId = store.findByPath(path);
           if (!docId) {
-            void unwatch(path);
+            // Don't unwatch workspace paths — the tree watch is recursive.
+            if (!wsRoot || !path.startsWith(wsRoot)) void unwatch(path);
             return;
           }
           const doc = store.docs[docId];
