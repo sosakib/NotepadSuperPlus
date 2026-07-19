@@ -10,6 +10,15 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Stage 5 — Filesystem.** Documents are now backed by real files. The Rust core gains a
+  typed error taxonomy (`NspError`), file reading with **encoding detection** (UTF-8, UTF-8 BOM,
+  UTF-16 LE/BE, charset guess) and **line-ending** detect/preserve (LF/CRLF), binary and
+  size guards, and **atomic saves** (temp file → fsync → rename) that never corrupt a file on
+  crash. Adds a **file watcher** (debounced, with self-change suppression) that emits
+  `fs:changed`, a persisted **recent-files** list, and the dialog plugin. The UI gains
+  Open / Save / Save As commands (`Ctrl+O` / `Ctrl+S` / `Ctrl+Shift+S`), a typed IPC layer,
+  recent files in the Explorer, seamless reload when a clean file changes on disk, and a
+  **conflict banner** (Reload / Keep my changes) when it changes while you have unsaved edits.
 - **Stage 4 — Markdown Rendering Engine.** Live GitHub-flavored rendering via a unified
   (remark → rehype → **sanitize**) pipeline running in a **Web Worker**, so parsing never
   blocks the UI. Adds **Preview** and **Split** modes (source + preview side by side with
