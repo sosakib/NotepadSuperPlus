@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./styles/global.css";
 import "./styles/shell.css";
+import "./styles/markdown.css";
 import { markStartupPhase } from "./perf.ts";
 
 markStartupPhase("script-eval");

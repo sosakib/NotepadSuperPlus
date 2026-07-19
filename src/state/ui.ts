@@ -23,6 +23,7 @@ export interface UiState {
   wordWrap: boolean;
   cursorLine: number;
   cursorCol: number;
+  splitRatio: number;
 
   setTheme: (setting: ThemeSetting) => void;
   cycleTheme: () => void;
@@ -39,6 +40,7 @@ export interface UiState {
   setStatus: (message: string) => void;
   toggleWordWrap: () => void;
   setCursor: (line: number, col: number) => void;
+  setSplitRatio: (ratio: number) => void;
 }
 
 const clamp = (n: number, min: number, max: number): number => Math.min(max, Math.max(min, n));
@@ -58,6 +60,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   wordWrap: true,
   cursorLine: 1,
   cursorCol: 1,
+  splitRatio: 0.5,
 
   setTheme: (setting) => set({ themeSetting: setting, resolvedTheme: resolveTheme(setting) }),
   cycleTheme: () => {
@@ -80,6 +83,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   setStatus: (message) => set({ statusMessage: message }),
   toggleWordWrap: () => set((s) => ({ wordWrap: !s.wordWrap })),
   setCursor: (line, col) => set({ cursorLine: line, cursorCol: col }),
+  setSplitRatio: (ratio) => set({ splitRatio: clamp(ratio, 0.2, 0.8) }),
 }));
 
 export const SIDEBAR_BOUNDS = { min: SIDEBAR_MIN, max: SIDEBAR_MAX };

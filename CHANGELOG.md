@@ -10,6 +10,16 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Stage 4 — Markdown Rendering Engine.** Live GitHub-flavored rendering via a unified
+  (remark → rehype → **sanitize**) pipeline running in a **Web Worker**, so parsing never
+  blocks the UI. Adds **Preview** and **Split** modes (source + preview side by side with
+  bidirectional scroll sync), a live **Structure View** (heading outline with click-to-jump),
+  heading ids + anchor-correct slugs, and source-line mapping (`data-source-line`) for sync.
+  Output is sanitized in the worker (script/`javascript:`/event-handler stripping — docs/08 §4),
+  so the preview injects it safely. GitHub-style, fully token-driven preview CSS (tables, task
+  lists, code, blockquotes) that follows the theme. 10 new pipeline/sanitization/outline tests.
+  _Deferred:_ Shiki code-block highlighting and true per-block incremental rendering (full render
+  runs off-thread and meets budget for now; incremental is a Stage 10/11 optimization).
 - **Stage 3 — Markdown Editor Engine.** Real editing via CodeMirror 6: undo/redo,
   multiple cursors, column/rectangular selection, bracket matching, line numbers, code
   folding, and word wrap (toggle). Rich **Markdown syntax highlighting** with a palette

@@ -16,6 +16,7 @@ import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { editorTheme } from "./theme.ts";
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
+import { renderController } from "../markdown/renderController.ts";
 
 /** Per-view reconfigurable slots. */
 export const languageConf = new Compartment();
@@ -44,6 +45,7 @@ function cursorExtension(docId: string): Extension {
   return EditorView.updateListener.of((update) => {
     if (update.docChanged) {
       useDocumentsStore.getState().markDirty(docId, true);
+      renderController.requestRender(docId, update.state.doc.toString());
     }
     if (update.docChanged || update.selectionSet) {
       const head = update.state.selection.main.head;
