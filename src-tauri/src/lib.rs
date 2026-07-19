@@ -9,11 +9,13 @@
 
 mod error;
 mod fs;
+mod fsops;
 mod recent;
 mod watcher;
 
 use error::NspResult;
 use fs::FileContent;
+use fsops::Entry;
 use recent::RecentState;
 use serde::Serialize;
 use std::path::Path;
@@ -83,6 +85,47 @@ fn recent_list(recent: tauri::State<'_, RecentState>) -> Vec<String> {
     recent.list()
 }
 
+/// Opens a folder as the workspace root: lists it and starts watching the tree.
+#[tauri::command]
+fn ws_open(path: String, watcher: tauri::State<'_, WatcherState>) -> NspResult<Vec<Entry>> {
+    let abs = fs::canonicalize_existing(Path::new(&path))?;
+    let entries = fsops::list_dir(&abs)?;
+    watcher.watch_dir(&abs);
+    Ok(entries)
+}
+
+/// Lists one directory level (lazy tree expansion).
+#[tauri::command]
+fn fs_list_dir(path: String) -> NspResult<Vec<Entry>> {
+    fsops::list_dir(Path::new(&path))
+}
+
+/// Creates a file or folder inside a directory.
+#[tauri::command]
+fn fs_create(dir: String, name: String, is_dir: bool) -> NspResult<Entry> {
+    fsops::create(Path::new(&dir), &name, is_dir)
+}
+
+/// Renames a file or folder in place.
+#[tauri::command]
+fn fs_rename(path: String, new_name: String) -> NspResult<Entry> {
+    fsops::rename(Path::new(&path), &new_name)
+}
+
+/// Moves a file or folder to the OS trash.
+#[tauri::command]
+fn fs_trash(path: String, watcher: tauri::State<'_, WatcherState>) -> NspResult<()> {
+    let p = Path::new(&path);
+    watcher.unwatch(p);
+    fsops::trash(p)
+}
+
+/// Duplicates a file next to itself.
+#[tauri::command]
+fn fs_duplicate(path: String) -> NspResult<Entry> {
+    fsops::duplicate(Path::new(&path))
+}
+
 /// Builds and runs the Tauri application.
 pub fn run() {
     init_tracing();
@@ -109,7 +152,13 @@ pub fn run() {
             fs_read_file,
             fs_write_file,
             fs_unwatch,
-            recent_list
+            recent_list,
+            ws_open,
+            fs_list_dir,
+            fs_create,
+            fs_rename,
+            fs_trash,
+            fs_duplicate
         ])
         .run(tauri::generate_context!())
         .expect("error while running Notepad Super Plus");
