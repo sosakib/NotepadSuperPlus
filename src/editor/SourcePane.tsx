@@ -5,7 +5,7 @@ import { useUiStore } from "../state/ui.ts";
 import { createEditorState, languageConf, wrapConf } from "./editorState.ts";
 import { languageForFilename, syncLanguageForFilename } from "./languages.ts";
 import { renderController } from "../markdown/renderController.ts";
-import { savedStates, asyncLangLoaded, setActiveView } from "./editorRegistry.ts";
+import { savedStates, asyncLangLoaded, setActiveView, pendingContent } from "./editorRegistry.ts";
 
 /**
  * Hosts a single CodeMirror view and swaps its state as the active tab changes.
@@ -74,7 +74,9 @@ export function SourcePane() {
       const meta = useDocumentsStore.getState().docs[activeId];
       const filename = meta?.filename ?? "untitled.md";
       const syncLang = syncLanguageForFilename(filename);
-      state = createEditorState(activeId, "", syncLang);
+      const initial = pendingContent.get(activeId) ?? "";
+      pendingContent.delete(activeId);
+      state = createEditorState(activeId, initial, syncLang);
       savedStates.set(activeId, state);
       if (!syncLang) void ensureAsyncLanguage(viewRef, activeId, filename);
     }
