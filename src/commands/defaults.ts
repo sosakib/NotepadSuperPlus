@@ -1,6 +1,7 @@
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
 import { openFile, saveFile, saveFileAs } from "../actions/fileActions.ts";
+import { openFolder } from "../actions/workspaceActions.ts";
 import type { Command } from "./types.ts";
 
 /**
@@ -28,6 +29,14 @@ export function defaultCommands(): Command[] {
       defaultKeys: ["ctrl+o"],
       icon: "FolderOpen",
       run: () => void openFile(),
+    },
+    {
+      id: "file.openFolder",
+      title: "Open Folder…",
+      category: "File",
+      defaultKeys: ["ctrl+shift+o"],
+      icon: "Folder",
+      run: () => void openFolder(),
     },
     {
       id: "file.save",

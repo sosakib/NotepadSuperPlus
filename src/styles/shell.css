@@ -327,6 +327,108 @@
   font-size: 12px;
 }
 
+/* ---- Workspace tree (Explorer) ---- */
+.workspace__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-1) var(--space-2);
+}
+.workspace__name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workspace__actions {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+.workspace__actions button,
+.tree__actions button {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+.workspace__actions button:hover,
+.tree__actions button:hover {
+  background: var(--bg-active);
+  color: var(--fg-primary);
+}
+
+.tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tree__row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: var(--radius-control);
+}
+.tree__row:hover {
+  background: var(--bg-hover);
+}
+.tree__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-secondary);
+  font-size: 12px;
+  text-align: left;
+  padding: 4px 2px;
+  cursor: pointer;
+}
+.tree__row:hover .tree__label {
+  color: var(--fg-primary);
+}
+.tree__chevron {
+  width: 14px;
+  flex: 0 0 14px;
+  color: var(--fg-muted);
+}
+.tree__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tree__actions {
+  display: none;
+  gap: 1px;
+  padding-right: 2px;
+}
+.tree__row:hover .tree__actions {
+  display: flex;
+}
+.tree__input {
+  width: 100%;
+  font: inherit;
+  font-size: 12px;
+  padding: 3px 6px;
+  margin: 2px 0;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--accent);
+  background: var(--bg-app);
+  color: var(--fg-primary);
+  outline: none;
+}
+
 /* ---- Recent files (Explorer) ---- */
 .recent__header {
   font-size: 11px;

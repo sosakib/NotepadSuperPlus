@@ -10,6 +10,12 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Stage 6 — Explorer.** Open a folder as a workspace and browse it in a **lazy file tree**
+  (children load on expand, so large folders open instantly). Click a file to open it. Inline
+  **file management** — new file/folder, rename, duplicate, and delete — with deletes going to
+  the **OS trash**, never a permanent delete. The workspace is watched recursively, so changes
+  made outside the app refresh the tree automatically. Recent files remain available when no
+  folder is open. _Deferred:_ drag-and-drop and favorites/pinned files.
 - **Stage 5 — Filesystem.** Documents are now backed by real files. The Rust core gains a
   typed error taxonomy (`NspError`), file reading with **encoding detection** (UTF-8, UTF-8 BOM,
   UTF-16 LE/BE, charset guess) and **line-ending** detect/preserve (LF/CRLF), binary and

@@ -99,6 +99,19 @@ impl WatcherState {
         }
     }
 
+    /// Watches a directory tree (workspace root) for changes.
+    pub fn watch_dir(&self, path: &Path) {
+        let mut guard = self.debouncer.lock().expect("debouncer lock");
+        if let Some(deb) = guard.as_mut() {
+            if deb.watcher().watch(path, RecursiveMode::Recursive).is_ok() {
+                self.watched
+                    .lock()
+                    .expect("watched lock")
+                    .insert(path.to_path_buf());
+            }
+        }
+    }
+
     pub fn unwatch(&self, path: &Path) {
         let mut guard = self.debouncer.lock().expect("debouncer lock");
         if let Some(deb) = guard.as_mut() {
