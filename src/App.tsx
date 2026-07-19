@@ -1,42 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { AppShell } from "./shell/AppShell.tsx";
+import { CommandPalette } from "./palette/CommandPalette.tsx";
+import { useKeyboard } from "./keyboard/useKeyboard.ts";
+import { useUiStore } from "./state/ui.ts";
+import { applyTheme } from "./theme/applyTheme.ts";
 import { markStartupPhase } from "./perf.ts";
 
-/**
- * Stage 1 shell: an intentionally empty window that proves the toolchain is wired
- * (Tauri + Rust core + React + TypeScript + Vite). Real chrome — title bar, sidebar,
- * command palette, status bar — arrives in Stage 2 (see ROADMAP.md).
- */
-export default function App(): JSX.Element {
-  const [version, setVersion] = useState<string>("…");
+/** Stage 2 shell: chrome, theming, command palette, and keyboard — no Markdown yet. */
+export default function App() {
+  useKeyboard();
 
+  const resolvedTheme = useUiStore((s) => s.resolvedTheme);
+  const themeSetting = useUiStore((s) => s.themeSetting);
+  const zoom = useUiStore((s) => s.zoom);
+
+  // Apply the resolved theme whenever it changes.
   useEffect(() => {
+    applyTheme(resolvedTheme);
     markStartupPhase("interactive");
+  }, [resolvedTheme]);
 
-    // Verify the IPC bridge is alive by asking the Rust core for the app version.
-    // Guarded so `pnpm dev` in a plain browser (no Tauri runtime) still renders.
-    let cancelled = false;
-    void (async () => {
-      try {
-        const { invoke } = await import("@tauri-apps/api/core");
-        const v = await invoke<string>("app_version");
-        if (!cancelled) setVersion(v);
-      } catch {
-        if (!cancelled) setVersion("browser (no Tauri runtime)");
-      }
-    })();
+  // Track OS scheme changes while following the system setting.
+  useEffect(() => {
+    if (themeSetting !== "system") return;
+    const mq = matchMedia("(prefers-color-scheme: light)");
+    const onChange = (): void => useUiStore.getState().setTheme("system");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [themeSetting]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Whole-app zoom. `zoom` is a Chromium (WebView2) property — our Windows target.
+  useEffect(() => {
+    (document.body.style as CSSStyleDeclaration & { zoom?: string }).zoom = String(1 + zoom * 0.1);
+  }, [zoom]);
 
   return (
-    <main className="app-shell">
-      <h1>Notepad Super Plus</h1>
-      <p className="tagline">Lightweight Markdown editor — Windows-first.</p>
-      <p className="meta">
-        Stage 1 · build system online · core reports version <code>{version}</code>
-      </p>
-    </main>
+    <>
+      <AppShell />
+      <CommandPalette />
+    </>
   );
 }
