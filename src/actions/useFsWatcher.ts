@@ -1,0 +1,45 @@
+import { useEffect } from "react";
+import { listen } from "@tauri-apps/api/event";
+import { useDocumentsStore } from "../state/documents.ts";
+import { unwatch } from "../ipc/fs.ts";
+import { reloadPath } from "./fileActions.ts";
+
+interface ChangePayload {
+  path: string;
+  kind: string;
+}
+
+/**
+ * Listens for `fs:changed` (docs/06 §5). If the file changed on disk and the
+ * buffer is clean, it reloads seamlessly; if the buffer has unsaved edits, it
+ * flags a conflict for the UI to resolve. Events for files no longer open are
+ * self-cleaned by unwatching.
+ */
+export function useFsWatcher(): void {
+  useEffect(() => {
+    let unlisten: (() => void) | undefined;
+    void (async () => {
+      try {
+        unlisten = await listen<ChangePayload>("fs:changed", (event) => {
+          const { path, kind } = event.payload;
+          const store = useDocumentsStore.getState();
+          const docId = store.findByPath(path);
+          if (!docId) {
+            void unwatch(path);
+            return;
+          }
+          const doc = store.docs[docId];
+          if (!doc) return;
+          if (kind === "remove" || doc.dirty) {
+            store.setConflict(docId, true);
+          } else {
+            void reloadPath(docId, path);
+          }
+        });
+      } catch {
+        /* browser dev — no Tauri event bus */
+      }
+    })();
+    return () => unlisten?.();
+  }, []);
+}

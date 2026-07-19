@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { AppShell } from "./shell/AppShell.tsx";
 import { CommandPalette } from "./palette/CommandPalette.tsx";
 import { useKeyboard } from "./keyboard/useKeyboard.ts";
+import { useFsWatcher } from "./actions/useFsWatcher.ts";
 import { useUiStore } from "./state/ui.ts";
 import { applyTheme } from "./theme/applyTheme.ts";
 import { applyEditorSyntaxVars } from "./editor/theme.ts";
@@ -10,6 +11,7 @@ import { markStartupPhase } from "./perf.ts";
 /** Stage 2 shell: chrome, theming, command palette, and keyboard — no Markdown yet. */
 export default function App() {
   useKeyboard();
+  useFsWatcher();
 
   const resolvedTheme = useUiStore((s) => s.resolvedTheme);
   const themeSetting = useUiStore((s) => s.themeSetting);

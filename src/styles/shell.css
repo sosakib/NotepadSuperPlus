@@ -299,6 +299,71 @@
 .empty-state__action {
   margin-top: var(--space-4);
 }
+.empty-state__buttons {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+/* ---- Conflict banner ---- */
+.conflict-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: color-mix(in srgb, var(--warning) 18%, var(--bg-surface));
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--fg-primary);
+  font-size: 12px;
+}
+.conflict-banner__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+.conflict-banner .btn {
+  padding: 3px 10px;
+  font-size: 12px;
+}
+
+/* ---- Recent files (Explorer) ---- */
+.recent__header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+  padding: 0 var(--space-2) var(--space-2);
+}
+.recent__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.recent__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--fg-secondary);
+  font-size: 12px;
+  padding: 5px var(--space-2);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+.recent__item:hover {
+  background: var(--bg-hover);
+  color: var(--fg-primary);
+}
+.recent__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ---- Status bar ---- */
 .statusbar {

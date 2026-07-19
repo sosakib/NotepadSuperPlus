@@ -12,6 +12,20 @@ import { useDocumentsStore } from "../state/documents.ts";
 export const savedStates = new Map<string, EditorState>();
 /** Documents whose async (code/data) language has already been loaded. */
 export const asyncLangLoaded = new Set<string>();
+/** Initial text for documents that were opened from disk, consumed on first mount. */
+export const pendingContent = new Map<string, string>();
+
+/** Replaces a document's editor state with fresh content (e.g. reload from disk). */
+export function replaceDocText(docId: string, text: string): void {
+  if (activeView && useDocumentsStore.getState().activeId === docId) {
+    activeView.dispatch({
+      changes: { from: 0, to: activeView.state.doc.length, insert: text },
+    });
+  } else {
+    pendingContent.set(docId, text);
+    savedStates.delete(docId);
+  }
+}
 
 let activeView: EditorView | null = null;
 
