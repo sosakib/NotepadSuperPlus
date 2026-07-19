@@ -1,4 +1,5 @@
 import { useUiStore } from "../state/ui.ts";
+import { useDocumentsStore } from "../state/documents.ts";
 import type { Command } from "./types.ts";
 
 /**
@@ -8,8 +9,34 @@ import type { Command } from "./types.ts";
  */
 export function defaultCommands(): Command[] {
   const ui = () => useUiStore.getState();
+  const docs = () => useDocumentsStore.getState();
 
   return [
+    {
+      id: "file.new",
+      title: "New File",
+      category: "File",
+      defaultKeys: ["ctrl+n"],
+      icon: "FilePlus",
+      run: () => docs().newDocument(),
+    },
+    {
+      id: "file.close",
+      title: "Close File",
+      category: "File",
+      defaultKeys: ["ctrl+w"],
+      run: () => {
+        const { activeId, closeDocument } = docs();
+        if (activeId) closeDocument(activeId);
+      },
+    },
+    {
+      id: "editor.toggleWordWrap",
+      title: "Toggle Word Wrap",
+      category: "Editor",
+      defaultKeys: ["alt+z"],
+      run: () => ui().toggleWordWrap(),
+    },
     {
       id: "palette.toggle",
       title: "Command Palette",

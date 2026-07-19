@@ -4,6 +4,7 @@ import { CommandPalette } from "./palette/CommandPalette.tsx";
 import { useKeyboard } from "./keyboard/useKeyboard.ts";
 import { useUiStore } from "./state/ui.ts";
 import { applyTheme } from "./theme/applyTheme.ts";
+import { applyEditorSyntaxVars } from "./editor/theme.ts";
 import { markStartupPhase } from "./perf.ts";
 
 /** Stage 2 shell: chrome, theming, command palette, and keyboard — no Markdown yet. */
@@ -17,6 +18,7 @@ export default function App() {
   // Apply the resolved theme whenever it changes.
   useEffect(() => {
     applyTheme(resolvedTheme);
+    applyEditorSyntaxVars(resolvedTheme);
     markStartupPhase("interactive");
   }, [resolvedTheme]);
 

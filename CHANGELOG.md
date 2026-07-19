@@ -10,6 +10,16 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Stage 3 — Markdown Editor Engine.** Real editing via CodeMirror 6: undo/redo,
+  multiple cursors, column/rectangular selection, bracket matching, line numbers, code
+  folding, and word wrap (toggle). Rich **Markdown syntax highlighting** with a palette
+  bridged to the theme tokens as live `--cm-*` variables (instant light/dark/high-contrast
+  switching, no editor rebuild). A **documents + tabs** model (in-memory; filesystem-backed
+  documents arrive in Stage 5) with a real tab strip, dirty indicators, per-tab state
+  preservation, and new/close commands. A **language resolver** (extension → grammar) that
+  loads Markdown synchronously and lazily code-splits the adjacent code/data grammars
+  (JSON/YAML/JS/Python/CSS/HTML/…, FR-1.2/1.3). Live cursor line/column and language in the
+  status bar. 10 new tests (resolver, documents store, large-file plan).
 - **Stage 2 — Core Application Shell.** The application chrome, with no Markdown yet:
   a design-token **theme engine** (dark / light / high-contrast, follow-OS); a layout of
   title bar, activity rail, resizable/collapsible sidebar (Explorer/Outline/Search
