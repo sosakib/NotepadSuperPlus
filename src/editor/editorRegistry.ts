@@ -14,6 +14,8 @@ export const savedStates = new Map<string, EditorState>();
 export const asyncLangLoaded = new Set<string>();
 /** Initial text for documents that were opened from disk, consumed on first mount. */
 export const pendingContent = new Map<string, string>();
+/** Line to reveal once a document's editor state is active (e.g. from a search hit). */
+export const pendingReveal = new Map<string, number>();
 
 /** Replaces a document's editor state with fresh content (e.g. reload from disk). */
 export function replaceDocText(docId: string, text: string): void {

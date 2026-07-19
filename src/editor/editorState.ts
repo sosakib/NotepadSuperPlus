@@ -12,7 +12,7 @@ import {
 } from "@codemirror/view";
 import { history, defaultKeymap, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { bracketMatching, indentOnInput, foldGutter, foldKeymap } from "@codemirror/language";
-import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
+import { search, searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { editorTheme } from "./theme.ts";
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
@@ -75,6 +75,8 @@ export function createEditorState(
     crosshairCursor(),
     indentOnInput(),
     bracketMatching(),
+    // In-file find/replace with case, whole-word, and regex toggles (FR-7.1-7.3).
+    search({ top: true }),
     keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap, ...foldKeymap, indentWithTab]),
     editorTheme(),
     languageConf.of(language ?? []),

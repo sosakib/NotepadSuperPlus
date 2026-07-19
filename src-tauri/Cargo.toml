@@ -31,6 +31,8 @@ notify-debouncer-mini = "0.4"
 dirs = "5"
 dunce = "1"
 trash = "5"
+ignore = "0.4"
+regex = "1"
 
 [features]
 # Enables the WebView devtools in release builds when set (off by default).

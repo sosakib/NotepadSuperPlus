@@ -128,8 +128,10 @@ export function defaultCommands(): Command[] {
     },
     {
       id: "panel.search",
-      title: "Show Search",
+      title: "Search in Workspace",
       category: "Go",
+      defaultKeys: ["ctrl+shift+f"],
+      icon: "Search",
       run: () => ui().showPanel("search"),
     },
     {
