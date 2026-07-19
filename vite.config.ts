@@ -1,5 +1,8 @@
+import { createRequire } from "node:module";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+
+const require = createRequire(import.meta.url);
 
 // Tauri expects a fixed port and no clearing of the terminal so its own logs survive.
 const host = process.env.TAURI_DEV_HOST;
@@ -7,6 +10,14 @@ const host = process.env.TAURI_DEV_HOST;
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      // The Markdown pipeline runs in a Web Worker (no `document`). This dependency
+      // otherwise resolves to its browser `.dom.js` build, which calls
+      // `document.createElement`. Force the DOM-free entry so the worker doesn't crash.
+      "decode-named-character-reference": require.resolve("decode-named-character-reference"),
+    },
+  },
   // Prevent Vite from obscuring Rust errors.
   clearScreen: false,
   server: {

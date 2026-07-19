@@ -1,22 +1,20 @@
 import { useEffect, useRef, type MutableRefObject } from "react";
 import { EditorView } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
 import { useDocumentsStore } from "../state/documents.ts";
 import { useUiStore } from "../state/ui.ts";
 import { createEditorState, languageConf, wrapConf } from "./editorState.ts";
 import { languageForFilename, syncLanguageForFilename } from "./languages.ts";
+import { renderController } from "../markdown/renderController.ts";
+import { savedStates, asyncLangLoaded, setActiveView } from "./editorRegistry.ts";
 
 /**
  * Hosts a single CodeMirror view and swaps its state as the active tab changes.
- * Per-document states are preserved in a module map so switching tabs keeps each
+ * Per-document states live in the editor registry so switching tabs keeps each
  * document's text, history, cursor, and scroll (docs/03 §3.1 — CM owns the text).
  *
- * Markdown resolves synchronously into the initial state; code/data grammars load
- * lazily and are then reconfigured in (once per document).
+ * Markdown resolves synchronously into the initial state (survives StrictMode
+ * remounts); code/data grammars load lazily and reconfigure in once per document.
  */
-const savedStates = new Map<string, EditorState>();
-const asyncLangLoaded = new Set<string>();
-
 async function ensureAsyncLanguage(
   viewRef: MutableRefObject<EditorView | null>,
   docId: string,
@@ -51,9 +49,14 @@ export function SourcePane() {
     if (!hostRef.current) return;
     const view = new EditorView({ parent: hostRef.current });
     viewRef.current = view;
+    setActiveView(view);
     return () => {
+      // Persist the current text before tearing down (e.g. switching to preview),
+      // so the preview/outline read the latest content, not the stale saved state.
+      if (prevIdRef.current) savedStates.set(prevIdRef.current, view.state);
       view.destroy();
       viewRef.current = null;
+      setActiveView(null);
       prevIdRef.current = null;
     };
   }, []);
@@ -96,6 +99,7 @@ export function SourcePane() {
       if (!order.includes(id)) {
         savedStates.delete(id);
         asyncLangLoaded.delete(id);
+        renderController.forget(id);
       }
     }
   }, [order]);
