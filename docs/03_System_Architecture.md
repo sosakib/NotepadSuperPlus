@@ -140,7 +140,7 @@ notepad-super-plus/
 
 Rationale per folder is one line each on purpose: structure is monorepo-lite (pnpm workspaces) so `markdown-core` is testable against the GFM spec suite without booting the app.
 
-> **Execution refinement (Stage 0):** the Windows-first execution plan starts with the standard **flat Tauri layout** — `src/` (frontend) + `src-tauri/` (Rust) at the repository root — rather than the `apps/desktop` + `packages/*` monorepo shown above. The `packages/` split (extracting `markdown-core`/`themes`) is deferred until there is a second consumer to justify the overhead, and is re-evaluated at **Stage 4** ([../ROADMAP.md](../ROADMAP.md)). The module *responsibilities* in this section are unchanged — only their on-disk root moves. This keeps early setup simple without a Windows-only assumption.
+> **Execution refinement (Stage 0):** the Windows-first execution plan starts with the standard **flat Tauri layout** — `src/` (frontend) + `src-tauri/` (Rust) at the repository root — rather than the `apps/desktop` + `packages/*` monorepo shown above. The `packages/` split (extracting `markdown-core`/`themes`) is deferred until there is a second consumer to justify the overhead, and was re-evaluated at **Stage 4** — decision: **stay flat**. The rendering pipeline lives in `src/markdown/` as a pure, directly-testable module (the worker is a thin wrapper), so conformance tests run against it without a package boundary; there is still only one consumer. Revisit if a second consumer (e.g. a shared CLI or plugin SDK) appears. The module *responsibilities* in this section are unchanged — only their on-disk root moves. This keeps early setup simple without a Windows-only assumption.
 
 ## 5. Cross-cutting concerns
 
