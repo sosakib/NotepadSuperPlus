@@ -33,4 +33,22 @@ export default tseslint.config(
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
+  {
+    // Tests and test setup: allow the pragmatic patterns that are noise to forbid here.
+    files: ["**/*.test.{ts,tsx}", "src/test/**"],
+    rules: {
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-empty-function": "off",
+    },
+  },
+  {
+    // Config files are type-checked against tsconfig.node.json.
+    files: ["*.config.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: ["./tsconfig.node.json"],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
 );
