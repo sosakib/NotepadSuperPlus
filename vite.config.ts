@@ -35,7 +35,24 @@ export default defineConfig({
     outDir: "dist",
     target: "esnext",
     // Everything in dist/ is embedded into the installer; .map files would
-    // triple the frontend payload. Keep maps in dev (served on demand) only.
+    // quadruple the frontend payload. Keep maps in dev (served on demand) only.
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        // Split the two large, rarely-changing vendor graphs out of the app
+        // chunk so they parse independently and stay cacheable across builds.
+        manualChunks: {
+          react: ["react", "react-dom"],
+          codemirror: [
+            "@codemirror/state",
+            "@codemirror/view",
+            "@codemirror/commands",
+            "@codemirror/language",
+            "@codemirror/search",
+            "@codemirror/lang-markdown",
+          ],
+        },
+      },
+    },
   },
 });

@@ -52,7 +52,7 @@ export async function openPath(path: string, revealLine?: number): Promise<void>
     });
     if (!existing) {
       pendingContent.set(id, fc.content);
-      renderController.requestRender(id, fc.content);
+      renderController.requestRender(id, () => fc.content);
     }
     if (revealLine !== undefined) {
       // If the document was already the active one, its editor effect won't re-run,
@@ -136,7 +136,7 @@ export async function reloadPath(docId: string, path: string): Promise<void> {
     const fc = await fsIpc.readFile(path);
     replaceDocText(docId, fc.content);
     useDocumentsStore.getState().markSaved(docId, { path, mtimeMs: fc.mtimeMs });
-    renderController.requestRender(docId, fc.content);
+    renderController.requestRender(docId, () => fc.content);
   } catch (e) {
     reportError(e);
   }

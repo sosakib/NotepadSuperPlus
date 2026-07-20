@@ -10,6 +10,7 @@ import { SourcePane } from "../editor/SourcePane.tsx";
 import { getDocText } from "../editor/editorRegistry.ts";
 import { PreviewPane } from "../markdown/PreviewPane.tsx";
 import { renderController } from "../markdown/renderController.ts";
+import { useRenderStore } from "../state/render.ts";
 import { reloadPath } from "../actions/fileActions.ts";
 
 function ConflictBanner({ docId }: { docId: string }) {
@@ -44,10 +45,13 @@ export function EditorArea() {
   const viewMode = useUiStore((s) => s.viewMode);
   const activeId = useDocumentsStore((s) => s.activeId);
 
-  // Ensure the active document has a fresh render so preview and outline populate,
-  // even without an edit (e.g. after switching tabs or into preview/split).
+  // Ensure the active document has a render so preview and outline populate even
+  // without an edit (e.g. after switching tabs or into preview/split). A document
+  // that already has output is left alone — re-parsing it would be pure waste.
   useEffect(() => {
-    if (activeId) renderController.requestRender(activeId, getDocText(activeId));
+    if (!activeId) return;
+    if (useRenderStore.getState().results[activeId]) return;
+    renderController.requestRender(activeId, () => getDocText(activeId));
   }, [activeId, viewMode]);
 
   return (

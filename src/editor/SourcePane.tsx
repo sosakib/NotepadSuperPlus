@@ -11,6 +11,8 @@ import {
   setActiveView,
   pendingContent,
   pendingReveal,
+  cachedDocumentIds,
+  forgetDocument,
 } from "./editorRegistry.ts";
 
 /**
@@ -112,10 +114,10 @@ export function SourcePane() {
 
   // Prune caches for closed documents.
   useEffect(() => {
-    for (const id of savedStates.keys()) {
-      if (!order.includes(id)) {
-        savedStates.delete(id);
-        asyncLangLoaded.delete(id);
+    const open = new Set(order);
+    for (const id of cachedDocumentIds()) {
+      if (!open.has(id)) {
+        forgetDocument(id);
         renderController.forget(id);
       }
     }

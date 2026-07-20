@@ -44,13 +44,24 @@ export function planForSize(byteLength: number): LargeFilePlan {
 function cursorExtension(docId: string): Extension {
   return EditorView.updateListener.of((update) => {
     if (update.docChanged) {
-      useDocumentsStore.getState().markDirty(docId, true);
-      renderController.requestRender(docId, update.state.doc.toString());
+      // Only touch the store on the clean -> dirty transition. Setting it on
+      // every keystroke would publish a new `docs` object each time, re-rendering
+      // every tab-strip and status-bar subscriber on the typing path.
+      const docs = useDocumentsStore.getState();
+      if (!docs.docs[docId]?.dirty) docs.markDirty(docId, true);
+      // Pass a thunk: serializing the document is O(document), and all but the
+      // last request inside the debounce window are discarded (docs/09 §8).
+      renderController.requestRender(docId, () => update.state.doc.toString());
     }
     if (update.docChanged || update.selectionSet) {
       const head = update.state.selection.main.head;
       const line = update.state.doc.lineAt(head);
-      useUiStore.getState().setCursor(line.number, head - line.from + 1);
+      const ui = useUiStore.getState();
+      // Same reasoning: skip the publish when the position is unchanged.
+      const col = head - line.from + 1;
+      if (ui.cursorLine !== line.number || ui.cursorCol !== col) {
+        ui.setCursor(line.number, col);
+      }
     }
   });
 }

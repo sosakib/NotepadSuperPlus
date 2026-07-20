@@ -17,6 +17,30 @@ export const pendingContent = new Map<string, string>();
 /** Line to reveal once a document's editor state is active (e.g. from a search hit). */
 export const pendingReveal = new Map<string, number>();
 
+/** Every document id holding cached state, across all registry maps. */
+export function cachedDocumentIds(): string[] {
+  return [
+    ...new Set([
+      ...savedStates.keys(),
+      ...asyncLangLoaded,
+      ...pendingContent.keys(),
+      ...pendingReveal.keys(),
+    ]),
+  ];
+}
+
+/**
+ * Drops every cached artifact for a document. Called when its tab closes —
+ * `pendingContent` in particular can hold a whole file's text, so leaving these
+ * behind leaks the document for the lifetime of the session.
+ */
+export function forgetDocument(docId: string): void {
+  savedStates.delete(docId);
+  asyncLangLoaded.delete(docId);
+  pendingContent.delete(docId);
+  pendingReveal.delete(docId);
+}
+
 /** Replaces a document's editor state with fresh content (e.g. reload from disk). */
 export function replaceDocText(docId: string, text: string): void {
   if (activeView && useDocumentsStore.getState().activeId === docId) {
