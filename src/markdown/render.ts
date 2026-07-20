@@ -3,7 +3,7 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeRaw from "rehype-raw";
-import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import rehypeSanitize, { defaultSchema, type Options as SanitizeSchema } from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import { toString } from "mdast-util-to-string";
@@ -88,19 +88,44 @@ function rehypeSourceLines() {
   };
 }
 
+/**
+ * All rendered ids are prefixed (DOM-clobbering defense — a document must not be
+ * able to shadow `document.getElementById` lookups the app relies on). Internal
+ * `#anchor` links are rewritten to the prefixed form so they keep working.
+ */
+const CLOBBER_PREFIX = "user-content-";
+
+/** rehype plugin: point in-document anchor links at the prefixed heading ids. */
+function rehypeInternalAnchors() {
+  return (tree: HastRoot): void => {
+    visit(tree, "element", (node) => {
+      if (node.tagName !== "a") return;
+      const href = node.properties?.href;
+      if (typeof href === "string" && href.startsWith("#") && href.length > 1) {
+        node.properties.href = `#${CLOBBER_PREFIX}${href.slice(1)}`;
+      }
+    });
+  };
+}
+
 // GitHub-flavored sanitize schema: the default plus task-list checkboxes, code
-// language classes, heading ids, and our source-line data attribute.
-const schema = {
+// language classes, heading ids, and our source-line data attribute. Inputs are
+// restricted to disabled checkboxes; class names are allowed only where the
+// renderer emits them (code fences, task lists), never on arbitrary elements.
+const schema: SanitizeSchema = {
   ...defaultSchema,
-  // Keep heading ids clean so in-document anchor links and the outline agree.
-  clobberPrefix: "",
+  clobberPrefix: CLOBBER_PREFIX,
   tagNames: [...(defaultSchema.tagNames ?? []), "input"],
   attributes: {
     ...defaultSchema.attributes,
-    "*": [...(defaultSchema.attributes?.["*"] ?? []), "className", "id", "dataSourceLine"],
-    input: ["type", "checked", "disabled"],
+    "*": [...(defaultSchema.attributes?.["*"] ?? []), "id", "dataSourceLine"],
+    input: [["type", "checkbox"], "checked", ["disabled", true]],
     code: [...(defaultSchema.attributes?.code ?? []), "className"],
     span: [...(defaultSchema.attributes?.span ?? []), "className"],
+    ul: [...(defaultSchema.attributes?.ul ?? []), "className"],
+    ol: [...(defaultSchema.attributes?.ol ?? []), "className"],
+    li: [...(defaultSchema.attributes?.li ?? []), "className"],
+    pre: [...(defaultSchema.attributes?.pre ?? []), "className"],
   },
 };
 
@@ -111,6 +136,7 @@ const processor = unified()
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)
   .use(rehypeSourceLines)
+  .use(rehypeInternalAnchors)
   .use(rehypeSanitize, schema)
   .use(rehypeStringify);
 

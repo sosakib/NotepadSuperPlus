@@ -5,7 +5,7 @@ describe("renderMarkdown — GFM", () => {
   it("renders headings with ids and source-line attributes", async () => {
     const { html } = await renderMarkdown("# Hello World");
     expect(html).toContain("<h1");
-    expect(html).toContain('id="hello-world"');
+    expect(html).toContain('id="user-content-hello-world"');
     expect(html).toContain('data-source-line="1"');
     expect(html).toContain("Hello World");
   });
@@ -50,6 +50,27 @@ describe("renderMarkdown — sanitization (docs/08 §4)", () => {
   it("strips event-handler attributes on raw HTML", async () => {
     const { html } = await renderMarkdown('<img src="x" onerror="alert(1)">');
     expect(html).not.toContain("onerror");
+  });
+
+  it("rejects non-checkbox raw inputs (no live form fields in the preview)", async () => {
+    const { html } = await renderMarkdown('<input type="text" value="x">');
+    expect(html).not.toContain('type="text"');
+  });
+
+  it("prefixes raw-HTML ids so documents cannot clobber DOM lookups", async () => {
+    const { html } = await renderMarkdown('<a id="location">x</a>');
+    expect(html).not.toContain('id="location"');
+  });
+
+  it("rewrites internal anchor links to the prefixed heading ids", async () => {
+    const { html } = await renderMarkdown("# Intro\n\n[go](#intro)");
+    expect(html).toContain('id="user-content-intro"');
+    expect(html).toContain('href="#user-content-intro"');
+  });
+
+  it("drops arbitrary class names from raw HTML", async () => {
+    const { html } = await renderMarkdown('<div class="titlebar">x</div>');
+    expect(html).not.toContain('class="titlebar"');
   });
 });
 
