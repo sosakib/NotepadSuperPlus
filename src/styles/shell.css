@@ -33,10 +33,11 @@
   width: 22px;
   height: 22px;
   border-radius: var(--radius-control);
-  background: var(--accent);
+  background: var(--accent-gradient);
   color: var(--accent-fg);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 10px;
+  letter-spacing: -0.04em;
 }
 .titlebar__name {
   font-weight: 600;
@@ -677,6 +678,12 @@
 .btn--default {
   background: var(--accent);
   color: var(--accent-fg);
+}
+.btn--default:hover {
+  filter: brightness(1.08);
+}
+.btn--default:active {
+  filter: brightness(0.94);
 }
 .btn--ghost {
   background: transparent;
@@ -1330,4 +1337,74 @@
 .about-modal__footer-text {
   font-size: 12px;
   color: var(--fg-muted);
+}
+
+/* ---- Settings: shortcut list ---- */
+.shortcut-list {
+  display: flex;
+  flex-direction: column;
+}
+.shortcut-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 2px;
+  font-size: 13px;
+  color: var(--fg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.shortcut-item:last-child {
+  border-bottom: 0;
+}
+.shortcut-item .kbd-group {
+  margin-left: 0;
+}
+
+/* ---- Settings: toggle switch ---- */
+.toggle-switch {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+  border-radius: var(--radius-full);
+  background: var(--bg-active);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  transition: background 150ms ease;
+  flex: 0 0 auto;
+}
+.toggle-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--fg-primary);
+  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+.toggle-switch:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.toggle-switch:checked::after {
+  background: var(--accent-fg);
+  transform: translateX(16px);
+}
+
+/* ---- Welcome card details ---- */
+.welcome-card__empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.6;
+}
+.welcome-card__item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

@@ -16,8 +16,8 @@ export function Sidebar() {
   const width = useUiStore((s) => s.sidebarWidth);
   const setSidebarWidth = useUiStore((s) => s.setSidebarWidth);
 
-  // The rail is 44px wide; panel width is clientX minus the rail.
-  const handleResize = (clientX: number): void => setSidebarWidth(clientX - 44);
+  // Panel width is the pointer position minus the activity rail (--rail-width: 48px).
+  const handleResize = (clientX: number): void => setSidebarWidth(clientX - 48);
 
   return (
     <aside className="sidebar" style={{ width }} aria-label={PANEL_TITLES[activePanel]}>

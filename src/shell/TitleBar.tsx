@@ -24,7 +24,7 @@ export function TitleBar() {
         title="About Notepad Super Plus"
       >
         <span className="titlebar__logo" aria-hidden>
-          M
+          N+
         </span>
         <span className="titlebar__name">Notepad Super Plus</span>
       </div>

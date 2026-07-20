@@ -1,5 +1,6 @@
 import { X, Plus } from "lucide-react";
 import { useDocumentsStore } from "../state/documents.ts";
+import { closeFile } from "../actions/fileActions.ts";
 
 /** Editor tab strip: one tab per open document, plus a new-document button. */
 export function TabBar() {
@@ -7,7 +8,6 @@ export function TabBar() {
   const docs = useDocumentsStore((s) => s.docs);
   const activeId = useDocumentsStore((s) => s.activeId);
   const setActive = useDocumentsStore((s) => s.setActive);
-  const closeDocument = useDocumentsStore((s) => s.closeDocument);
   const newDocument = useDocumentsStore((s) => s.newDocument);
 
   return (
@@ -27,6 +27,9 @@ export function TabBar() {
               tabIndex={0}
               className={`tab${active ? " tab--active" : ""}`}
               onClick={() => setActive(id)}
+              onAuxClick={(e) => {
+                if (e.button === 1) void closeFile(id);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") setActive(id);
               }}
@@ -39,7 +42,7 @@ export function TabBar() {
                 aria-label={`Close ${doc.title}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  closeDocument(id);
+                  void closeFile(id);
                 }}
               >
                 <X size={13} />

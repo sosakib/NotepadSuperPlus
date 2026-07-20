@@ -1,6 +1,6 @@
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
-import { openFile, saveFile, saveFileAs } from "../actions/fileActions.ts";
+import { closeFile, openFile, saveFile, saveFileAs } from "../actions/fileActions.ts";
 import { openFolder } from "../actions/workspaceActions.ts";
 import type { Command } from "./types.ts";
 
@@ -58,10 +58,7 @@ export function defaultCommands(): Command[] {
       title: "Close File",
       category: "File",
       defaultKeys: ["ctrl+w"],
-      run: () => {
-        const { activeId, closeDocument } = docs();
-        if (activeId) closeDocument(activeId);
-      },
+      run: () => void closeFile(),
     },
     {
       id: "editor.toggleWordWrap",

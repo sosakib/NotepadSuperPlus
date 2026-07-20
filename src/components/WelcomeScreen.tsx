@@ -1,26 +1,34 @@
-import { FileText, Plus, FolderOpen, Command, Sparkles, BookOpen, Clock } from "lucide-react";
+import { FileText, Plus, FolderOpen, Command, Sparkles, Clock, Keyboard } from "lucide-react";
 import { useDocumentsStore } from "../state/documents.ts";
 import { useUiStore } from "../state/ui.ts";
-import { openFile } from "../actions/fileActions.ts";
+import { openFile, openPath } from "../actions/fileActions.ts";
+import { useRecentFiles } from "../actions/useRecentFiles.ts";
+import { registry } from "../commands/index.ts";
+import { Kbd } from "./Kbd.tsx";
+
+const basename = (p: string): string => p.split(/[\\/]/).pop() ?? p;
+
+/** Shortcuts surfaced on the welcome screen, resolved from the command registry
+ * so the labels can never drift from the real keymap. */
+const FEATURED_COMMANDS = ["palette.toggle", "view.toggleSidebar", "view.split", "file.open"];
 
 export function WelcomeScreen() {
   const newDocument = useDocumentsStore((s) => s.newDocument);
   const togglePalette = useUiStore((s) => s.togglePalette);
-  const openDocument = useDocumentsStore((s) => s.openDocument);
+  const recent = useRecentFiles(5);
 
-  // Get sample recent file suggestions or past files if available
-  const sampleQuickDocs = [
-    { title: "Project Vision & Roadmap", path: "docs/00_Project_Vision.md" },
-    { title: "UI/UX Guidelines", path: "docs/04_UI_UX_Guidelines.md" },
-    { title: "System Architecture", path: "docs/03_System_Architecture.md" },
-  ];
+  const shortcuts = FEATURED_COMMANDS.flatMap((id) => {
+    const cmd = registry.get(id);
+    const chord = cmd?.defaultKeys?.[0];
+    return cmd && chord ? [{ id, title: cmd.title, chord }] : [];
+  });
 
   return (
     <div className="welcome-screen">
       <div className="welcome-hero">
         <div className="welcome-hero__badge">
           <Sparkles size={14} />
-          <span>Notepad Super Plus Desktop</span>
+          <span>Notepad Super Plus</span>
         </div>
         <h1 className="welcome-hero__title">Focus. Read. Write. Organize.</h1>
         <p className="welcome-hero__subtitle">
@@ -47,55 +55,43 @@ export function WelcomeScreen() {
       <div className="welcome-grid">
         <div className="welcome-card">
           <div className="welcome-card__header">
-            <BookOpen size={18} className="welcome-card__icon" />
-            <h3 className="welcome-card__title">Quick Documentation</h3>
+            <Clock size={18} className="welcome-card__icon" />
+            <h3 className="welcome-card__title">Recent Files</h3>
           </div>
-          <ul className="welcome-card__list">
-            {sampleQuickDocs.map((item) => (
-              <li key={item.path}>
-                <button
-                  className="welcome-card__item"
-                  onClick={() => {
-                    openDocument({
-                      path: item.path,
-                      title: item.title,
-                      encoding: "utf-8",
-                      eol: "lf",
-                      mtimeMs: Date.now(),
-                      readonly: false,
-                    });
-                  }}
-                >
-                  <FileText size={14} />
-                  <span>{item.title}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {recent.length === 0 ? (
+            <p className="welcome-card__empty">
+              Files you open or save will show up here for quick access.
+            </p>
+          ) : (
+            <ul className="welcome-card__list">
+              {recent.map((path) => (
+                <li key={path}>
+                  <button
+                    className="welcome-card__item"
+                    title={path}
+                    onClick={() => void openPath(path)}
+                  >
+                    <FileText size={14} />
+                    <span className="welcome-card__item-name">{basename(path)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="welcome-card">
           <div className="welcome-card__header">
-            <Clock size={18} className="welcome-card__icon" />
+            <Keyboard size={18} className="welcome-card__icon" />
             <h3 className="welcome-card__title">Keyboard Shortcuts</h3>
           </div>
           <div className="welcome-shortcuts">
-            <div className="welcome-shortcut">
-              <span>Command Palette</span>
-              <kbd className="kbd">Ctrl+Shift+P</kbd>
-            </div>
-            <div className="welcome-shortcut">
-              <span>Toggle Sidebar</span>
-              <kbd className="kbd">Ctrl+B</kbd>
-            </div>
-            <div className="welcome-shortcut">
-              <span>Split Mode</span>
-              <kbd className="kbd">Ctrl+3</kbd>
-            </div>
-            <div className="welcome-shortcut">
-              <span>Quick Settings</span>
-              <kbd className="kbd">Ctrl+,</kbd>
-            </div>
+            {shortcuts.map((s) => (
+              <div key={s.id} className="welcome-shortcut">
+                <span>{s.title}</span>
+                <Kbd chord={s.chord} />
+              </div>
+            ))}
           </div>
         </div>
       </div>

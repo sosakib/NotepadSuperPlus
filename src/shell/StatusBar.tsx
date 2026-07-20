@@ -1,8 +1,19 @@
-import { useEffect, useState } from "react";
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
 import { THEMES } from "../theme/themes.ts";
 import { useRenderStore } from "../state/render.ts";
+import { useAppVersion } from "../actions/useAppVersion.ts";
+
+/** Human-readable label for a detected encoding id (e.g. "utf-8-bom" → "UTF-8 BOM"). */
+function formatEncoding(id: string): string {
+  const KNOWN: Record<string, string> = {
+    "utf-8": "UTF-8",
+    "utf-8-bom": "UTF-8 BOM",
+    "utf-16le": "UTF-16 LE",
+    "utf-16be": "UTF-16 BE",
+  };
+  return KNOWN[id] ?? id.toUpperCase();
+}
 
 /** Bottom status bar: document stats on the left; view mode, zoom, theme, version on the right. */
 export function StatusBar() {
@@ -14,23 +25,9 @@ export function StatusBar() {
   const cursorCol = useUiStore((s) => s.cursorCol);
   const activeId = useDocumentsStore((s) => s.activeId);
   const language = useDocumentsStore((s) => (activeId ? s.docs[activeId]?.languageId : null));
-  const [version, setVersion] = useState("v0.1.0");
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const { invoke } = await import("@tauri-apps/api/core");
-        const v = await invoke<string>("app_version");
-        if (!cancelled) setVersion(`v${v}`);
-      } catch {
-        /* browser dev fallback */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const encoding = useDocumentsStore((s) => (activeId ? s.docs[activeId]?.encoding : null));
+  const eol = useDocumentsStore((s) => (activeId ? s.docs[activeId]?.eol : null));
+  const version = `v${useAppVersion()}`;
 
   // Stats come from the render worker, which already runs debounced and off the
   // main thread. Computing them here would re-scan the whole document on every
@@ -57,8 +54,12 @@ export function StatusBar() {
       </div>
       <div className="statusbar__right">
         {language ? <span className="statusbar__item">{language}</span> : null}
-        <span className="statusbar__item statusbar__item--muted">UTF-8</span>
-        <span className="statusbar__item statusbar__item--muted">LF</span>
+        {encoding ? (
+          <span className="statusbar__item statusbar__item--muted">{formatEncoding(encoding)}</span>
+        ) : null}
+        {eol ? (
+          <span className="statusbar__item statusbar__item--muted">{eol.toUpperCase()}</span>
+        ) : null}
         <span className="statusbar__item statusbar__num">
           Ln {cursorLine}, Col {cursorCol}
         </span>

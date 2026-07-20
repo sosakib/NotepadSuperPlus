@@ -1,34 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FolderOpen, FileText, FilePlus, FolderPlus, X } from "lucide-react";
 import { EmptyState } from "../components/EmptyState.tsx";
 import { Button } from "../components/Button.tsx";
-import { recentList } from "../ipc/fs.ts";
 import { openFile, openPath } from "../actions/fileActions.ts";
+import { useRecentFiles } from "../actions/useRecentFiles.ts";
 import { openFolder, createEntry, refreshDir } from "../actions/workspaceActions.ts";
-import { useDocumentsStore } from "../state/documents.ts";
 import { useWorkspaceStore } from "../state/workspace.ts";
 import { FileTree } from "./FileTree.tsx";
 
 const basename = (p: string): string => p.split(/[\\/]/).pop() ?? p;
 
 function RecentFiles() {
-  const order = useDocumentsStore((s) => s.order);
-  const [recent, setRecent] = useState<string[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    void recentList()
-      .then((r) => {
-        if (!cancelled) setRecent(r);
-      })
-      .catch(() => {
-        /* browser dev — no Tauri */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [order]);
-
+  const recent = useRecentFiles();
   if (recent.length === 0) return null;
   return (
     <div className="recent">

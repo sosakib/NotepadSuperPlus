@@ -6,6 +6,7 @@ import { ExportDialog } from "./components/ExportDialog.tsx";
 import { AboutDialog } from "./components/AboutDialog.tsx";
 import { useKeyboard } from "./keyboard/useKeyboard.ts";
 import { useFsWatcher } from "./actions/useFsWatcher.ts";
+import { useCliOpen } from "./actions/useCliOpen.ts";
 import { useSettingsPersistence } from "./actions/useSettingsPersistence.ts";
 import { useUiStore } from "./state/ui.ts";
 import { applyTheme } from "./theme/applyTheme.ts";
@@ -16,6 +17,7 @@ import { markStartupPhase } from "./perf.ts";
 export default function App() {
   useKeyboard();
   useFsWatcher();
+  useCliOpen();
   useSettingsPersistence();
 
   const resolvedTheme = useUiStore((s) => s.resolvedTheme);

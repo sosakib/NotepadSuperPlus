@@ -1,4 +1,4 @@
-import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
+import { ask, open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import * as fsIpc from "../ipc/fs.ts";
 import { useDocumentsStore, type DocMeta } from "../state/documents.ts";
 import { useUiStore } from "../state/ui.ts";
@@ -101,6 +101,33 @@ export async function saveFileAs(id?: string): Promise<void> {
   } catch (e) {
     reportError(e);
   }
+}
+
+/**
+ * Closes a document, asking for confirmation first when it has unsaved changes.
+ * The guard degrades to closing directly when no dialog runtime exists (browser dev).
+ */
+export async function closeFile(id?: string): Promise<void> {
+  const docId = id ?? useDocumentsStore.getState().activeId;
+  if (!docId) return;
+  const doc = useDocumentsStore.getState().docs[docId];
+  if (!doc) return;
+  if (doc.dirty) {
+    let discard = true;
+    try {
+      discard = await ask(`"${doc.title}" has unsaved changes. Close without saving?`, {
+        title: "Unsaved changes",
+        kind: "warning",
+        okLabel: "Discard changes",
+        cancelLabel: "Keep editing",
+      });
+    } catch {
+      /* no Tauri runtime — close directly */
+    }
+    if (!discard) return;
+  }
+  if (doc.path) void fsIpc.unwatch(doc.path);
+  useDocumentsStore.getState().closeDocument(docId);
 }
 
 /** Re-reads a file from disk into an open document (external-change reload). */

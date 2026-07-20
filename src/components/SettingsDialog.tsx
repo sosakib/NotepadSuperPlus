@@ -3,7 +3,10 @@ import { X, Palette, Type, Keyboard, Info, Check } from "lucide-react";
 import { useUiStore } from "../state/ui.ts";
 import type { ThemeId } from "../theme/themes.ts";
 import { IconButton } from "./IconButton.tsx";
+import { Kbd } from "./Kbd.tsx";
 import { useDialogDismiss } from "./useDialogDismiss.ts";
+import { useAppVersion } from "../actions/useAppVersion.ts";
+import { registry } from "../commands/index.ts";
 
 export function SettingsDialog() {
   const settingsOpen = useUiStore((s) => s.settingsOpen);
@@ -17,6 +20,7 @@ export function SettingsDialog() {
   const setFontFamily = useUiStore((s) => s.setFontFamily);
   const fontSize = useUiStore((s) => s.fontSize);
   const setFontSize = useUiStore((s) => s.setFontSize);
+  const version = useAppVersion();
 
   const [activeTab, setActiveTab] = useState<"appearance" | "editor" | "keyboard" | "about">(
     "appearance",
@@ -221,50 +225,35 @@ export function SettingsDialog() {
             {activeTab === "keyboard" && (
               <div className="settings-section">
                 <h3 className="settings-section__title">Keyboard Shortcuts</h3>
+                <p className="settings-section__desc">
+                  Every command is also available from the Command Palette.
+                </p>
                 <div className="shortcut-list">
-                  <div className="shortcut-item">
-                    <span>Command Palette</span>
-                    <kbd className="kbd">Ctrl+Shift+P</kbd>
-                  </div>
-                  <div className="shortcut-item">
-                    <span>Toggle Sidebar</span>
-                    <kbd className="kbd">Ctrl+B</kbd>
-                  </div>
-                  <div className="shortcut-item">
-                    <span>Source Mode</span>
-                    <kbd className="kbd">Ctrl+1</kbd>
-                  </div>
-                  <div className="shortcut-item">
-                    <span>Preview Mode</span>
-                    <kbd className="kbd">Ctrl+2</kbd>
-                  </div>
-                  <div className="shortcut-item">
-                    <span>Split View</span>
-                    <kbd className="kbd">Ctrl+3</kbd>
-                  </div>
-                  <div className="shortcut-item">
-                    <span>New File</span>
-                    <kbd className="kbd">Ctrl+N</kbd>
-                  </div>
-                  <div className="shortcut-item">
-                    <span>Save File</span>
-                    <kbd className="kbd">Ctrl+S</kbd>
-                  </div>
+                  {registry.getAll().flatMap((cmd) => {
+                    const chord = cmd.defaultKeys?.[0];
+                    if (!chord) return [];
+                    return [
+                      <div key={cmd.id} className="shortcut-item">
+                        <span>{cmd.title}</span>
+                        <Kbd chord={chord} />
+                      </div>,
+                    ];
+                  })}
                 </div>
               </div>
             )}
 
             {activeTab === "about" && (
               <div className="settings-section">
-                <div className="about-hero">
-                  <div className="about-hero__logo">M</div>
-                  <h3>Notepad Super Plus</h3>
-                  <span className="about-hero__version">v0.1.0 • Windows Desktop Edition</span>
-                  <p className="about-hero__desc">
-                    A lightweight, high-performance, open-source Markdown editor engineered for
-                    developers and writers.
-                  </p>
+                <div className="about-brand">
+                  <div className="about-brand__logo">N+</div>
+                  <h3 className="about-brand__title">Notepad Super Plus</h3>
+                  <span className="about-brand__badge">v{version} • Windows Desktop Edition</span>
                 </div>
+                <p className="about-modal__lead">
+                  A lightweight, high-performance, open-source Markdown editor engineered for
+                  developers and writers.
+                </p>
               </div>
             )}
           </div>

@@ -3,10 +3,12 @@ import { useUiStore } from "../state/ui.ts";
 import { IconButton } from "./IconButton.tsx";
 import { Button } from "./Button.tsx";
 import { useDialogDismiss } from "./useDialogDismiss.ts";
+import { useAppVersion } from "../actions/useAppVersion.ts";
 
 export function AboutDialog() {
   const aboutOpen = useUiStore((s) => s.aboutOpen);
   const setAboutOpen = useUiStore((s) => s.setAboutOpen);
+  const version = useAppVersion();
   const panelRef = useDialogDismiss(aboutOpen, () => setAboutOpen(false));
 
   if (!aboutOpen) return null;
@@ -29,9 +31,9 @@ export function AboutDialog() {
 
         <div className="about-modal__body">
           <div className="about-brand">
-            <div className="about-brand__logo">M</div>
+            <div className="about-brand__logo">N+</div>
             <h1 className="about-brand__title">Notepad Super Plus</h1>
-            <span className="about-brand__badge">v0.1.0 • Desktop Edition</span>
+            <span className="about-brand__badge">v{version} • Desktop Edition</span>
           </div>
 
           <p className="about-modal__lead">

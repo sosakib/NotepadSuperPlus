@@ -28,6 +28,7 @@ function currentConfig(): AppConfig {
 export function useSettingsPersistence(): void {
   const loadedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef("");
 
   // Load once at startup and apply.
   useEffect(() => {
@@ -53,7 +54,10 @@ export function useSettingsPersistence(): void {
       } catch {
         /* browser dev, or no Tauri runtime — defaults stand */
       } finally {
-        if (!cancelled) loadedRef.current = true;
+        if (!cancelled) {
+          lastSavedRef.current = JSON.stringify(currentConfig());
+          loadedRef.current = true;
+        }
       }
     })();
     return () => {
@@ -65,9 +69,15 @@ export function useSettingsPersistence(): void {
   useEffect(() => {
     const persist = (): void => {
       if (!loadedRef.current) return;
+      // The stores also change on every keystroke/cursor move; only persisted
+      // fields should reach disk, so bail early when they are unchanged.
+      const snapshot = JSON.stringify(currentConfig());
+      if (snapshot === lastSavedRef.current) return;
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
-        void saveConfig(currentConfig()).catch(() => {
+        const config = currentConfig();
+        lastSavedRef.current = JSON.stringify(config);
+        void saveConfig(config).catch(() => {
           /* not running under Tauri */
         });
       }, SAVE_DEBOUNCE_MS);
