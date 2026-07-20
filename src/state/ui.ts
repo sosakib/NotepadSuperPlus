@@ -19,6 +19,9 @@ export interface UiState {
   /** Zoom step; each step is ~10%. Applied to the root font size by the shell. */
   zoom: number;
   paletteOpen: boolean;
+  settingsOpen: boolean;
+  exportOpen: boolean;
+  aboutOpen: boolean;
   statusMessage: string;
   wordWrap: boolean;
   cursorLine: number;
@@ -37,6 +40,12 @@ export interface UiState {
   zoomReset: () => void;
   setPaletteOpen: (open: boolean) => void;
   togglePalette: () => void;
+  setSettingsOpen: (open: boolean) => void;
+  toggleSettings: () => void;
+  setExportOpen: (open: boolean) => void;
+  toggleExport: () => void;
+  setAboutOpen: (open: boolean) => void;
+  toggleAbout: () => void;
   setStatus: (message: string) => void;
   toggleWordWrap: () => void;
   setCursor: (line: number, col: number) => void;
@@ -47,6 +56,7 @@ const clamp = (n: number, min: number, max: number): number => Math.min(max, Mat
 
 const THEME_CYCLE: ThemeSetting[] = ["system", "dark", "light", "high-contrast"];
 
+
 export const useUiStore = create<UiState>((set, get) => ({
   themeSetting: "system",
   resolvedTheme: resolveTheme("system"),
@@ -56,6 +66,9 @@ export const useUiStore = create<UiState>((set, get) => ({
   viewMode: "source",
   zoom: 0,
   paletteOpen: false,
+  settingsOpen: false,
+  exportOpen: false,
+  aboutOpen: false,
   statusMessage: "Ready",
   wordWrap: true,
   cursorLine: 1,
@@ -80,6 +93,12 @@ export const useUiStore = create<UiState>((set, get) => ({
   zoomReset: () => set({ zoom: 0 }),
   setPaletteOpen: (open) => set({ paletteOpen: open }),
   togglePalette: () => set((s) => ({ paletteOpen: !s.paletteOpen })),
+  setSettingsOpen: (open) => set({ settingsOpen: open }),
+  toggleSettings: () => set((s) => ({ settingsOpen: !s.settingsOpen })),
+  setExportOpen: (open) => set({ exportOpen: open }),
+  toggleExport: () => set((s) => ({ exportOpen: !s.exportOpen })),
+  setAboutOpen: (open) => set({ aboutOpen: open }),
+  toggleAbout: () => set((s) => ({ aboutOpen: !s.aboutOpen })),
   setStatus: (message) => set({ statusMessage: message }),
   toggleWordWrap: () => set((s) => ({ wordWrap: !s.wordWrap })),
   setCursor: (line, col) => set({ cursorLine: line, cursorCol: col }),
@@ -87,3 +106,4 @@ export const useUiStore = create<UiState>((set, get) => ({
 }));
 
 export const SIDEBAR_BOUNDS = { min: SIDEBAR_MIN, max: SIDEBAR_MAX };
+

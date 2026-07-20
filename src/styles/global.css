@@ -5,12 +5,15 @@
  */
 
 :root {
-  --font-ui: -apple-system, "Segoe UI", system-ui, sans-serif;
-  --font-mono: "Cascadia Code", "Consolas", ui-monospace, monospace;
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-display: "Geist", "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", "Geist Mono", "Consolas", ui-monospace, monospace;
 
-  --radius-control: 4px;
-  --radius-panel: 6px;
-  --radius-overlay: 8px;
+  --radius-sm: 4px;
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-overlay: 14px;
+  --radius-full: 9999px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -18,28 +21,35 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
 
-  --rail-width: 44px;
-  --titlebar-height: 40px;
-  --statusbar-height: 24px;
+  --rail-width: 48px;
+  --titlebar-height: 42px;
+  --statusbar-height: 26px;
+
+  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+  --shadow-overlay: 0 20px 35px -10px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--border-subtle);
+  --shadow-dropdown: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border-subtle);
 
   /* Fallback token values in case the theme engine has not run yet (SSR/tests). */
-  --bg-app: #1e1e22;
-  --bg-surface: #25252b;
-  --bg-raised: #2d2d34;
-  --bg-hover: #33333b;
-  --bg-active: #3c3c46;
-  --fg-primary: #e6e6ea;
-  --fg-secondary: #a0a0ab;
-  --fg-muted: #6d6d78;
-  --border-subtle: #33333b;
-  --border-strong: #45454f;
-  --accent: #5b8cff;
+  --bg-app: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-raised: #334155;
+  --bg-hover: #3b4f6b;
+  --bg-active: #475569;
+  --fg-primary: #f8fafc;
+  --fg-secondary: #cbd5e1;
+  --fg-muted: #64748b;
+  --border-subtle: #1e293b;
+  --border-strong: #334155;
+  --accent: #3b82f6;
   --accent-fg: #ffffff;
-  --danger: #f6685e;
-  --warning: #e2b340;
-  --success: #4fb477;
-  --selection: #2f4a86;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+  --selection: #1d4ed8;
 }
 
 * {

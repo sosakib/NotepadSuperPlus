@@ -155,5 +155,28 @@ export function defaultCommands(): Command[] {
       defaultKeys: ["ctrl+0"],
       run: () => ui().zoomReset(),
     },
+    {
+      id: "preferences.open",
+      title: "Preferences: Open Settings",
+      category: "Preferences",
+      defaultKeys: ["ctrl+,"],
+      icon: "Settings",
+      run: () => ui().toggleSettings(),
+    },
+    {
+      id: "file.export",
+      title: "Export Document…",
+      category: "File",
+      icon: "Download",
+      run: () => ui().toggleExport(),
+    },
+    {
+      id: "help.about",
+      title: "About Notepad Super Plus",
+      category: "Help",
+      icon: "Info",
+      run: () => ui().toggleAbout(),
+    },
   ];
 }
+
