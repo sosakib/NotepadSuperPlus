@@ -11,6 +11,7 @@ mod error;
 mod fs;
 mod fsops;
 mod recent;
+mod search;
 mod watcher;
 
 use error::NspResult;
@@ -126,6 +127,15 @@ fn fs_duplicate(path: String) -> NspResult<Entry> {
     fsops::duplicate(Path::new(&path))
 }
 
+/// Searches the workspace for text, respecting .gitignore by default.
+#[tauri::command]
+async fn search_workspace(query: search::SearchQuery) -> NspResult<search::SearchResults> {
+    // Walking the tree is blocking work; keep it off the IPC thread (docs/13 §2).
+    tauri::async_runtime::spawn_blocking(move || search::search_workspace(&query))
+        .await
+        .map_err(|e| error::NspError::new("E_IO", e.to_string()))?
+}
+
 /// Builds and runs the Tauri application.
 pub fn run() {
     init_tracing();
@@ -158,7 +168,8 @@ pub fn run() {
             fs_create,
             fs_rename,
             fs_trash,
-            fs_duplicate
+            fs_duplicate,
+            search_workspace
         ])
         .run(tauri::generate_context!())
         .expect("error while running Notepad Super Plus");

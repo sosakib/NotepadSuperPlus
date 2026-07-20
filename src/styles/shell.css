@@ -429,6 +429,150 @@
   outline: none;
 }
 
+/* ---- Workspace search ---- */
+.search-panel__input {
+  width: 100%;
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-app);
+  color: var(--fg-primary);
+  outline: none;
+}
+.search-panel__input:focus {
+  border-color: var(--accent);
+}
+.search-panel__options {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: var(--space-2) 0;
+}
+.search-panel__options button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+.search-panel__options button:hover {
+  background: var(--bg-hover);
+  color: var(--fg-primary);
+}
+.search-panel__options button.is-on {
+  background: var(--bg-active);
+  color: var(--accent);
+}
+.search-panel__go {
+  width: auto !important;
+  margin-left: auto;
+  padding: 0 10px !important;
+  font-size: 12px;
+  background: var(--accent) !important;
+  color: var(--accent-fg) !important;
+}
+.search-panel__go:disabled {
+  opacity: 0.6;
+}
+.search-panel__status {
+  margin: 0 0 var(--space-2);
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+.search-results,
+.search-results ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.search-results__file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-secondary);
+  padding: var(--space-2) 4px 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.search-results__count {
+  color: var(--fg-muted);
+  font-weight: 400;
+}
+.search-results__hit {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--fg-secondary);
+  font-size: 12px;
+  padding: 3px 6px 3px 10px;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+.search-results__hit:hover {
+  background: var(--bg-hover);
+  color: var(--fg-primary);
+}
+.search-results__line {
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+}
+.search-results__preview {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* CodeMirror's in-file search panel, themed to our tokens. */
+.cm-panels {
+  background: var(--bg-surface) !important;
+  color: var(--fg-primary) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+.cm-panel input,
+.cm-panel button,
+.cm-panel select {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  background: var(--bg-app);
+  color: var(--fg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+.cm-panel label {
+  font-size: 11px;
+  color: var(--fg-secondary);
+}
+.cm-searchMatch {
+  background: color-mix(in srgb, var(--warning) 35%, transparent);
+}
+.cm-searchMatch-selected {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
 /* ---- Recent files (Explorer) ---- */
 .recent__header {
   font-size: 11px;

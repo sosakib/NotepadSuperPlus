@@ -6,7 +6,12 @@ use serde::Serialize;
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::UNIX_EPOCH;
+
+/// Makes each atomic-write temp file unique, so concurrent saves into the same
+/// directory can never clobber one another's temp file.
+static WRITE_SEQ: AtomicU64 = AtomicU64::new(0);
 
 /// Largest file we will open as text (docs/07 §7).
 const MAX_BYTES: u64 = 512 * 1024 * 1024;
@@ -174,7 +179,11 @@ pub fn write_file(path: &Path, content: &str, encoding: &str, eol: &str) -> NspR
     let dir = abs
         .parent()
         .ok_or_else(|| NspError::invalid_input("Path has no parent directory."))?;
-    let tmp = dir.join(format!(".nsp-tmp-{}", std::process::id()));
+    let tmp = dir.join(format!(
+        ".nsp-tmp-{}-{}",
+        std::process::id(),
+        WRITE_SEQ.fetch_add(1, Ordering::Relaxed)
+    ));
 
     // Scope the file handle so it is flushed/closed before the rename.
     {
@@ -196,17 +205,20 @@ mod tests {
     use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
 
+    static TEST_SEQ: AtomicU64 = AtomicU64::new(0);
+
+    /// Unique per call — the system clock alone is too coarse on Windows, so
+    /// parallel tests could otherwise share a directory.
     fn tmp_dir() -> PathBuf {
-        let d =
-            std::env::temp_dir().join(format!("nsp-test-{}-{}", std::process::id(), rand_suffix()));
-        fs::create_dir_all(&d).unwrap();
-        d
-    }
-    fn rand_suffix() -> u128 {
-        SystemTime::now()
+        let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
-            .as_nanos()
+            .as_nanos();
+        let seq = TEST_SEQ.fetch_add(1, Ordering::Relaxed);
+        let d =
+            std::env::temp_dir().join(format!("nsp-test-{}-{}-{}", std::process::id(), nanos, seq));
+        fs::create_dir_all(&d).unwrap();
+        d
     }
 
     #[test]
@@ -253,6 +265,31 @@ mod tests {
         fs::write(&p, [0u8, 1, 2, 3, 0]).unwrap();
         let err = read_file(&p).unwrap_err();
         assert_eq!(err.code, "E_BINARY");
+    }
+
+    /// Regression: temp files were named per-process, so simultaneous saves into
+    /// one directory raced and clobbered each other's temp file.
+    #[test]
+    fn concurrent_writes_in_one_directory_dont_clobber() {
+        let dir = tmp_dir();
+        let handles: Vec<_> = (0..8)
+            .map(|i| {
+                let dir = dir.clone();
+                std::thread::spawn(move || {
+                    let p = dir.join(format!("f{i}.md"));
+                    write_file(&p, &format!("content {i}\n"), "utf-8", "lf").unwrap();
+                })
+            })
+            .collect();
+        for h in handles {
+            h.join().unwrap();
+        }
+        for i in 0..8 {
+            assert_eq!(
+                fs::read_to_string(dir.join(format!("f{i}.md"))).unwrap(),
+                format!("content {i}\n")
+            );
+        }
     }
 
     #[test]

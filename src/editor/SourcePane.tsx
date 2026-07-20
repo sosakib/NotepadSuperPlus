@@ -5,7 +5,13 @@ import { useUiStore } from "../state/ui.ts";
 import { createEditorState, languageConf, wrapConf } from "./editorState.ts";
 import { languageForFilename, syncLanguageForFilename } from "./languages.ts";
 import { renderController } from "../markdown/renderController.ts";
-import { savedStates, asyncLangLoaded, setActiveView, pendingContent } from "./editorRegistry.ts";
+import {
+  savedStates,
+  asyncLangLoaded,
+  setActiveView,
+  pendingContent,
+  pendingReveal,
+} from "./editorRegistry.ts";
 
 /**
  * Hosts a single CodeMirror view and swaps its state as the active tab changes.
@@ -86,6 +92,15 @@ export function SourcePane() {
     });
     view.focus();
     prevIdRef.current = activeId;
+
+    // Jump to a requested line (e.g. a workspace-search hit) now that state is live.
+    const revealLine = pendingReveal.get(activeId);
+    if (revealLine !== undefined) {
+      pendingReveal.delete(activeId);
+      const clamped = Math.max(1, Math.min(revealLine, view.state.doc.lines));
+      const pos = view.state.doc.line(clamped).from;
+      view.dispatch({ selection: { anchor: pos }, scrollIntoView: true });
+    }
   }, [activeId]);
 
   // Reconfigure word wrap live on the active view.

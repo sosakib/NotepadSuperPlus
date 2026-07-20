@@ -2,8 +2,14 @@ import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialo
 import * as fsIpc from "../ipc/fs.ts";
 import { useDocumentsStore, type DocMeta } from "../state/documents.ts";
 import { useUiStore } from "../state/ui.ts";
-import { pendingContent, getDocText, replaceDocText } from "../editor/editorRegistry.ts";
+import {
+  pendingContent,
+  pendingReveal,
+  getDocText,
+  replaceDocText,
+} from "../editor/editorRegistry.ts";
 import { renderController } from "../markdown/renderController.ts";
+import { revealSourceLine } from "../markdown/scrollSync.ts";
 
 /**
  * Orchestrates file open/save/reload across the dialog plugin, the Rust fs
@@ -32,9 +38,10 @@ export async function openFile(): Promise<void> {
   }
 }
 
-export async function openPath(path: string): Promise<void> {
+export async function openPath(path: string, revealLine?: number): Promise<void> {
   try {
     const fc = await fsIpc.readFile(path);
+    const wasActive = useDocumentsStore.getState().activeId;
     const { id, existing } = useDocumentsStore.getState().openDocument({
       path: fc.path,
       title: "",
@@ -46,6 +53,15 @@ export async function openPath(path: string): Promise<void> {
     if (!existing) {
       pendingContent.set(id, fc.content);
       renderController.requestRender(id, fc.content);
+    }
+    if (revealLine !== undefined) {
+      // If the document was already the active one, its editor effect won't re-run,
+      // so reveal immediately; otherwise let the state swap consume the request.
+      if (existing && wasActive === id) {
+        revealSourceLine(revealLine);
+      } else {
+        pendingReveal.set(id, revealLine);
+      }
     }
     useUiStore.getState().setStatus(`Opened ${fc.path}`);
   } catch (e) {
