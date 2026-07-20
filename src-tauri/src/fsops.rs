@@ -137,14 +137,19 @@ pub fn duplicate(path: &Path) -> NspResult<Entry> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    static TEST_SEQ: AtomicU64 = AtomicU64::new(0);
 
     fn tmp_dir() -> PathBuf {
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let d = std::env::temp_dir().join(format!("nsp-ops-{}-{}", std::process::id(), nanos));
+        let seq = TEST_SEQ.fetch_add(1, Ordering::Relaxed);
+        let d =
+            std::env::temp_dir().join(format!("nsp-ops-{}-{}-{}", std::process::id(), nanos, seq));
         fs::create_dir_all(&d).unwrap();
         d
     }

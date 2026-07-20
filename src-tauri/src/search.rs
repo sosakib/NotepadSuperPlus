@@ -146,14 +146,23 @@ mod tests {
     use super::*;
     use std::fs;
     use std::path::PathBuf;
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    static TEST_SEQ: AtomicU64 = AtomicU64::new(0);
 
     fn workspace() -> PathBuf {
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let d = std::env::temp_dir().join(format!("nsp-search-{}-{}", std::process::id(), nanos));
+        let seq = TEST_SEQ.fetch_add(1, Ordering::Relaxed);
+        let d = std::env::temp_dir().join(format!(
+            "nsp-search-{}-{}-{}",
+            std::process::id(),
+            nanos,
+            seq
+        ));
         fs::create_dir_all(&d).unwrap();
         fs::write(d.join("a.md"), "Hello world\nsecond line\nhello again\n").unwrap();
         fs::write(d.join("b.md"), "nothing here\n").unwrap();
