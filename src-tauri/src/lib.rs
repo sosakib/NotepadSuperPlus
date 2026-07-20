@@ -22,9 +22,39 @@ use fsops::Entry;
 use recent::RecentState;
 use serde::Serialize;
 use std::path::Path;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use tracing_subscriber::EnvFilter;
 use watcher::WatcherState;
+
+/// Files passed on the command line at launch (Explorer "Open with", drag onto
+/// the exe, `nsp file.md`). Held until the frontend asks for them.
+struct CliPaths(Vec<String>);
+
+/// Filters command-line arguments down to existing, canonicalized files.
+/// `base` resolves relative paths (the invoking shell's working directory).
+fn paths_from_args<I: IntoIterator<Item = String>>(args: I, base: &Path) -> Vec<String> {
+    args.into_iter()
+        .skip(1) // argv[0] is the executable
+        .filter(|a| !a.starts_with('-'))
+        .filter_map(|a| {
+            let p = Path::new(&a);
+            let abs = if p.is_absolute() {
+                p.to_path_buf()
+            } else {
+                base.join(p)
+            };
+            dunce::canonicalize(&abs).ok()
+        })
+        .filter(|p| p.is_file())
+        .map(|p| p.display().to_string())
+        .collect()
+}
+
+/// Returns the files this instance was launched with (consumed once by the UI).
+#[tauri::command]
+fn cli_paths(paths: tauri::State<'_, CliPaths>) -> Vec<String> {
+    paths.0.clone()
+}
 
 /// Returns the application version (compile-time `CARGO_PKG_VERSION`).
 #[tauri::command]
@@ -165,8 +195,22 @@ pub fn run() {
     );
 
     tauri::Builder::default()
+        // Must be the first plugin: a second launch (e.g. Explorer "Open with"
+        // while the app runs) forwards its arguments here and exits.
+        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
+            let paths = paths_from_args(args, Path::new(&cwd));
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+            if !paths.is_empty() {
+                let _ = app.emit("cli:open", paths);
+            }
+        }))
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            let cwd = std::env::current_dir().unwrap_or_else(|_| std::env::temp_dir());
+            app.manage(CliPaths(paths_from_args(std::env::args(), &cwd)));
             let handle = app.handle().clone();
             app.manage(WatcherState::new(handle));
             let data_dir = app
@@ -180,6 +224,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             app_version,
+            cli_paths,
             fs_read_file,
             fs_write_file,
             fs_unwatch,
@@ -217,5 +262,35 @@ mod tests {
     fn app_version_matches_cargo_manifest() {
         assert_eq!(app_version(), env!("CARGO_PKG_VERSION"));
         assert!(!app_version().is_empty());
+    }
+
+    #[test]
+    fn cli_args_keep_only_existing_files() {
+        let dir = std::env::temp_dir().join(format!("nsp-cli-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("doc.md");
+        std::fs::write(&file, "x").unwrap();
+
+        let args = vec![
+            "nsp.exe".to_string(),
+            "--flag".to_string(),
+            file.display().to_string(),
+            dir.display().to_string(), // directory — dropped
+            dir.join("missing.md").display().to_string(), // nonexistent — dropped
+        ];
+        let paths = paths_from_args(args, &dir);
+        assert_eq!(paths.len(), 1);
+        assert!(paths[0].ends_with("doc.md"));
+    }
+
+    #[test]
+    fn cli_args_resolve_relative_paths_against_base() {
+        let dir = std::env::temp_dir().join(format!("nsp-cli-rel-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("rel.md"), "x").unwrap();
+
+        let paths = paths_from_args(vec!["nsp.exe".to_string(), "rel.md".to_string()], &dir);
+        assert_eq!(paths.len(), 1);
+        assert!(paths[0].ends_with("rel.md"));
     }
 }

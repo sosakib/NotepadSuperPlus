@@ -40,6 +40,28 @@
     "publisher": "Notepad Super Plus contributors",
     "category": "Productivity",
     "shortDescription": "Lightweight Markdown editor",
-    "longDescription": "A lightweight, fast, open-source desktop Markdown editor focused exclusively on viewing and editing Markdown."
+    "longDescription": "A lightweight, fast, open-source desktop Markdown editor focused exclusively on viewing and editing Markdown.",
+    "fileAssociations": [
+      {
+        "ext": ["md", "markdown", "mdown", "mkd", "mdx"],
+        "name": "Markdown",
+        "description": "Markdown document",
+        "mimeType": "text/markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": ["txt"],
+        "name": "Plain Text",
+        "description": "Plain text document",
+        "mimeType": "text/plain",
+        "role": "Editor"
+      }
+    ],
+    "windows": {
+      "nsis": {
+        "installerHooks": "./windows/hooks.nsh",
+        "installMode": "currentUser"
+      }
+    }
   }
 }
