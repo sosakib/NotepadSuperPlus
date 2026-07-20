@@ -1,10 +1,27 @@
-import { X, Download, FileText, Code, Globe, Check } from "lucide-react";
 import { useState } from "react";
+import { X, Download, FileText, Code, Globe, Check } from "lucide-react";
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
-import { getDocText } from "../editor/editorRegistry.ts";
+import { exportDocument, type ExportFormat } from "../actions/exportActions.ts";
+import { useDialogDismiss } from "./useDialogDismiss.ts";
 import { IconButton } from "./IconButton.tsx";
 import { Button } from "./Button.tsx";
+
+const FORMATS: { id: ExportFormat; icon: typeof Globe; title: string; desc: string }[] = [
+  {
+    id: "html",
+    icon: Globe,
+    title: "HTML Webpage (.html)",
+    desc: "Rendered, standalone styled page for publishing",
+  },
+  { id: "md", icon: Code, title: "Markdown File (.md)", desc: "Clean standard Markdown source" },
+  {
+    id: "txt",
+    icon: FileText,
+    title: "Plain Text (.txt)",
+    desc: "Raw text output suitable for notes",
+  },
+];
 
 export function ExportDialog() {
   const exportOpen = useUiStore((s) => s.exportOpen);
@@ -12,106 +29,81 @@ export function ExportDialog() {
   const activeId = useDocumentsStore((s) => s.activeId);
   const doc = useDocumentsStore((s) => (activeId ? s.docs[activeId] : null));
 
-  const [format, setFormat] = useState<"html" | "txt" | "md">("html");
-  const [exported, setExported] = useState(false);
+  const [format, setFormat] = useState<ExportFormat>("html");
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const close = (): void => setExportOpen(false);
+  const panelRef = useDialogDismiss(exportOpen, close);
 
   if (!exportOpen) return null;
 
-  const handleExport = () => {
-    if (!activeId) return;
-    const content = getDocText(activeId);
-    let blobContent = content;
-    let mimeType = "text/markdown";
-    let extension = ".md";
-
-    if (format === "html") {
-      blobContent = `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>${doc?.title || "Document"}</title>\n<style>body{font-family:system-ui,sans-serif;max-width:800px;margin:2rem auto;padding:0 1rem;line-height:1.6;}</style>\n</head>\n<body>\n${content}\n</body>\n</html>`;
-      mimeType = "text/html";
-      extension = ".html";
-    } else if (format === "txt") {
-      mimeType = "text/plain";
-      extension = ".txt";
-    }
-
-    const blob = new Blob([blobContent], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = (doc?.title || "document").replace(/\.md$/, "") + extension;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    setExported(true);
+  const handleExport = async (): Promise<void> => {
+    setBusy(true);
+    const ok = await exportDocument(format);
+    setBusy(false);
+    if (!ok) return;
+    setDone(true);
     setTimeout(() => {
-      setExported(false);
-      setExportOpen(false);
-    }, 1200);
+      setDone(false);
+      close();
+    }, 900);
   };
 
   return (
-    <div className="modal-overlay" onClick={() => setExportOpen(false)} role="dialog" aria-label="Export Document">
-      <div className="export-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={close}>
+      <div
+        ref={panelRef}
+        className="export-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Export document"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="export-modal__header">
           <div className="export-modal__title-group">
             <h2 className="export-modal__title">Export Document</h2>
-            <span className="export-modal__subtitle">{doc?.title || "Untitled Document"}</span>
+            <span className="export-modal__subtitle">{doc?.title ?? "Untitled Document"}</span>
           </div>
-          <IconButton label="Close Export" onClick={() => setExportOpen(false)}>
+          <IconButton label="Close export" onClick={close}>
             <X size={18} />
           </IconButton>
         </div>
 
         <div className="export-modal__body">
-          <label className="export-modal__label">Choose Output Format</label>
-
-          <div className="export-options">
-            <button
-              className={`export-card ${format === "html" ? "is-selected" : ""}`}
-              onClick={() => setFormat("html")}
-            >
-              <Globe size={24} className="export-card__icon" />
-              <div className="export-card__text">
-                <span className="export-card__title">HTML Webpage (.html)</span>
-                <span className="export-card__desc">Standalone styled HTML page for publishing</span>
-              </div>
-            </button>
-
-            <button
-              className={`export-card ${format === "md" ? "is-selected" : ""}`}
-              onClick={() => setFormat("md")}
-            >
-              <Code size={24} className="export-card__icon" />
-              <div className="export-card__text">
-                <span className="export-card__title">Markdown File (.md)</span>
-                <span className="export-card__desc">Clean standard Markdown source file</span>
-              </div>
-            </button>
-
-            <button
-              className={`export-card ${format === "txt" ? "is-selected" : ""}`}
-              onClick={() => setFormat("txt")}
-            >
-              <FileText size={24} className="export-card__icon" />
-              <div className="export-card__text">
-                <span className="export-card__title">Plain Text (.txt)</span>
-                <span className="export-card__desc">Raw text output suitable for notes</span>
-              </div>
-            </button>
+          <label className="export-modal__label">Choose output format</label>
+          <div className="export-options" role="radiogroup" aria-label="Output format">
+            {FORMATS.map(({ id, icon: Icon, title, desc }) => (
+              <button
+                key={id}
+                type="button"
+                role="radio"
+                aria-checked={format === id}
+                className={`export-card ${format === id ? "is-selected" : ""}`}
+                onClick={() => setFormat(id)}
+              >
+                <Icon size={24} className="export-card__icon" />
+                <div className="export-card__text">
+                  <span className="export-card__title">{title}</span>
+                  <span className="export-card__desc">{desc}</span>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
         <div className="export-modal__footer">
-          <Button variant="ghost" onClick={() => setExportOpen(false)}>
+          <Button variant="ghost" onClick={close}>
             Cancel
           </Button>
-          <Button onClick={handleExport} disabled={!activeId || exported}>
-            {exported ? (
+          <Button onClick={() => void handleExport()} disabled={!activeId || busy || done}>
+            {done ? (
               <>
-                <Check size={16} /> Exported!
+                <Check size={16} /> Exported
               </>
             ) : (
               <>
-                <Download size={16} /> Export Now
+                <Download size={16} /> {busy ? "Exporting…" : "Export Now"}
               </>
             )}
           </Button>

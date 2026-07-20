@@ -2,16 +2,25 @@ import { X, Sparkles, Code2, ShieldCheck, Heart } from "lucide-react";
 import { useUiStore } from "../state/ui.ts";
 import { IconButton } from "./IconButton.tsx";
 import { Button } from "./Button.tsx";
+import { useDialogDismiss } from "./useDialogDismiss.ts";
 
 export function AboutDialog() {
   const aboutOpen = useUiStore((s) => s.aboutOpen);
   const setAboutOpen = useUiStore((s) => s.setAboutOpen);
+  const panelRef = useDialogDismiss(aboutOpen, () => setAboutOpen(false));
 
   if (!aboutOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={() => setAboutOpen(false)} role="dialog" aria-label="About Notepad Super Plus">
-      <div className="about-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={() => setAboutOpen(false)}>
+      <div
+        ref={panelRef}
+        className="about-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="About Notepad Super Plus"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="about-modal__header">
           <IconButton label="Close About" onClick={() => setAboutOpen(false)}>
             <X size={18} />
@@ -26,7 +35,8 @@ export function AboutDialog() {
           </div>
 
           <p className="about-modal__lead">
-            A premium, lightweight, open-source desktop Markdown editor designed for speed, focus, and technical documentation excellence.
+            A premium, lightweight, open-source desktop Markdown editor designed for speed, focus,
+            and technical documentation excellence.
           </p>
 
           <div className="about-specs">
@@ -56,7 +66,9 @@ export function AboutDialog() {
 
         <div className="about-modal__footer">
           <span className="about-modal__footer-text">
-            Made with <Heart size={14} style={{ color: "#ef4444", fill: "#ef4444", display: "inline" }} /> for the developer community.
+            Made with{" "}
+            <Heart size={14} style={{ color: "#ef4444", fill: "#ef4444", display: "inline" }} /> for
+            the developer community.
           </span>
           <Button onClick={() => setAboutOpen(false)}>Close</Button>
         </div>

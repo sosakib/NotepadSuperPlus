@@ -107,7 +107,6 @@ const PALETTES: Record<ThemeId, SyntaxPalette> = {
   "high-contrast": highContrastPalette,
 };
 
-
 /** Writes the active theme's syntax colors as `--cm-*` variables on the root. */
 export function applyEditorSyntaxVars(themeId: ThemeId): void {
   const palette = PALETTES[themeId];

@@ -24,7 +24,8 @@ export function WelcomeScreen() {
         </div>
         <h1 className="welcome-hero__title">Focus. Read. Write. Organize.</h1>
         <p className="welcome-hero__subtitle">
-          An elegant, lightweight desktop editor for Markdown files. Designed for engineers, researchers, and technical writers.
+          An elegant, lightweight desktop editor for Markdown files. Designed for engineers,
+          researchers, and technical writers.
         </p>
 
         <div className="welcome-actions">
@@ -64,7 +65,6 @@ export function WelcomeScreen() {
                       readonly: false,
                     });
                   }}
-
                 >
                   <FileText size={14} />
                   <span>{item.title}</span>
@@ -73,7 +73,6 @@ export function WelcomeScreen() {
             ))}
           </ul>
         </div>
-
 
         <div className="welcome-card">
           <div className="welcome-card__header">

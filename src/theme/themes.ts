@@ -237,5 +237,3 @@ export function resolveTheme(setting: ThemeSetting): ThemeId {
     typeof matchMedia !== "undefined" && matchMedia("(prefers-color-scheme: light)").matches;
   return prefersLight ? "light" : "dark";
 }
-
-

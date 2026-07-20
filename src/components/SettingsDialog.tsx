@@ -3,7 +3,7 @@ import { X, Palette, Type, Keyboard, Info, Check } from "lucide-react";
 import { useUiStore } from "../state/ui.ts";
 import type { ThemeId } from "../theme/themes.ts";
 import { IconButton } from "./IconButton.tsx";
-
+import { useDialogDismiss } from "./useDialogDismiss.ts";
 
 export function SettingsDialog() {
   const settingsOpen = useUiStore((s) => s.settingsOpen);
@@ -14,23 +14,75 @@ export function SettingsDialog() {
   const wordWrap = useUiStore((s) => s.wordWrap);
   const toggleWordWrap = useUiStore((s) => s.toggleWordWrap);
 
-  const [activeTab, setActiveTab] = useState<"appearance" | "editor" | "keyboard" | "about">("appearance");
+  const [activeTab, setActiveTab] = useState<"appearance" | "editor" | "keyboard" | "about">(
+    "appearance",
+  );
+  const panelRef = useDialogDismiss(settingsOpen, () => setSettingsOpen(false));
 
   if (!settingsOpen) return null;
 
   const themeList: { id: ThemeId; name: string; desc: string; bg: string; accent: string }[] = [
-    { id: "apple-dark", name: "Apple Dark", desc: "Refined navy & slate dark mode", bg: "#0f172a", accent: "#3b82f6" },
-    { id: "apple-light", name: "Apple Light", desc: "Clean crisp light aesthetic", bg: "#ffffff", accent: "#2563eb" },
-    { id: "midnight-blue", name: "Midnight Blue", desc: "Deep blue developer theme", bg: "#0a0f1d", accent: "#38bdf8" },
-    { id: "github", name: "GitHub Inspired", desc: "Professional docs palette", bg: "#0d1117", accent: "#2f81f7" },
-    { id: "nord", name: "Nord Inspired", desc: "Cool arctic dark mode", bg: "#2e3440", accent: "#88c0d0" },
-    { id: "catppuccin", name: "Catppuccin", desc: "Soft pastel aesthetic", bg: "#1e1e2e", accent: "#89b4fa" },
-    { id: "high-contrast", name: "High Contrast", desc: "Accessibility-first black", bg: "#000000", accent: "#4cc2ff" },
+    {
+      id: "apple-dark",
+      name: "Apple Dark",
+      desc: "Refined navy & slate dark mode",
+      bg: "#0f172a",
+      accent: "#3b82f6",
+    },
+    {
+      id: "apple-light",
+      name: "Apple Light",
+      desc: "Clean crisp light aesthetic",
+      bg: "#ffffff",
+      accent: "#2563eb",
+    },
+    {
+      id: "midnight-blue",
+      name: "Midnight Blue",
+      desc: "Deep blue developer theme",
+      bg: "#0a0f1d",
+      accent: "#38bdf8",
+    },
+    {
+      id: "github",
+      name: "GitHub Inspired",
+      desc: "Professional docs palette",
+      bg: "#0d1117",
+      accent: "#2f81f7",
+    },
+    {
+      id: "nord",
+      name: "Nord Inspired",
+      desc: "Cool arctic dark mode",
+      bg: "#2e3440",
+      accent: "#88c0d0",
+    },
+    {
+      id: "catppuccin",
+      name: "Catppuccin",
+      desc: "Soft pastel aesthetic",
+      bg: "#1e1e2e",
+      accent: "#89b4fa",
+    },
+    {
+      id: "high-contrast",
+      name: "High Contrast",
+      desc: "Accessibility-first black",
+      bg: "#000000",
+      accent: "#4cc2ff",
+    },
   ];
 
   return (
-    <div className="modal-overlay" onClick={() => setSettingsOpen(false)} role="dialog" aria-label="Settings">
-      <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={() => setSettingsOpen(false)}>
+      <div
+        ref={panelRef}
+        className="settings-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Settings"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="settings-modal__header">
           <div className="settings-modal__title-group">
             <h2 className="settings-modal__title">Preferences</h2>
@@ -77,10 +129,14 @@ export function SettingsDialog() {
             {activeTab === "appearance" && (
               <div className="settings-section">
                 <h3 className="settings-section__title">Theme Engine</h3>
-                <p className="settings-section__desc">Select a theme for the application chrome and editor.</p>
+                <p className="settings-section__desc">
+                  Select a theme for the application chrome and editor.
+                </p>
                 <div className="theme-grid">
                   {themeList.map((t) => {
-                    const isSelected = themeSetting === t.id || (themeSetting === "system" && resolvedTheme === t.id);
+                    const isSelected =
+                      themeSetting === t.id ||
+                      (themeSetting === "system" && resolvedTheme === t.id);
                     return (
                       <button
                         key={t.id}
@@ -108,7 +164,9 @@ export function SettingsDialog() {
                 <div className="setting-row">
                   <div className="setting-row__info">
                     <span className="setting-row__label">Soft Word Wrap</span>
-                    <span className="setting-row__hint">Wrap long lines to fit editor viewport width.</span>
+                    <span className="setting-row__hint">
+                      Wrap long lines to fit editor viewport width.
+                    </span>
                   </div>
                   <input
                     type="checkbox"
@@ -120,7 +178,9 @@ export function SettingsDialog() {
                 <div className="setting-row">
                   <div className="setting-row__info">
                     <span className="setting-row__label">Font Family</span>
-                    <span className="setting-row__hint">Primary typography stack for code editing.</span>
+                    <span className="setting-row__hint">
+                      Primary typography stack for code editing.
+                    </span>
                   </div>
                   <select className="select-control" defaultValue="Consolas, monospace">
                     <option value="Consolas, monospace">Cascadia / Consolas</option>
@@ -187,7 +247,8 @@ export function SettingsDialog() {
                   <h3>Notepad Super Plus</h3>
                   <span className="about-hero__version">v0.1.0 • Windows Desktop Edition</span>
                   <p className="about-hero__desc">
-                    A lightweight, high-performance, open-source Markdown editor engineered for developers and writers.
+                    A lightweight, high-performance, open-source Markdown editor engineered for
+                    developers and writers.
                   </p>
                 </div>
               </div>

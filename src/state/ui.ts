@@ -56,7 +56,6 @@ const clamp = (n: number, min: number, max: number): number => Math.min(max, Mat
 
 const THEME_CYCLE: ThemeSetting[] = ["system", "dark", "light", "high-contrast"];
 
-
 export const useUiStore = create<UiState>((set, get) => ({
   themeSetting: "system",
   resolvedTheme: resolveTheme("system"),
@@ -106,4 +105,3 @@ export const useUiStore = create<UiState>((set, get) => ({
 }));
 
 export const SIDEBAR_BOUNDS = { min: SIDEBAR_MIN, max: SIDEBAR_MAX };
-

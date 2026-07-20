@@ -1,4 +1,9 @@
-import { Command as CommandIcon, Settings as SettingsIcon, Download as ExportIcon, Info as InfoIcon } from "lucide-react";
+import {
+  Command as CommandIcon,
+  Settings as SettingsIcon,
+  Download as ExportIcon,
+  Info as InfoIcon,
+} from "lucide-react";
 import { useUiStore } from "../state/ui.ts";
 import { IconButton } from "../components/IconButton.tsx";
 import { ViewModeSwitch } from "./ViewModeSwitch.tsx";
@@ -12,7 +17,12 @@ export function TitleBar() {
 
   return (
     <header className="titlebar">
-      <div className="titlebar__brand" onClick={toggleAbout} style={{ cursor: "pointer" }} title="About Notepad Super Plus">
+      <div
+        className="titlebar__brand"
+        onClick={toggleAbout}
+        style={{ cursor: "pointer" }}
+        title="About Notepad Super Plus"
+      >
         <span className="titlebar__logo" aria-hidden>
           M
         </span>
@@ -38,4 +48,3 @@ export function TitleBar() {
     </header>
   );
 }
-

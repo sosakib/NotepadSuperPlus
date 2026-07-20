@@ -28,9 +28,24 @@ export interface OutlineHeading {
   id: string;
 }
 
+/** Document statistics, computed in the worker so the UI thread never scans the text. */
+export interface DocStats {
+  words: number;
+  chars: number;
+}
+
 export interface RenderResult {
   html: string;
   outline: OutlineHeading[];
+  stats: DocStats;
+}
+
+function computeStats(text: string): DocStats {
+  const trimmed = text.trim();
+  return {
+    words: trimmed === "" ? 0 : trimmed.split(/\s+/).length,
+    chars: text.length,
+  };
 }
 
 function slugify(text: string, seen: Map<string, number>): string {
@@ -103,5 +118,5 @@ const processor = unified()
 export async function renderMarkdown(text: string): Promise<RenderResult> {
   const file = await processor.process(text);
   const outline = (file.data as { outline?: OutlineHeading[] }).outline ?? [];
-  return { html: String(file), outline };
+  return { html: String(file), outline, stats: computeStats(text) };
 }

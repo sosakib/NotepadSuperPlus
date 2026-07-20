@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
 import { THEMES } from "../theme/themes.ts";
-import { getDocText } from "../editor/editorRegistry.ts";
+import { useRenderStore } from "../state/render.ts";
 
 /** Bottom status bar: document stats on the left; view mode, zoom, theme, version on the right. */
 export function StatusBar() {
@@ -32,9 +32,12 @@ export function StatusBar() {
     };
   }, []);
 
-  const text = activeId ? getDocText(activeId) : "";
-  const words = text ? text.trim().split(/\s+/).filter(Boolean).length : 0;
-  const chars = text ? text.length : 0;
+  // Stats come from the render worker, which already runs debounced and off the
+  // main thread. Computing them here would re-scan the whole document on every
+  // cursor move — a per-keystroke O(document) cost (docs/09 §8).
+  const stats = useRenderStore((s) => (activeId ? s.results[activeId]?.stats : undefined));
+  const words = stats?.words ?? 0;
+  const chars = stats?.chars ?? 0;
   const readTimeMin = Math.max(1, Math.ceil(words / 200));
 
   const zoomPct = `${100 + zoom * 10}%`;
@@ -48,9 +51,7 @@ export function StatusBar() {
             <span className="statusbar__item statusbar__num">
               {words} words • {chars} chars
             </span>
-            <span className="statusbar__item statusbar__item--muted">
-              ~{readTimeMin} min read
-            </span>
+            <span className="statusbar__item statusbar__item--muted">~{readTimeMin} min read</span>
           </>
         ) : null}
       </div>
@@ -69,4 +70,3 @@ export function StatusBar() {
     </footer>
   );
 }
-

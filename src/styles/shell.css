@@ -803,8 +803,12 @@
   animation: fade-in 150ms cubic-bezier(0.2, 0, 0, 1);
 }
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .palette {
@@ -1047,8 +1051,14 @@
   animation: modal-pop 180ms cubic-bezier(0.2, 0, 0, 1);
 }
 @keyframes modal-pop {
-  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .settings-modal__header,
@@ -1321,4 +1331,3 @@
   font-size: 12px;
   color: var(--fg-muted);
 }
-
