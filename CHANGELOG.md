@@ -9,6 +9,50 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+### Performance
+- **Stopped per-keystroke document serialization.** The render controller took an
+  already-serialized string, so the whole document was copied on every key only to be
+  discarded by the next one inside the 90 ms debounce. It now takes a thunk and
+  materializes the text once, at flush time.
+- **Stopped store churn on the typing path.** `markDirty` fired on every change,
+  publishing a new `docs` object and re-rendering every tab-strip/status-bar
+  subscriber; it now fires only on the clean → dirty transition (measured: 61
+  keystrokes → 1 tab-strip DOM mutation, previously one per keystroke). `setCursor`
+  skips the publish when the position is unchanged.
+- Switching view modes no longer re-parses a document whose output is already current.
+- Split the 1.14 MB frontend chunk into react / codemirror / app vendor graphs.
+- **Fixed a memory leak:** `pendingContent`/`pendingReveal` were never pruned when a
+  tab closed, retaining whole file contents for the session.
+
+### Added
+- Tab bar redesign: 32 px tabs in a 40 px strip, 24 px close target, file-type icon,
+  shared dirty-dot/close slot so tab width never shifts, masked overflow with
+  auto-scroll to the active tab, middle-click to close, roving tab index.
+- Themed scrollbars across every scroll container.
+- Settings shortcuts grouped by command category; About tab facts grid.
+
+### Changed
+- **Status bar is no longer a full-width accent band** — surface-toned with muted text,
+  accent reserved for the view-mode pill, and least-important metadata dropped at
+  narrow widths.
+- Themes are self-describing: adding one to `themes.ts` now makes it appear in the
+  picker automatically (the picker previously re-declared every theme's name and colors).
+- `SettingsDialog` (264 lines) split into `src/settings/` with one component per tab.
+- `basename()` existed in five files with two different implementations; consolidated
+  with `parentDir()` into `src/utils/path.ts` with tests.
+- Removed the unused `codemirror` meta-package.
+
+### Fixed
+- Accessibility: the title-bar brand was a `div` with `onClick` (unreachable by
+  keyboard) and is now a button; file-tree row actions used `display: none`, removing
+  them from the tab order entirely; tooltip bubbles are `aria-hidden` so screen readers
+  no longer announce the label twice.
+- Responsiveness: welcome grid collapses via `auto-fit`; modals cap their height and the
+  overlay scrolls, so a dialog can no longer run off a 13" screen. Verified 800 px →
+  2560 px with no horizontal overflow.
+- Command palette keeps the highlighted row in view when arrowing past the visible window.
+- Export dialog clears its auto-dismiss timer on unmount.
+
 ### Added
 - **Windows shell integration.** Explorer's right-click menu now offers
   **"Open with Notepad Super Plus"** for `.md`, `.markdown`, `.mdown`, `.mkd`, `.mdx`, and
