@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { languageIdForFilename } from "../editor/languages.ts";
+import { basename } from "../utils/path.ts";
 
 /**
  * Open documents and their tab ordering. Document *text* lives in CodeMirror
@@ -53,8 +54,6 @@ export interface DocumentsState {
 
 let untitledSeq = 0;
 let idSeq = 0;
-
-const basename = (p: string): string => p.split(/[\\/]/).pop() ?? p;
 
 export const useDocumentsStore = create<DocumentsState>((set, get) => ({
   docs: {},

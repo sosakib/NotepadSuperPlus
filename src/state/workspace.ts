@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Entry } from "../ipc/workspace.ts";
+import { basename } from "../utils/path.ts";
 
 /**
  * Workspace tree state. Children are cached per directory and fetched lazily on
@@ -20,8 +21,6 @@ interface WorkspaceState {
   closeWorkspace: () => void;
   toggleHidden: () => void;
 }
-
-const basename = (p: string): string => p.split(/[\\/]/).filter(Boolean).pop() ?? p;
 
 export const useWorkspaceStore = create<WorkspaceState>((set) => ({
   root: null,

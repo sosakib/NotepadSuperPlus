@@ -5,8 +5,7 @@ import { openFile, openPath } from "../actions/fileActions.ts";
 import { useRecentFiles } from "../actions/useRecentFiles.ts";
 import { registry } from "../commands/index.ts";
 import { Kbd } from "./Kbd.tsx";
-
-const basename = (p: string): string => p.split(/[\\/]/).pop() ?? p;
+import { basename } from "../utils/path.ts";
 
 /** Shortcuts surfaced on the welcome screen, resolved from the command registry
  * so the labels can never drift from the real keymap. */

@@ -42,6 +42,8 @@ export interface ThemeTokens {
 export interface Theme {
   id: ThemeId;
   name: string;
+  /** One-line description, shown on the theme picker card. */
+  description: string;
   /** Whether the OS chrome (scrollbars, form controls) should render dark. */
   scheme: "dark" | "light";
   tokens: ThemeTokens;
@@ -50,6 +52,7 @@ export interface Theme {
 const appleDark: Theme = {
   id: "apple-dark",
   name: "Apple Dark",
+  description: "Refined navy and slate dark mode",
   scheme: "dark",
   tokens: {
     "bg-app": "#0f172a",
@@ -74,6 +77,7 @@ const appleDark: Theme = {
 const appleLight: Theme = {
   id: "apple-light",
   name: "Apple Light",
+  description: "Clean, crisp light aesthetic",
   scheme: "light",
   tokens: {
     "bg-app": "#ffffff",
@@ -98,6 +102,7 @@ const appleLight: Theme = {
 const midnightBlue: Theme = {
   id: "midnight-blue",
   name: "Midnight Blue",
+  description: "Deep blue developer theme",
   scheme: "dark",
   tokens: {
     "bg-app": "#0a0f1d",
@@ -122,6 +127,7 @@ const midnightBlue: Theme = {
 const github: Theme = {
   id: "github",
   name: "GitHub Inspired",
+  description: "Professional documentation palette",
   scheme: "dark",
   tokens: {
     "bg-app": "#0d1117",
@@ -146,6 +152,7 @@ const github: Theme = {
 const nord: Theme = {
   id: "nord",
   name: "Nord Inspired",
+  description: "Cool arctic dark mode",
   scheme: "dark",
   tokens: {
     "bg-app": "#2e3440",
@@ -170,6 +177,7 @@ const nord: Theme = {
 const catppuccin: Theme = {
   id: "catppuccin",
   name: "Catppuccin Inspired",
+  description: "Soft pastel aesthetic",
   scheme: "dark",
   tokens: {
     "bg-app": "#1e1e2e",
@@ -194,6 +202,7 @@ const catppuccin: Theme = {
 const highContrast: Theme = {
   id: "high-contrast",
   name: "High Contrast",
+  description: "Accessibility-first maximum contrast",
   scheme: "dark",
   tokens: {
     "bg-app": "#000000",
@@ -229,6 +238,21 @@ export const THEMES: Record<ThemeId, Theme> = {
   catppuccin,
   "high-contrast": highContrast,
 };
+
+/**
+ * Themes offered in the picker, in display order. `dark`/`light` are excluded:
+ * they are aliases of the Apple pair kept for the `system` setting to resolve to,
+ * and listing them would show the same theme twice.
+ */
+export const SELECTABLE_THEMES: readonly Theme[] = [
+  appleDark,
+  appleLight,
+  midnightBlue,
+  github,
+  nord,
+  catppuccin,
+  highContrast,
+];
 
 /** Resolves a possibly-"system" setting to a concrete theme id using the OS preference. */
 export function resolveTheme(setting: ThemeSetting): ThemeId {

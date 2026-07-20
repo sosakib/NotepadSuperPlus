@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { AppShell } from "./shell/AppShell.tsx";
 import { CommandPalette } from "./palette/CommandPalette.tsx";
-import { SettingsDialog } from "./components/SettingsDialog.tsx";
+import { SettingsDialog } from "./settings/SettingsDialog.tsx";
 import { ExportDialog } from "./components/ExportDialog.tsx";
 import { AboutDialog } from "./components/AboutDialog.tsx";
 import { useKeyboard } from "./keyboard/useKeyboard.ts";

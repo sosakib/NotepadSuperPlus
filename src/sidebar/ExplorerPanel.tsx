@@ -7,8 +7,7 @@ import { useRecentFiles } from "../actions/useRecentFiles.ts";
 import { openFolder, createEntry, refreshDir } from "../actions/workspaceActions.ts";
 import { useWorkspaceStore } from "../state/workspace.ts";
 import { FileTree } from "./FileTree.tsx";
-
-const basename = (p: string): string => p.split(/[\\/]/).pop() ?? p;
+import { basename } from "../utils/path.ts";
 
 function RecentFiles() {
   const recent = useRecentFiles();

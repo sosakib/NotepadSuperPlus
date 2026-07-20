@@ -4,7 +4,8 @@ import { useDocumentsStore } from "../state/documents.ts";
 import { useWorkspaceStore } from "../state/workspace.ts";
 import { unwatch } from "../ipc/fs.ts";
 import { reloadPath } from "./fileActions.ts";
-import { refreshDir, parentDir } from "./workspaceActions.ts";
+import { refreshDir } from "./workspaceActions.ts";
+import { parentDir } from "../utils/path.ts";
 
 interface ChangePayload {
   path: string;

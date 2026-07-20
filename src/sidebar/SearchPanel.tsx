@@ -4,8 +4,7 @@ import { EmptyState } from "../components/EmptyState.tsx";
 import { useWorkspaceStore } from "../state/workspace.ts";
 import { searchWorkspace, type SearchMatch, type SearchOptions } from "../ipc/search.ts";
 import { openPath } from "../actions/fileActions.ts";
-
-const basename = (p: string): string => p.split(/[\\/]/).pop() ?? p;
+import { basename } from "../utils/path.ts";
 
 /** Groups matches by file, preserving the order they were found in. */
 function groupByFile(matches: SearchMatch[]): [string, SearchMatch[]][] {

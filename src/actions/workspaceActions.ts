@@ -2,6 +2,7 @@ import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import * as ws from "../ipc/workspace.ts";
 import { useWorkspaceStore } from "../state/workspace.ts";
 import { useUiStore } from "../state/ui.ts";
+import { parentDir } from "../utils/path.ts";
 
 /**
  * Workspace/explorer operations. Every mutation refreshes the affected directory
@@ -13,8 +14,6 @@ function reportError(e: unknown): void {
   useUiStore.getState().setStatus(err?.message ?? "Operation failed.");
   console.error("workspace action failed:", e);
 }
-
-export const parentDir = (p: string): string => p.replace(/[\\/][^\\/]+$/, "");
 
 export async function openFolder(): Promise<void> {
   try {
