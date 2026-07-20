@@ -6,7 +6,17 @@
  * intentionally small; the bundled theme pack (Nord/Dracula/…) arrives in Stage 9.
  */
 
-export type ThemeId = "dark" | "light" | "high-contrast";
+export type ThemeId =
+  | "dark"
+  | "light"
+  | "apple-dark"
+  | "apple-light"
+  | "midnight-blue"
+  | "github"
+  | "nord"
+  | "catppuccin"
+  | "high-contrast";
+
 export type ThemeSetting = ThemeId | "system";
 
 /** Every semantic token a theme must define. Keys map 1:1 to `--<key>` CSS vars. */
@@ -37,51 +47,147 @@ export interface Theme {
   tokens: ThemeTokens;
 }
 
-const dark: Theme = {
-  id: "dark",
-  name: "Dark",
+const appleDark: Theme = {
+  id: "apple-dark",
+  name: "Apple Dark",
   scheme: "dark",
   tokens: {
-    "bg-app": "#1e1e22",
-    "bg-surface": "#25252b",
-    "bg-raised": "#2d2d34",
-    "bg-hover": "#33333b",
-    "bg-active": "#3c3c46",
-    "fg-primary": "#e6e6ea",
-    "fg-secondary": "#a0a0ab",
-    "fg-muted": "#6d6d78",
-    "border-subtle": "#33333b",
-    "border-strong": "#45454f",
-    accent: "#5b8cff",
+    "bg-app": "#0f172a",
+    "bg-surface": "#1e293b",
+    "bg-raised": "#334155",
+    "bg-hover": "#3b4f6b",
+    "bg-active": "#475569",
+    "fg-primary": "#f8fafc",
+    "fg-secondary": "#cbd5e1",
+    "fg-muted": "#64748b",
+    "border-subtle": "#1e293b",
+    "border-strong": "#334155",
+    accent: "#3b82f6",
     "accent-fg": "#ffffff",
-    danger: "#f6685e",
-    warning: "#e2b340",
-    success: "#4fb477",
-    selection: "#2f4a86",
+    danger: "#ef4444",
+    warning: "#f59e0b",
+    success: "#10b981",
+    selection: "#1d4ed8",
   },
 };
 
-const light: Theme = {
-  id: "light",
-  name: "Light",
+const appleLight: Theme = {
+  id: "apple-light",
+  name: "Apple Light",
   scheme: "light",
   tokens: {
     "bg-app": "#ffffff",
-    "bg-surface": "#f6f6f8",
+    "bg-surface": "#f8fafc",
     "bg-raised": "#ffffff",
-    "bg-hover": "#eeeef2",
-    "bg-active": "#e2e2e8",
-    "fg-primary": "#1a1a1e",
-    "fg-secondary": "#55555f",
-    "fg-muted": "#8a8a95",
-    "border-subtle": "#e4e4ea",
-    "border-strong": "#cfcfd7",
-    accent: "#2f6bff",
+    "bg-hover": "#f1f5f9",
+    "bg-active": "#e2e8f0",
+    "fg-primary": "#0f172a",
+    "fg-secondary": "#475569",
+    "fg-muted": "#94a3b8",
+    "border-subtle": "#e2e8f0",
+    "border-strong": "#cbd5e1",
+    accent: "#2563eb",
     "accent-fg": "#ffffff",
-    danger: "#d93a30",
-    warning: "#b5820f",
-    success: "#1f9254",
-    selection: "#bcd2ff",
+    danger: "#dc2626",
+    warning: "#d97706",
+    success: "#16a34a",
+    selection: "#bfdbfe",
+  },
+};
+
+const midnightBlue: Theme = {
+  id: "midnight-blue",
+  name: "Midnight Blue",
+  scheme: "dark",
+  tokens: {
+    "bg-app": "#0a0f1d",
+    "bg-surface": "#131c31",
+    "bg-raised": "#1e2942",
+    "bg-hover": "#283756",
+    "bg-active": "#32446a",
+    "fg-primary": "#e2e8f0",
+    "fg-secondary": "#94a3b8",
+    "fg-muted": "#64748b",
+    "border-subtle": "#1e293b",
+    "border-strong": "#334155",
+    accent: "#38bdf8",
+    "accent-fg": "#0f172a",
+    danger: "#f87171",
+    warning: "#fbbf24",
+    success: "#34d399",
+    selection: "#0369a1",
+  },
+};
+
+const github: Theme = {
+  id: "github",
+  name: "GitHub Inspired",
+  scheme: "dark",
+  tokens: {
+    "bg-app": "#0d1117",
+    "bg-surface": "#161b22",
+    "bg-raised": "#21262d",
+    "bg-hover": "#30363d",
+    "bg-active": "#3d444d",
+    "fg-primary": "#f0f6fc",
+    "fg-secondary": "#8b949e",
+    "fg-muted": "#6e7681",
+    "border-subtle": "#21262d",
+    "border-strong": "#30363d",
+    accent: "#2f81f7",
+    "accent-fg": "#ffffff",
+    danger: "#f85149",
+    warning: "#d29922",
+    success: "#3fb950",
+    selection: "#1f6beb",
+  },
+};
+
+const nord: Theme = {
+  id: "nord",
+  name: "Nord Inspired",
+  scheme: "dark",
+  tokens: {
+    "bg-app": "#2e3440",
+    "bg-surface": "#3b4252",
+    "bg-raised": "#434c5e",
+    "bg-hover": "#4c566a",
+    "bg-active": "#5e81ac",
+    "fg-primary": "#eceff4",
+    "fg-secondary": "#e5e9f0",
+    "fg-muted": "#d8dee9",
+    "border-subtle": "#3b4252",
+    "border-strong": "#4c566a",
+    accent: "#88c0d0",
+    "accent-fg": "#2e3440",
+    danger: "#bf616a",
+    warning: "#ebcb8b",
+    success: "#a3be8c",
+    selection: "#434c5e",
+  },
+};
+
+const catppuccin: Theme = {
+  id: "catppuccin",
+  name: "Catppuccin Inspired",
+  scheme: "dark",
+  tokens: {
+    "bg-app": "#1e1e2e",
+    "bg-surface": "#181825",
+    "bg-raised": "#313244",
+    "bg-hover": "#45475a",
+    "bg-active": "#585b70",
+    "fg-primary": "#cdd6f4",
+    "fg-secondary": "#a6adc8",
+    "fg-muted": "#7f849c",
+    "border-subtle": "#313244",
+    "border-strong": "#45475a",
+    accent: "#89b4fa",
+    "accent-fg": "#1e1e2e",
+    danger: "#f38ba8",
+    warning: "#f9e2af",
+    success: "#a6e3a1",
+    selection: "#45475a",
   },
 };
 
@@ -109,9 +215,18 @@ const highContrast: Theme = {
   },
 };
 
+const darkAlias: Theme = { ...appleDark, id: "dark", name: "Dark" };
+const lightAlias: Theme = { ...appleLight, id: "light", name: "Light" };
+
 export const THEMES: Record<ThemeId, Theme> = {
-  dark,
-  light,
+  dark: darkAlias,
+  light: lightAlias,
+  "apple-dark": appleDark,
+  "apple-light": appleLight,
+  "midnight-blue": midnightBlue,
+  github,
+  nord,
+  catppuccin,
   "high-contrast": highContrast,
 };
 

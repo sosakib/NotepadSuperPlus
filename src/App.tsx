@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { AppShell } from "./shell/AppShell.tsx";
 import { CommandPalette } from "./palette/CommandPalette.tsx";
+import { SettingsDialog } from "./components/SettingsDialog.tsx";
+import { ExportDialog } from "./components/ExportDialog.tsx";
+import { AboutDialog } from "./components/AboutDialog.tsx";
 import { useKeyboard } from "./keyboard/useKeyboard.ts";
 import { useFsWatcher } from "./actions/useFsWatcher.ts";
 import { useUiStore } from "./state/ui.ts";
@@ -8,7 +11,7 @@ import { applyTheme } from "./theme/applyTheme.ts";
 import { applyEditorSyntaxVars } from "./editor/theme.ts";
 import { markStartupPhase } from "./perf.ts";
 
-/** Stage 2 shell: chrome, theming, command palette, and keyboard — no Markdown yet. */
+/** Main application entry: chrome, theming, palette, preferences, and keyboard. */
 export default function App() {
   useKeyboard();
   useFsWatcher();
@@ -42,6 +45,9 @@ export default function App() {
     <>
       <AppShell />
       <CommandPalette />
+      <SettingsDialog />
+      <ExportDialog />
+      <AboutDialog />
     </>
   );
 }

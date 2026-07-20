@@ -1,11 +1,13 @@
 import { create } from "zustand";
-import type { OutlineHeading } from "../markdown/render.ts";
+import type { OutlineHeading, DocStats } from "../markdown/render.ts";
 
 /** Latest rendered output per document, fed by the render controller/worker. */
 export interface DocRender {
   version: number;
   html: string;
   outline: OutlineHeading[];
+  /** Word/char counts computed in the worker (never on the typing path). */
+  stats: DocStats;
 }
 
 interface RenderState {

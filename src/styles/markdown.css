@@ -150,3 +150,40 @@
   background: var(--bg-app);
   border: 1px solid var(--border-strong);
 }
+
+/* GitHub & Linear Callouts */
+.markdown-alert {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-control);
+  background: var(--bg-surface);
+}
+.markdown-alert-note {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-surface));
+}
+.markdown-alert-tip {
+  border-left-color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--bg-surface));
+}
+.markdown-alert-important {
+  border-left-color: #a855f7;
+  background: color-mix(in srgb, #a855f7 10%, var(--bg-surface));
+}
+.markdown-alert-warning {
+  border-left-color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 10%, var(--bg-surface));
+}
+.markdown-alert-caution {
+  border-left-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--bg-surface));
+}
+.markdown-alert-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+}

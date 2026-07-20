@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { FileText, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
-import { EmptyState } from "../components/EmptyState.tsx";
+import { WelcomeScreen } from "../components/WelcomeScreen.tsx";
 import { Button } from "../components/Button.tsx";
 import { TabBar } from "./TabBar.tsx";
 import { SplitContainer } from "./SplitContainer.tsx";
@@ -10,7 +10,7 @@ import { SourcePane } from "../editor/SourcePane.tsx";
 import { getDocText } from "../editor/editorRegistry.ts";
 import { PreviewPane } from "../markdown/PreviewPane.tsx";
 import { renderController } from "../markdown/renderController.ts";
-import { reloadPath, openFile } from "../actions/fileActions.ts";
+import { reloadPath } from "../actions/fileActions.ts";
 
 function ConflictBanner({ docId }: { docId: string }) {
   const doc = useDocumentsStore((s) => s.docs[docId]);
@@ -43,7 +43,6 @@ function ConflictBanner({ docId }: { docId: string }) {
 export function EditorArea() {
   const viewMode = useUiStore((s) => s.viewMode);
   const activeId = useDocumentsStore((s) => s.activeId);
-  const newDocument = useDocumentsStore((s) => s.newDocument);
 
   // Ensure the active document has a fresh render so preview and outline populate,
   // even without an edit (e.g. after switching tabs or into preview/split).
@@ -57,18 +56,7 @@ export function EditorArea() {
       {activeId ? <ConflictBanner docId={activeId} /> : null}
       <div className={`editor-surface editor-surface--${viewMode}`}>
         {activeId === null ? (
-          <EmptyState
-            icon={<FileText size={40} strokeWidth={1.5} />}
-            title="No file open"
-            hint="Open a Markdown file or create a new document to start editing."
-          >
-            <div className="empty-state__buttons">
-              <Button onClick={() => void openFile()}>Open file</Button>
-              <Button variant="subtle" onClick={() => newDocument()}>
-                New file
-              </Button>
-            </div>
-          </EmptyState>
+          <WelcomeScreen />
         ) : viewMode === "preview" ? (
           <PreviewPane />
         ) : viewMode === "split" ? (
