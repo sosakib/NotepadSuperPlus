@@ -24,6 +24,8 @@ export interface UiState {
   aboutOpen: boolean;
   statusMessage: string;
   wordWrap: boolean;
+  fontFamily: string;
+  fontSize: number;
   cursorLine: number;
   cursorCol: number;
   splitRatio: number;
@@ -48,6 +50,9 @@ export interface UiState {
   toggleAbout: () => void;
   setStatus: (message: string) => void;
   toggleWordWrap: () => void;
+  setWordWrap: (on: boolean) => void;
+  setFontFamily: (family: string) => void;
+  setFontSize: (size: number) => void;
   setCursor: (line: number, col: number) => void;
   setSplitRatio: (ratio: number) => void;
 }
@@ -70,6 +75,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   aboutOpen: false,
   statusMessage: "Ready",
   wordWrap: true,
+  fontFamily: "Cascadia Code",
+  fontSize: 14,
   cursorLine: 1,
   cursorCol: 1,
   splitRatio: 0.5,
@@ -100,6 +107,9 @@ export const useUiStore = create<UiState>((set, get) => ({
   toggleAbout: () => set((s) => ({ aboutOpen: !s.aboutOpen })),
   setStatus: (message) => set({ statusMessage: message }),
   toggleWordWrap: () => set((s) => ({ wordWrap: !s.wordWrap })),
+  setWordWrap: (on) => set({ wordWrap: on }),
+  setFontFamily: (family) => set({ fontFamily: family }),
+  setFontSize: (size) => set({ fontSize: clamp(Math.round(size), 8, 32) }),
   setCursor: (line, col) => set({ cursorLine: line, cursorCol: col }),
   setSplitRatio: (ratio) => set({ splitRatio: clamp(ratio, 0.2, 0.8) }),
 }));

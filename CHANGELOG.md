@@ -10,6 +10,28 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Stage 9 — Settings persistence.** Preferences now survive a restart. The Rust core
+  persists settings as **TOML** in the app data directory with per-field defaults, so a
+  missing, partial, or hand-corrupted file degrades to defaults instead of failing to start,
+  and out-of-range values are clamped rather than breaking the UI. Theme, word wrap, editor
+  font family and size, zoom, sidebar width, split ratio, and hidden-file visibility are all
+  saved (debounced) and restored on launch. The Settings dialog's font controls are now wired
+  to real state — previously they were inert.
+- **UI/UX redesign.** A 9-theme token set (Apple Light/Dark, Midnight Blue, GitHub, Nord,
+  Catppuccin, High Contrast) wired through the editor syntax palettes, a welcome screen,
+  Settings/Export/About dialogs, and a richer status bar. Review fixes: HTML export now renders
+  and sanitizes Markdown (it previously exported the raw source, unescaped, via a browser
+  download that the Tauri webview cannot perform); document statistics moved to the render
+  worker (they were re-scanning the whole document on every keystroke); and modals gained
+  Escape-to-close, focus management, and correct `role`/`aria-modal` placement.
+- **Stage 7 — Search.** Workspace-wide text search in the Rust core using the `ignore` walker
+  (so `.gitignore` is respected) and the `regex` crate, whose linear-time matching keeps
+  pathological patterns safe. Literal or regex queries, case sensitivity, and whole-word
+  matching, with hard caps on matches, file size, and preview length; the walk runs off the IPC
+  thread. The UI adds a Search panel (`Ctrl+Shift+F`) with results grouped by file and
+  click-to-jump, plus CodeMirror's in-file find/replace (`Ctrl+F`) themed to our tokens.
+  Also fixes a real defect CI caught: atomic-write temp files were named per-process rather
+  than per-write, so two saves into the same directory could race.
 - **Stage 6 — Explorer.** Open a folder as a workspace and browse it in a **lazy file tree**
   (children load on expand, so large folders open instantly). Click a file to open it. Inline
   **file management** — new file/folder, rename, duplicate, and delete — with deletes going to
@@ -68,7 +90,5 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
   under [`docs/`](docs/) (21 architecture & planning documents).
 - Master execution roadmap ([ROADMAP.md](ROADMAP.md)) covering Stages 0–15 (Windows-first to v1.0)
   plus the deferred macOS migration milestone.
-
-_No application code yet — by design. Implementation begins at Stage 1 after roadmap approval._
 
 [Unreleased]: https://github.com/sosakib/NotepadSuperPlus/commits/main

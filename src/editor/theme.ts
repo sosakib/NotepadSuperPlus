@@ -146,7 +146,8 @@ const baseTheme = EditorView.theme({
     height: "100%",
     color: "var(--fg-primary)",
     backgroundColor: "var(--bg-app)",
-    fontSize: "14px",
+    // Driven by the persisted font-size setting (App applies the variable).
+    fontSize: "var(--editor-font-size, 14px)",
   },
   ".cm-scroller": {
     fontFamily: "var(--font-mono)",

@@ -13,6 +13,10 @@ export function SettingsDialog() {
   const setTheme = useUiStore((s) => s.setTheme);
   const wordWrap = useUiStore((s) => s.wordWrap);
   const toggleWordWrap = useUiStore((s) => s.toggleWordWrap);
+  const fontFamily = useUiStore((s) => s.fontFamily);
+  const setFontFamily = useUiStore((s) => s.setFontFamily);
+  const fontSize = useUiStore((s) => s.fontSize);
+  const setFontSize = useUiStore((s) => s.setFontSize);
 
   const [activeTab, setActiveTab] = useState<"appearance" | "editor" | "keyboard" | "about">(
     "appearance",
@@ -182,11 +186,16 @@ export function SettingsDialog() {
                       Primary typography stack for code editing.
                     </span>
                   </div>
-                  <select className="select-control" defaultValue="Consolas, monospace">
-                    <option value="Consolas, monospace">Cascadia / Consolas</option>
-                    <option value="JetBrains Mono, monospace">JetBrains Mono</option>
-                    <option value="Geist Mono, monospace">Geist Mono</option>
-                    <option value="Fira Code, monospace">Fira Code</option>
+                  <select
+                    className="select-control"
+                    aria-label="Editor font family"
+                    value={fontFamily}
+                    onChange={(e) => setFontFamily(e.target.value)}
+                  >
+                    <option value="Cascadia Code">Cascadia Code</option>
+                    <option value="Consolas">Consolas</option>
+                    <option value="JetBrains Mono">JetBrains Mono</option>
+                    <option value="Fira Code">Fira Code</option>
                   </select>
                 </div>
                 <div className="setting-row">
@@ -194,7 +203,12 @@ export function SettingsDialog() {
                     <span className="setting-row__label">Font Size</span>
                     <span className="setting-row__hint">Default editor font size in pixels.</span>
                   </div>
-                  <select className="select-control" defaultValue="14">
+                  <select
+                    className="select-control"
+                    aria-label="Editor font size"
+                    value={String(fontSize)}
+                    onChange={(e) => setFontSize(Number(e.target.value))}
+                  >
                     <option value="12">12 px</option>
                     <option value="14">14 px (Default)</option>
                     <option value="16">16 px</option>
