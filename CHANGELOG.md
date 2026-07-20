@@ -10,6 +10,13 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Stage 9 — Settings persistence.** Preferences now survive a restart. The Rust core
+  persists settings as **TOML** in the app data directory with per-field defaults, so a
+  missing, partial, or hand-corrupted file degrades to defaults instead of failing to start,
+  and out-of-range values are clamped rather than breaking the UI. Theme, word wrap, editor
+  font family and size, zoom, sidebar width, split ratio, and hidden-file visibility are all
+  saved (debounced) and restored on launch. The Settings dialog's font controls are now wired
+  to real state — previously they were inert.
 - **Stage 6 â€” Explorer.** Open a folder as a workspace and browse it in a **lazy file tree**
   (children load on expand, so large folders open instantly). Click a file to open it. Inline
   **file management** â€” new file/folder, rename, duplicate, and delete â€” with deletes going to

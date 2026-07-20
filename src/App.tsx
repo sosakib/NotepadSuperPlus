@@ -6,6 +6,7 @@ import { ExportDialog } from "./components/ExportDialog.tsx";
 import { AboutDialog } from "./components/AboutDialog.tsx";
 import { useKeyboard } from "./keyboard/useKeyboard.ts";
 import { useFsWatcher } from "./actions/useFsWatcher.ts";
+import { useSettingsPersistence } from "./actions/useSettingsPersistence.ts";
 import { useUiStore } from "./state/ui.ts";
 import { applyTheme } from "./theme/applyTheme.ts";
 import { applyEditorSyntaxVars } from "./editor/theme.ts";
@@ -15,10 +16,13 @@ import { markStartupPhase } from "./perf.ts";
 export default function App() {
   useKeyboard();
   useFsWatcher();
+  useSettingsPersistence();
 
   const resolvedTheme = useUiStore((s) => s.resolvedTheme);
   const themeSetting = useUiStore((s) => s.themeSetting);
   const zoom = useUiStore((s) => s.zoom);
+  const fontFamily = useUiStore((s) => s.fontFamily);
+  const fontSize = useUiStore((s) => s.fontSize);
 
   // Apply the resolved theme whenever it changes.
   useEffect(() => {
@@ -35,6 +39,16 @@ export default function App() {
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, [themeSetting]);
+
+  // Editor typography, applied as CSS variables the editor theme consumes.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty(
+      "--font-mono",
+      `"${fontFamily}", "Cascadia Code", Consolas, ui-monospace, monospace`,
+    );
+    root.style.setProperty("--editor-font-size", `${fontSize}px`);
+  }, [fontFamily, fontSize]);
 
   // Whole-app zoom. `zoom` is a Chromium (WebView2) property — our Windows target.
   useEffect(() => {

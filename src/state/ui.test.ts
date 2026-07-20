@@ -43,6 +43,29 @@ describe("ui store", () => {
     expect(useUiStore.getState().zoom).toBe(-4);
   });
 
+  it("clamps the editor font size to a usable range", () => {
+    useUiStore.getState().setFontSize(2);
+    expect(useUiStore.getState().fontSize).toBe(8);
+    useUiStore.getState().setFontSize(999);
+    expect(useUiStore.getState().fontSize).toBe(32);
+    useUiStore.getState().setFontSize(16);
+    expect(useUiStore.getState().fontSize).toBe(16);
+  });
+
+  it("sets the editor font family and word wrap explicitly", () => {
+    useUiStore.getState().setFontFamily("JetBrains Mono");
+    expect(useUiStore.getState().fontFamily).toBe("JetBrains Mono");
+    useUiStore.getState().setWordWrap(false);
+    expect(useUiStore.getState().wordWrap).toBe(false);
+  });
+
+  it("clamps the split ratio", () => {
+    useUiStore.getState().setSplitRatio(0.01);
+    expect(useUiStore.getState().splitRatio).toBe(0.2);
+    useUiStore.getState().setSplitRatio(0.99);
+    expect(useUiStore.getState().splitRatio).toBe(0.8);
+  });
+
   it("cycles theme through system -> dark -> light -> high-contrast -> system", () => {
     const seq = ["dark", "light", "high-contrast", "system"];
     for (const expected of seq) {

@@ -7,6 +7,7 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
 
+mod config;
 mod error;
 mod fs;
 mod fsops;
@@ -14,6 +15,7 @@ mod recent;
 mod search;
 mod watcher;
 
+use config::{Config, ConfigState};
 use error::NspResult;
 use fs::FileContent;
 use fsops::Entry;
@@ -127,6 +129,24 @@ fn fs_duplicate(path: String) -> NspResult<Entry> {
     fsops::duplicate(Path::new(&path))
 }
 
+/// Returns the persisted user settings.
+#[tauri::command]
+fn config_get(config: tauri::State<'_, ConfigState>) -> Config {
+    config.get()
+}
+
+/// Persists user settings, returning the sanitized values that were written.
+#[tauri::command]
+fn config_save(settings: Config, config: tauri::State<'_, ConfigState>) -> NspResult<Config> {
+    config.save(settings)
+}
+
+/// Path of the settings file, so the UI can offer to open it directly.
+#[tauri::command]
+fn config_path(config: tauri::State<'_, ConfigState>) -> String {
+    config.path()
+}
+
 /// Searches the workspace for text, respecting .gitignore by default.
 #[tauri::command]
 async fn search_workspace(query: search::SearchQuery) -> NspResult<search::SearchResults> {
@@ -153,7 +173,8 @@ pub fn run() {
                 .path()
                 .app_data_dir()
                 .unwrap_or_else(|_| std::env::temp_dir());
-            app.manage(RecentState::load(data_dir));
+            app.manage(RecentState::load(data_dir.clone()));
+            app.manage(ConfigState::load(data_dir));
             tracing::info!("application setup complete");
             Ok(())
         })
@@ -169,7 +190,10 @@ pub fn run() {
             fs_rename,
             fs_trash,
             fs_duplicate,
-            search_workspace
+            search_workspace,
+            config_get,
+            config_save,
+            config_path
         ])
         .run(tauri::generate_context!())
         .expect("error while running Notepad Super Plus");
