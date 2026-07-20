@@ -26,6 +26,16 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  padding: 4px 6px;
+  margin-left: -2px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.titlebar__brand:hover {
+  background: var(--bg-hover);
 }
 .titlebar__logo {
   display: grid;
@@ -129,93 +139,170 @@
   background: var(--bg-app);
 }
 .tabbar {
-  height: 34px;
   display: flex;
   align-items: center;
-  padding: 0 var(--space-3);
+  gap: var(--space-1);
+  height: var(--tabbar-height);
+  flex: 0 0 var(--tabbar-height);
+  padding: 0 var(--space-2);
   border-bottom: 1px solid var(--border-subtle);
   background: var(--bg-surface);
 }
-.tabbar {
-  gap: 2px;
-  padding: 0 var(--space-2);
+.tabbar__strip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
   overflow-x: auto;
   scrollbar-width: none;
+  /* Fade the trailing edge so an overflowing strip reads as scrollable. */
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
 }
-.tabbar::-webkit-scrollbar {
+.tabbar__strip:not(:hover) {
+  mask-image: none;
+}
+.tabbar__strip::-webkit-scrollbar {
   display: none;
 }
 .tabbar__empty {
   font-size: 12px;
   color: var(--fg-muted);
-  padding-left: var(--space-1);
+  padding-left: var(--space-2);
+  align-self: center;
 }
+
 .tab {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  height: 26px;
+  flex: 0 1 auto;
+  height: var(--tab-height);
   padding: 0 var(--space-2) 0 var(--space-3);
   border-radius: var(--radius-control);
   color: var(--fg-secondary);
   cursor: pointer;
   white-space: nowrap;
-  max-width: 200px;
+  min-width: 0;
+  max-width: 220px;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 .tab:hover {
   background: var(--bg-hover);
+  color: var(--fg-primary);
 }
-.tab--active {
+.tab--active,
+.tab--active:hover {
   background: var(--bg-app);
   color: var(--fg-primary);
-  box-shadow: inset 0 -2px 0 var(--accent);
+  box-shadow:
+    inset 0 0 0 1px var(--border-subtle),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+}
+/* Accent underline, drawn inside so it never shifts layout. */
+.tab--active::after {
+  content: "";
+  position: absolute;
+  inset: auto var(--space-2) 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent);
+}
+.tab__icon {
+  flex: 0 0 auto;
+  color: var(--fg-muted);
+  transition: color 120ms ease;
+}
+.tab--active .tab__icon {
+  color: var(--accent);
 }
 .tab__title {
-  font-size: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 450;
+  letter-spacing: -0.005em;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.tab__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex: 0 0 auto;
-  background: transparent;
+.tab--active .tab__title {
+  font-weight: 550;
 }
-.tab__dot--dirty {
-  background: var(--fg-muted);
-}
-.tab__close {
+
+/* Dirty dot and close button share one slot so tab width never shifts. */
+.tab__slot {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+.tab__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.tab--dirty .tab__dot {
+  opacity: 1;
+}
+.tab__close {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
   border: 0;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--fg-muted);
   cursor: pointer;
   opacity: 0;
+  transition:
+    opacity 120ms ease,
+    background 120ms ease,
+    color 120ms ease;
 }
 .tab:hover .tab__close,
-.tab--active .tab__close {
+.tab__close:focus-visible {
   opacity: 1;
+}
+/* A clean active tab keeps its close button visible; a dirty one reveals it on
+   hover so the unsaved dot stays readable at rest. */
+.tab--active:not(.tab--dirty) .tab__close {
+  opacity: 1;
+}
+/* Hover swaps the dot for the close button. `.tab--dirty .tab__dot` has the same
+   specificity, so this is qualified with `.tab` to win on specificity rather than
+   on source order. */
+.tab.tab:hover .tab__dot {
+  opacity: 0;
 }
 .tab__close:hover {
   background: var(--bg-active);
   color: var(--fg-primary);
 }
+
 .tabbar__new {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   flex: 0 0 auto;
   border: 0;
   border-radius: var(--radius-control);
   background: transparent;
-  color: var(--fg-secondary);
+  color: var(--fg-muted);
   cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
 .tabbar__new:hover {
   background: var(--bg-hover);
@@ -409,13 +496,19 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Revealed on hover, but kept in the layout and focusable so keyboard users can
+   still reach rename/duplicate/delete (display:none would remove them from the
+   tab order entirely). */
 .tree__actions {
-  display: none;
+  display: flex;
   gap: 1px;
   padding-right: 2px;
+  opacity: 0;
+  transition: opacity 120ms ease;
 }
-.tree__row:hover .tree__actions {
-  display: flex;
+.tree__row:hover .tree__actions,
+.tree__actions:focus-within {
+  opacity: 1;
 }
 .tree__input {
   width: 100%;
@@ -612,14 +705,20 @@
   white-space: nowrap;
 }
 
-/* ---- Status bar ---- */
+/* ---- Status bar ----
+ * Deliberately quiet: a full-width accent bar (the VS Code signature) competes
+ * with the document for attention. Surface background + muted text keeps the
+ * chrome recessive, with the accent reserved for the active view mode.
+ */
 .statusbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-4);
   padding: 0 var(--space-3);
-  background: var(--accent);
-  color: var(--accent-fg);
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--fg-secondary);
   font-size: 11px;
   user-select: none;
 }
@@ -628,12 +727,43 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  min-width: 0;
+}
+.statusbar__left {
+  flex: 1 1 auto;
+}
+.statusbar__right {
+  flex: 0 0 auto;
+}
+.statusbar__item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .statusbar__item--muted {
-  opacity: 0.8;
+  color: var(--fg-muted);
 }
 .statusbar__num {
   font-variant-numeric: tabular-nums;
+}
+.statusbar__mode {
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-weight: 550;
+  text-transform: capitalize;
+}
+/* Least-important metadata sheds first as the window narrows. */
+@media (max-width: 1100px) {
+  .statusbar__optional {
+    display: none;
+  }
+}
+@media (max-width: 860px) {
+  .statusbar__optional--wide {
+    display: none;
+  }
 }
 
 /* ---- Segmented control (view mode) ---- */
@@ -805,7 +935,10 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 10vh;
+  /* Proportional on tall displays, but never so much that a dialog is pushed
+     off a 13" laptop screen. */
+  padding: min(10vh, 72px) var(--space-4) var(--space-4);
+  overflow-y: auto;
   z-index: 100;
   animation: fade-in 150ms cubic-bezier(0.2, 0, 0, 1);
 }
@@ -981,7 +1114,7 @@
 
 .welcome-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-5);
   width: 100%;
 }
@@ -1048,6 +1181,7 @@
 .export-modal,
 .about-modal {
   width: min(680px, 94vw);
+  max-height: calc(100vh - min(10vh, 72px) - var(--space-4) * 2);
   background: var(--bg-surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-overlay);
@@ -1090,7 +1224,10 @@
 }
 .settings-modal__body {
   display: flex;
-  min-height: 380px;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 420px;
+  max-height: 100%;
 }
 .settings-modal__tabs {
   width: 170px;
@@ -1169,15 +1306,25 @@
   height: 48px;
   border-radius: var(--radius-control);
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   display: flex;
   align-items: flex-end;
+  gap: 5px;
   padding: 6px;
 }
 .theme-card__swatch {
   width: 14px;
   height: 14px;
   border-radius: 50%;
+  flex: 0 0 auto;
+}
+.theme-card__swatch--sm {
+  width: 10px;
+  height: 10px;
+  margin-bottom: 2px;
+}
+.theme-card__info {
+  display: block;
 }
 .theme-card__check {
   margin-left: auto;
@@ -1340,6 +1487,17 @@
 }
 
 /* ---- Settings: shortcut list ---- */
+.shortcut-group + .shortcut-group {
+  margin-top: var(--space-5);
+}
+.shortcut-group__title {
+  margin: 0 0 var(--space-2);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+}
 .shortcut-list {
   display: flex;
   flex-direction: column;
@@ -1359,6 +1517,32 @@
 }
 .shortcut-item .kbd-group {
   margin-left: 0;
+}
+
+/* ---- Settings: About facts ---- */
+.about-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2);
+  margin: var(--space-5) 0 0;
+}
+.about-fact {
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: var(--bg-app);
+}
+.about-fact dt {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-muted);
+}
+.about-fact dd {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--fg-primary);
 }
 
 /* ---- Settings: toggle switch ---- */

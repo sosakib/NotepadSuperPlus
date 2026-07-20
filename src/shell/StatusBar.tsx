@@ -45,28 +45,40 @@ export function StatusBar() {
         <span className="statusbar__item">{statusMessage}</span>
         {activeId ? (
           <>
-            <span className="statusbar__item statusbar__num">
-              {words} words • {chars} chars
+            <span className="statusbar__item statusbar__num statusbar__optional">
+              {words.toLocaleString()} words · {chars.toLocaleString()} chars
             </span>
-            <span className="statusbar__item statusbar__item--muted">~{readTimeMin} min read</span>
+            <span className="statusbar__item statusbar__item--muted statusbar__optional--wide">
+              ~{readTimeMin} min read
+            </span>
           </>
         ) : null}
       </div>
       <div className="statusbar__right">
         {language ? <span className="statusbar__item">{language}</span> : null}
         {encoding ? (
-          <span className="statusbar__item statusbar__item--muted">{formatEncoding(encoding)}</span>
+          <span className="statusbar__item statusbar__item--muted statusbar__optional">
+            {formatEncoding(encoding)}
+          </span>
         ) : null}
         {eol ? (
-          <span className="statusbar__item statusbar__item--muted">{eol.toUpperCase()}</span>
+          <span className="statusbar__item statusbar__item--muted statusbar__optional">
+            {eol.toUpperCase()}
+          </span>
         ) : null}
-        <span className="statusbar__item statusbar__num">
-          Ln {cursorLine}, Col {cursorCol}
-        </span>
+        {activeId ? (
+          <span className="statusbar__item statusbar__num">
+            Ln {cursorLine}, Col {cursorCol}
+          </span>
+        ) : null}
         <span className="statusbar__item statusbar__mode">{viewMode}</span>
-        <span className="statusbar__item statusbar__num">{zoomPct}</span>
-        <span className="statusbar__item">{THEMES[resolvedTheme]?.name || "Theme"}</span>
-        <span className="statusbar__item statusbar__item--muted">{version}</span>
+        {zoom !== 0 ? <span className="statusbar__item statusbar__num">{zoomPct}</span> : null}
+        <span className="statusbar__item statusbar__optional--wide">
+          {THEMES[resolvedTheme]?.name ?? "Theme"}
+        </span>
+        <span className="statusbar__item statusbar__item--muted statusbar__optional">
+          {version}
+        </span>
       </div>
     </footer>
   );

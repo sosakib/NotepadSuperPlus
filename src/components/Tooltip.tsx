@@ -11,10 +11,13 @@ interface TooltipProps {
  * collision-aware tooltip can replace this behind the same API later.
  */
 export function Tooltip({ label, children }: TooltipProps) {
+  // The bubble is decorative: every consumer already carries the same text as an
+  // accessible name (IconButton sets `aria-label`), so exposing it again would
+  // make screen readers announce the label twice.
   return (
-    <span className="tooltip-wrap" data-tooltip={label}>
+    <span className="tooltip-wrap">
       {children}
-      <span role="tooltip" className="tooltip-bubble">
+      <span className="tooltip-bubble" aria-hidden>
         {label}
       </span>
     </span>

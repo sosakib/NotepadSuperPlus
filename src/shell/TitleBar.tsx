@@ -17,17 +17,17 @@ export function TitleBar() {
 
   return (
     <header className="titlebar">
-      <div
+      <button
+        type="button"
         className="titlebar__brand"
         onClick={toggleAbout}
-        style={{ cursor: "pointer" }}
         title="About Notepad Super Plus"
       >
         <span className="titlebar__logo" aria-hidden>
           N+
         </span>
         <span className="titlebar__name">Notepad Super Plus</span>
-      </div>
+      </button>
       <div className="titlebar__center">
         <ViewModeSwitch />
       </div>

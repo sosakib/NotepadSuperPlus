@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, Download, FileText, Code, Globe, Check } from "lucide-react";
 import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
@@ -35,6 +35,15 @@ export function ExportDialog() {
 
   const close = (): void => setExportOpen(false);
   const panelRef = useDialogDismiss(exportOpen, close);
+  const successTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // The success state auto-dismisses; clear the timer if the dialog is closed
+  // first so it can't fire against an unmounted component.
+  useEffect(() => {
+    return () => {
+      if (successTimer.current) clearTimeout(successTimer.current);
+    };
+  }, []);
 
   if (!exportOpen) return null;
 
@@ -44,7 +53,7 @@ export function ExportDialog() {
     setBusy(false);
     if (!ok) return;
     setDone(true);
-    setTimeout(() => {
+    successTimer.current = setTimeout(() => {
       setDone(false);
       close();
     }, 900);

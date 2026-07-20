@@ -26,7 +26,9 @@
 
   --rail-width: 48px;
   --titlebar-height: 42px;
-  --statusbar-height: 26px;
+  --tabbar-height: 40px;
+  --tab-height: 32px;
+  --statusbar-height: 28px;
 
   --accent-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
   --accent-gradient-hover: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
@@ -89,9 +91,41 @@ button {
   color: inherit;
 }
 
+/*
+ * Scrollbars. Native Windows scrollbars ignore the app's theme and read as a
+ * foreign element inside a dark shell, so every scroll container gets a thin,
+ * token-driven bar that only gains contrast on hover.
+ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-muted);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

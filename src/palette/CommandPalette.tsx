@@ -11,6 +11,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const results = useMemo(() => {
     const all = registry.getAll();
@@ -37,6 +38,11 @@ export function CommandPalette() {
   useEffect(() => {
     setSelected(0);
   }, [query]);
+
+  // Keep the highlighted command in view when arrowing past the visible window.
+  useEffect(() => {
+    listRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+  }, [selected]);
 
   if (!open) return null;
 
@@ -86,7 +92,7 @@ export function CommandPalette() {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={onKeyDown}
         />
-        <ul className="palette__list" id="palette-list" role="listbox">
+        <ul className="palette__list" id="palette-list" role="listbox" ref={listRef}>
           {results.length === 0 ? (
             <li className="palette__empty">No matching commands</li>
           ) : (
