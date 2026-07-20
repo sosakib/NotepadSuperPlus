@@ -34,6 +34,8 @@ export default defineConfig({
   build: {
     outDir: "dist",
     target: "esnext",
-    sourcemap: true,
+    // Everything in dist/ is embedded into the installer; .map files would
+    // triple the frontend payload. Keep maps in dev (served on demand) only.
+    sourcemap: false,
   },
 });

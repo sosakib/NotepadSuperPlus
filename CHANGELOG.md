@@ -10,6 +10,43 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Windows shell integration.** Explorer's right-click menu now offers
+  **"Open with Notepad Super Plus"** for `.md`, `.markdown`, `.mdown`, `.mkd`, `.mdx`, and
+  `.txt` (registered under `SystemFileAssociations` by the NSIS installer, cleaned up on
+  uninstall). File associations are declared for both installers, the app is
+  **single-instance** (a second launch forwards its files to the running window and focuses
+  it), and files passed on the command line open on startup — relative paths resolved against
+  the invoking shell's working directory.
+- **Unsaved-changes guard.** Closing a dirty tab (close button, middle-click, or `Ctrl+W`)
+  now asks before discarding edits; closing a file also stops its file watcher.
+- **Real recent files on the welcome screen.** The "Quick Documentation" card listed
+  hard-coded doc paths that opened empty phantom buffers; it now shows the actual
+  recent-files list (shared hook with the Explorer panel) with a proper empty state.
+- **Registry-driven shortcut lists.** The welcome screen and Settings → Shortcuts render
+  from the command registry, so displayed chords can never drift from the real keymap.
+
+### Changed
+- **Markdown sanitizer hardened.** Rendered ids are prefixed (`user-content-`, GitHub-style)
+  to block DOM clobbering, internal `#anchor` links are rewritten to match, raw `<input>` is
+  restricted to disabled checkboxes (no live form fields in the preview), and arbitrary
+  `class` attributes are no longer allowed on all elements — only where the renderer emits
+  them (code fences, task lists).
+- **Status bar truthfulness.** Encoding and line-ending indicators now show the active
+  document's real values (UTF-8 BOM, UTF-16 LE/BE, CRLF…) instead of hard-coded "UTF-8 · LF";
+  the version strings in the status bar, About dialog, and Settings all come from the Rust
+  core instead of being hard-coded.
+- **Filename validation (Rust).** Create/rename now reject Windows-invalid characters,
+  reserved device names (`CON`, `NUL`, `COM1`…), `.`/`..`, and trailing dots/spaces, with
+  clear error messages.
+- Settings persistence no longer schedules a config write on every cursor move — unchanged
+  snapshots are skipped before the debounce timer is armed.
+- Brand glyph corrected from a leftover "M" to "N+" across the title bar, About dialog, and
+  Settings; the About tab and toggle switches previously referenced unstyled CSS classes and
+  now render properly.
+
+### Fixed
+- Sidebar resize tracked the pointer with a 4 px drift (offset used 44 px; the activity rail
+  is 48 px).
 - **Stage 9 — Settings persistence.** Preferences now survive a restart. The Rust core
   persists settings as **TOML** in the app data directory with per-field defaults, so a
   missing, partial, or hand-corrupted file degrades to defaults instead of failing to start,

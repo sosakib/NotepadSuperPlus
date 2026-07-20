@@ -1,22 +1,59 @@
-# Notepad Super Plus — Planning Repository
+# Notepad Super Plus
 
-> A lightweight, MIT-licensed desktop Markdown editor: Notepad++-fast, GitHub-faithful rendering, and nothing you don't need.
-> **Status: architecture & planning phase. No code yet — by design.**
+> A lightweight, MIT-licensed desktop Markdown editor for Windows: Notepad++-fast, GitHub-faithful rendering, and nothing you don't need.
 
-This repository currently contains the complete pre-implementation documentation set. Implementation begins only after the architecture is approved (see [docs/20_Master_Project_Plan.md](docs/20_Master_Project_Plan.md) §5).
+Notepad Super Plus is a Tauri 2 desktop app focused exclusively on viewing and editing Markdown. It pairs a CodeMirror 6 source editor with a sanitized, GitHub-flavored live preview, a workspace explorer with full-text search, and a themeable, keyboard-first shell.
 
-## The decision in one paragraph
+## Features
 
-After a weighted six-way evaluation (Electron, Tauri, Flutter, Qt, Avalonia, native Rust — [docs/02_Technology_Evaluation.md](docs/02_Technology_Evaluation.md)), the stack is **Tauri 2 + Rust core, React + TypeScript + Vite UI, CodeMirror 6, unified (remark/rehype) in a Web Worker, Shiki, Zustand, TOML config**. It is the only option that delivers both web-grade Markdown rendering *and* the hard budgets: **< 500 ms cold start, < 150 MB idle RAM, < 15 MB installer, 100 MB files without freezing, zero telemetry.**
+- **Source / Preview / Split** view modes with synced scrolling (`Ctrl+1/2/3`)
+- **GitHub-flavored Markdown** — tables, task lists, strikethrough — rendered in a Web Worker and sanitized before it ever touches the DOM
+- **Workspace explorer** — open a folder, browse lazily, create/rename/duplicate/trash files (deletes always go to the OS trash)
+- **Workspace search** — regex, case, whole-word toggles; respects `.gitignore`
+- **Command palette** (`Ctrl+Shift+P`) with fuzzy matching; every command is keyboard-bindable
+- **Document outline**, live word/char counts, and read-time estimate
+- **7 bundled themes** (incl. High Contrast) with OS light/dark following
+- **Encoding & EOL fidelity** — UTF-8/UTF-16/BOM and LF/CRLF are detected and preserved; saves are atomic
+- **External-change detection** — clean buffers reload silently, dirty buffers get a conflict banner
+- **Windows shell integration** — "Open with Notepad Super Plus" in the Explorer context menu for `.md`, `.markdown`, `.mdown`, `.mkd`, `.mdx`, and `.txt`; single-instance launches; file associations
+- **Export** to standalone HTML, Markdown, or plain text
+- **Zero telemetry.** Everything stays on your machine.
 
-## Read the docs
+## Install
 
-Start at **[docs/20_Master_Project_Plan.md](docs/20_Master_Project_Plan.md)** — it indexes all 21 documents (vision → requirements → architecture → security → performance → testing → 12-phase build plan → release process).
+Download the latest NSIS installer (or MSI) from [Releases](https://github.com/sosakib/NotepadSuperPlus/releases). Windows 10/11, x64.
 
-## Planned repository shape (post-approval)
+## Development
 
-See [docs/03_System_Architecture.md](docs/03_System_Architecture.md) §4 — pnpm monorepo: `apps/desktop` (Tauri app: React `src/` + Rust `src-tauri/`), `packages/markdown-core`, `packages/themes`, plus `docs/`, `design/`, `specifications/`, `tests/`, `scripts/`, `.github/workflows/`.
+Prerequisites: Node ≥ 20, pnpm 9, Rust ≥ 1.77, and the [Tauri 2 Windows prerequisites](https://tauri.app/start/prerequisites/).
+
+```sh
+pnpm install
+pnpm tauri dev        # run the desktop app
+pnpm dev              # UI only, in a browser (Tauri APIs degrade gracefully)
+
+pnpm test             # vitest unit tests
+pnpm lint && pnpm typecheck
+cargo test --manifest-path src-tauri/Cargo.toml
+pnpm tauri build      # produce installers
+```
+
+## Architecture
+
+- `src/` — React 18 + TypeScript UI. Zustand stores hold metadata; CodeMirror owns document text; Markdown renders in a worker (`src/markdown/`).
+- `src-tauri/` — Rust core: filesystem (encoding detection, atomic writes), workspace listing, search (`ignore` + `regex`), file watcher, settings (TOML), recent files.
+- All IPC goes through typed wrappers in `src/ipc/`; every Rust command returns a typed `{ code, message, path? }` error.
+
+Full design docs live in [docs/](docs/) — start at [docs/20_Master_Project_Plan.md](docs/20_Master_Project_Plan.md).
+
+## Security
+
+Rendered Markdown is sanitized (rehype-sanitize, GitHub-style schema with DOM-clobbering protection), the WebView runs under a strict CSP, and the Rust surface is least-privilege (no shell, no HTTP, no eval). See [SECURITY.md](SECURITY.md) for the reporting policy and [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md) for the latest audit.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Issues and PRs welcome.
 
 ## License
 
-MIT (applies to all code once implementation begins; documentation likewise).
+[MIT](LICENSE)
