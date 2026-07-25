@@ -1,5 +1,13 @@
 # Release Preparation Report
 
+> **Addendum, 2026-07-26 (after this report was written).** A repository-cleanup and packaging
+> pass followed. Three statements below are now out of date: the version was bumped **0.1.0 →
+> 0.9.0** (§ 7.3 item 1 said it was deliberately not bumped — 0.9.0, not 1.0.0, for exactly the
+> reasons in § 8); `Icon/` was committed and then moved to **`assets/icon/`** with its files
+> renamed (§ 7.3 item 2); and `cargo audit` was installed and run — **0 vulnerabilities**. Paths
+> quoted throughout this report reflect the layout before that reorganisation. Everything else
+> stands.
+
 **Scope:** de-monetisation, brand/icon integration, theme system review, release documentation.
 **Dates:** 2026-07-25 → 2026-07-26 · **Branch:** `develop` (base `e100564`)
 **Diff:** 40 files changed, +580 / −110, plus 6 new paths.
@@ -20,7 +28,7 @@ Six phases were run in order, each checkpointed in [PROGRESS.md](PROGRESS.md).
 | 3 — Branding & icon | All 17 platform icons regenerated from the official master; 4 in-app surfaces; favicon. |
 | 4 — Theme system | **31 measured contrast failures fixed.** 3 new themes. Gradients and shadows made theme-aware. |
 | 5 — Consistency & QA | **Installer was shipping the wrong icon** — found and fixed. Full gate suite run. |
-| 6 — Docs & release | This report + [BRAND_GUIDELINES.md](BRAND_GUIDELINES.md). |
+| 6 — Docs & release | This report + [BRAND_GUIDELINES.md](../BRAND_GUIDELINES.md). |
 
 **Three findings mattered more than the rest**, and none were visible without doing the work:
 

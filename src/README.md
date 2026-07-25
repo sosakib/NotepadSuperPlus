@@ -1,6 +1,6 @@
 # `src/` — Frontend (React + TypeScript)
 
-The webview UI. Populated in **Stage 1+** ([ROADMAP.md](../ROADMAP.md)). Planned structure
+The webview UI. Populated in **Stage 1+** ([ROADMAP.md](../docs/ROADMAP.md)). Planned structure
 mirrors [docs/03_System_Architecture.md](../docs/03_System_Architecture.md) §4:
 
 ```

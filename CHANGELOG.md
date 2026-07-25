@@ -9,6 +9,12 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-07-26
+
+First public pre-release. Feature set is close to final; see
+[docs/reports/REMAINING_TASKS.md](docs/reports/REMAINING_TASKS.md) for what still stands between
+this and 1.0.0.
+
 ### Performance
 - **Stopped per-keystroke document serialization.** The render controller took an
   already-serialized string, so the whole document was copied on every key only to be
@@ -210,7 +216,7 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
   contribution/security/conduct policies, GitHub issue & PR templates, CI/CodeQL/release
   workflow placeholders, Dependabot, and the full pre-implementation documentation set
   under [`docs/`](docs/) (21 architecture & planning documents).
-- Master execution roadmap ([ROADMAP.md](ROADMAP.md)) covering Stages 0–15 (Windows-first to v1.0)
+- Master execution roadmap ([docs/ROADMAP.md](docs/ROADMAP.md)) covering Stages 0–15 (Windows-first to v1.0)
   plus the deferred macOS migration milestone.
 
 [Unreleased]: https://github.com/sosakib/NotepadSuperPlus/commits/main

@@ -36,21 +36,18 @@ jobs:
       - name: Build installers
         run: pnpm tauri build
 
-      - name: Collect artifacts & checksums
+      # Same script contributors run locally, so CI and a local release cannot drift.
+      - name: Package release bundle
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force release-artifacts | Out-Null
-          Get-ChildItem src-tauri/target/release/bundle -Recurse -Include *.exe, *.msi |
-            Copy-Item -Destination release-artifacts
-          $lines = Get-ChildItem release-artifacts | ForEach-Object {
-            "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
-          }
-          $lines | Out-File -Encoding utf8 release-artifacts/SHA256SUMS.txt
-          Get-Content release-artifacts/SHA256SUMS.txt
+          ./scripts/package-release.ps1 -SkipBuild
+          Get-Content release/checksums/SHA256SUMS.txt
 
       - name: Draft GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          generate_release_notes: true
-          files: release-artifacts/*
+          body_path: docs/RELEASE_NOTES.md
+          files: |
+            release/installer/*
+            release/checksums/SHA256SUMS.txt

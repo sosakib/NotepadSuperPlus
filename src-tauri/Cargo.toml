@@ -1,6 +1,6 @@
 [package]
 name = "notepad-super-plus"
-version = "0.1.0"
+version = "0.9.0"
 description = "Lightweight, fast, open-source desktop Markdown editor."
 authors = ["Notepad Super Plus contributors"]
 license = "MIT"

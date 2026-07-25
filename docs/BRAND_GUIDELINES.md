@@ -12,25 +12,27 @@ recommendation rather than a shipped rule, it says so.
 
 ### 1.1 Source of truth
 
-Artwork masters live in **`Icon/`** at the repository root. This directory is the only approved
-origin for the mark. **Never draw, trace, regenerate or substitute a replacement.**
+Artwork masters live in **`assets/icon/`**. This directory is the only approved origin for the
+mark. **Never draw, trace, regenerate or substitute a replacement.**
 
 | File | Role |
 |---|---|
-| `icon vector d1.ai` | Illustrator master. Editing origin. Not a build input. |
-| `icon vector d1.svg` | Vector export. Use for any surface that can take vector. |
-| `NotebookSuperPlus_FullBleed.ico` | 7-frame Windows icon — 16, 24, 32, 48, 64, 128, 256. Ships directly as `src-tauri/icons/icon.ico` and `public/favicon.ico`. |
-| `icon-vector-d1.png` | 8192×8192 raster export. **Not directly usable** — see 1.2. |
+| `notepad-super-plus.ai` | Illustrator master. Editing origin. Not a build input. |
+| `notepad-super-plus.svg` | Vector export. Use for any surface that can take vector. |
+| `notepad-super-plus.ico` | 7-frame Windows icon — 16, 24, 32, 48, 64, 128, 256. Ships directly as `src-tauri/icons/icon.ico` and `public/favicon.ico`. |
+| `notepad-super-plus-8192.png` | 8192×8192 raster export. **Not directly usable** — see 1.2. |
+| `icon-source-1024.png` | The build input. See 1.2. |
 
 ### 1.2 The padding trap
 
-`icon-vector-d1.png` centres the artwork in roughly **59 %** of its canvas. Feeding it straight
-to `pnpm tauri icon` bakes a ~20 % dead margin into every generated size, which makes the icon
-look small and timid next to every other taskbar icon.
+`notepad-super-plus-8192.png` centres the artwork in roughly **59 %** of its canvas. Feeding it
+straight to `pnpm tauri icon` bakes a ~20 % dead margin into every generated size, which makes
+the icon look small and timid next to every other taskbar icon.
 
-`assets/icon-source.png` is the corrected build input: the same artwork cropped to its opaque
-bounds and resampled to 1024×1024. **Always regenerate from `assets/icon-source.png`**, never
-from the raw 8192 export. Full procedure in [docs/BUILD.md](docs/BUILD.md) § Icons.
+`assets/icon/icon-source-1024.png` is the corrected build input: the same artwork cropped to its
+opaque bounds and resampled to 1024×1024. **Always regenerate from
+`assets/icon/icon-source-1024.png`**, never from the raw 8192 export. Full procedure in
+[BUILD.md](BUILD.md) § Icons.
 
 ### 1.3 Anatomy
 
@@ -85,7 +87,7 @@ when they are absent Tauri silently substitutes its own stock installer icon.
 
 ### 2.1 Mark palette
 
-Sampled from `assets/icon-source.png`. These describe the artwork; they are **not** UI tokens and
+Sampled from `assets/icon/icon-source-1024.png`. These describe the artwork; they are **not** UI tokens and
 must not be hardcoded into components.
 
 | Role | Hex |
@@ -193,7 +195,7 @@ Base size 13 px, line-height 1.45.
 > ship**. On a stock Windows machine every one falls back to Segoe UI or Consolas, so the designed
 > typography never actually renders. Either self-host the woff2 files (~200 KB, preserves the
 > offline guarantee) or drop the names from the stacks so the fallback is the honest intent.
-> Unresolved — this is decision #3 in `REMAINING_TASKS.md` § 7.
+> Unresolved — this is decision #3 in `reports/REMAINING_TASKS.md` § 7.
 
 ---
 

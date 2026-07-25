@@ -1,14 +1,39 @@
 # `assets/`
 
-Build-ready application assets consumed by the build, as opposed to the artwork masters.
+Design and branding assets. Nothing here is imported by application code — the app imports
+`src/assets/brand-mark.png` and Vite serves `public/`.
+
+```
+assets/
+├── icon/         artwork masters + the build input
+├── branding/     ready-to-use exports for README, GitHub, release pages
+└── screenshots/  product screenshots used by the README
+```
+
+## `icon/` — source of truth
+
+The **only** approved origin for the mark. Never draw, trace or substitute a replacement.
+Usage rules: [docs/BRAND_GUIDELINES.md](../docs/BRAND_GUIDELINES.md).
 
 | File | Role |
 |---|---|
-| `icon-source.png` | 1024×1024 RGBA. **The input to `pnpm tauri icon`** — the vector master cropped to its opaque bounds. Regenerating the platform icon set from anything else reintroduces the dead-margin bug (see [docs/BUILD.md](../docs/BUILD.md) § Icons). |
+| `notepad-super-plus.ai` | Illustrator master. Editing origin. Not a build input. |
+| `notepad-super-plus.svg` | Vector export. |
+| `notepad-super-plus.ico` | 7-frame Windows icon (16/24/32/48/64/128/256). Ships as `src-tauri/icons/icon.ico` and `public/favicon.ico`. |
+| `notepad-super-plus-8192.png` | Raw raster export. **Not a build input** — its artwork fills only ~59 % of the canvas. |
+| `icon-source-1024.png` | **The build input.** The master cropped to its opaque bounds. `pnpm tauri icon` runs against this file and nothing else. |
 
-Artwork **masters** live in `Icon/` at the repo root — `.ai` and `.svg` vector plus a 7-frame
-full-bleed `.ico`. That directory is the single source of truth for branding; never generate a
-substitute mark. Usage rules are in [BRAND_GUIDELINES.md](../BRAND_GUIDELINES.md).
+Regenerating the platform icon set: [docs/BUILD.md](../docs/BUILD.md) § Icons.
 
-Outputs *derived* from `icon-source.png`, not edited by hand: `src-tauri/icons/` (the platform set
-referenced by `src-tauri/tauri.conf.json`), `public/favicon.ico`, `src/assets/brand-mark.png`.
+## `branding/`
+
+Exports for documentation and release pages. Derived from `icon/`; regenerate rather than edit.
+
+## `screenshots/`
+
+Product screenshots referenced by the README. See `screenshots/README.md`.
+
+## Generated elsewhere — do not hand-edit
+
+`src-tauri/icons/` (platform set), `public/favicon.ico`, `src/assets/brand-mark.png`. All three
+derive from `icon/`.

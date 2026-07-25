@@ -2,7 +2,7 @@ name: CodeQL
 
 # Static analysis for the JS/TS and Rust code. Guarded by source paths so it only runs
 # once code exists; the weekly schedule is enabled in Stage 11 (Security Hardening).
-# See ROADMAP.md and docs/08_Security_Model.md §6.
+# See docs/ROADMAP.md and docs/08_Security_Model.md §6.
 
 on:
   workflow_dispatch:
