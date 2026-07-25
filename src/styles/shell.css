@@ -32,22 +32,21 @@
   border-radius: var(--radius-control);
   background: transparent;
   cursor: pointer;
-  transition: background 120ms ease;
+  transition: background var(--dur-fast) var(--ease-out);
 }
 .titlebar__brand:hover {
   background: var(--bg-hover);
 }
+/*
+ * The brand mark is a full-bleed rounded-square icon that carries its own corner
+ * radius and gradient. It never gets a background, and is never clipped with
+ * border-radius — a second radius would cut into the artwork's own corners.
+ */
 .titlebar__logo {
-  display: grid;
-  place-items: center;
+  display: block;
+  flex: none;
   width: 22px;
   height: 22px;
-  border-radius: var(--radius-control);
-  background: var(--accent-gradient);
-  color: var(--accent-fg);
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: -0.04em;
 }
 .titlebar__name {
   font-weight: 600;
@@ -188,8 +187,8 @@
   min-width: 0;
   max-width: 220px;
   transition:
-    background 120ms ease,
-    color 120ms ease;
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 .tab:hover {
   background: var(--bg-hover);
@@ -201,7 +200,7 @@
   color: var(--fg-primary);
   box-shadow:
     inset 0 0 0 1px var(--border-subtle),
-    0 1px 2px rgba(0, 0, 0, 0.12);
+    0 1px 2px hsl(var(--shadow-color) / 0.12);
 }
 /* Accent underline, drawn inside so it never shifts layout. */
 .tab--active::after {
@@ -215,7 +214,7 @@
 .tab__icon {
   flex: 0 0 auto;
   color: var(--fg-muted);
-  transition: color 120ms ease;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 .tab--active .tab__icon {
   color: var(--accent);
@@ -248,7 +247,7 @@
   border-radius: 50%;
   background: var(--accent);
   opacity: 0;
-  transition: opacity 120ms ease;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 .tab--dirty .tab__dot {
   opacity: 1;
@@ -265,9 +264,9 @@
   cursor: pointer;
   opacity: 0;
   transition:
-    opacity 120ms ease,
-    background 120ms ease,
-    color 120ms ease;
+    opacity var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 .tab:hover .tab__close,
 .tab__close:focus-visible {
@@ -301,8 +300,8 @@
   color: var(--fg-muted);
   cursor: pointer;
   transition:
-    background 120ms ease,
-    color 120ms ease;
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 .tabbar__new:hover {
   background: var(--bg-hover);
@@ -444,7 +443,7 @@
   width: 20px;
   height: 20px;
   border: 0;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--fg-muted);
   cursor: pointer;
@@ -504,7 +503,7 @@
   gap: 1px;
   padding-right: 2px;
   opacity: 0;
-  transition: opacity 120ms ease;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 .tree__row:hover .tree__actions,
 .tree__actions:focus-within {
@@ -550,7 +549,7 @@
   width: 24px;
   height: 24px;
   border: 0;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: var(--fg-muted);
   cursor: pointer;
@@ -653,7 +652,7 @@
   background: var(--bg-app);
   color: var(--fg-primary);
   border: 1px solid var(--border-subtle);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   padding: 2px 6px;
 }
 .cm-panel label {
@@ -780,10 +779,10 @@
   background: transparent;
   color: var(--fg-secondary);
   padding: 3px 10px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   font-size: 12px;
   cursor: pointer;
-  transition: background 100ms linear;
+  transition: background var(--dur-instant) var(--ease-out);
 }
 .segmented__item:hover {
   background: var(--bg-hover);
@@ -803,7 +802,7 @@
   padding: 5px 12px;
   font-size: 13px;
   cursor: pointer;
-  transition: background 100ms linear;
+  transition: background var(--dur-instant) var(--ease-out);
 }
 .btn--default {
   background: var(--accent);
@@ -843,8 +842,9 @@
   color: var(--fg-secondary);
   cursor: pointer;
   transition:
-    background 100ms linear,
-    color 100ms linear;
+    background var(--dur-instant) var(--ease-out),
+    color var(--dur-instant) var(--ease-out),
+    transform var(--dur-base) var(--ease-emphasis);
 }
 .icon-btn:hover {
   background: var(--bg-hover);
@@ -853,6 +853,90 @@
 .icon-btn--active {
   color: var(--fg-primary);
   box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/*
+ * Icon motion.
+ *
+ * The glyph, not the button, is what moves: a 32 px target that grows shoves its
+ * neighbours around, while the same movement inside a fixed target reads as the icon
+ * responding to the cursor. `transform` and `opacity` only — both composite off the
+ * main thread, so this costs nothing on the typing path.
+ *
+ * Deliberately plain CSS rather than an animated-icon library: the equivalent
+ * component sets pull in an animation runtime, and this app's cold start is already
+ * its largest open risk. `prefers-reduced-motion` is honoured by the global rule in
+ * global.css, which zeroes every transition here.
+ */
+.icon-btn > svg {
+  transition:
+    transform var(--dur-base) var(--ease-emphasis),
+    opacity var(--dur-fast) var(--ease-out);
+}
+.icon-btn:hover > svg {
+  transform: scale(1.12);
+}
+/* Press reads as the icon being pushed in, and undercuts the hover lift. */
+.icon-btn:active > svg {
+  transform: scale(0.94);
+  transition-duration: var(--dur-instant);
+}
+/* The rail's active panel keeps its glyph settled rather than springy — a persistent
+   state should not look like it is still animating. */
+.icon-btn--active > svg,
+.icon-btn--active:hover > svg {
+  transform: none;
+}
+
+/* Rail glyphs get a touch more travel: they are the app's primary navigation and the
+   only icons a reader hunts for by shape. */
+.rail .icon-btn:hover > svg {
+  transform: scale(1.16);
+}
+
+/* Tab close button: fades in already (see .tab__close), so it only needs the same
+   press feedback as every other glyph to stop feeling inert. */
+.tab__close > svg {
+  transition: transform var(--dur-fast) var(--ease-emphasis);
+}
+.tab__close:hover > svg {
+  transform: scale(1.12) rotate(90deg);
+}
+.tab__close:active > svg {
+  transform: scale(0.94) rotate(90deg);
+}
+
+/* New-tab plus rotates instead of scaling — the shape makes the rotation legible and
+   it echoes the close button's gesture without repeating it. */
+.tabbar__new > svg {
+  transition: transform var(--dur-base) var(--ease-emphasis);
+}
+.tabbar__new:hover > svg {
+  transform: rotate(90deg);
+}
+.tabbar__new:active > svg {
+  transform: rotate(90deg) scale(0.92);
+}
+
+/*
+ * The global reduced-motion rule only zeroes durations, which turns each of the
+ * transforms above into an instant jump — quieter than an animation, but still
+ * movement the reader asked not to see. Under `reduce` the glyphs simply do not move;
+ * hover and press remain legible through the background and colour changes.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn > svg,
+  .icon-btn:hover > svg,
+  .icon-btn:active > svg,
+  .rail .icon-btn:hover > svg,
+  .tab__close:hover > svg,
+  .tab__close:active > svg,
+  .tabbar__new:hover > svg,
+  .tabbar__new:active > svg,
+  .welcome-btn--primary:hover,
+  .theme-card:hover {
+    transform: none;
+  }
 }
 
 /* ---- Tooltip ---- */
@@ -874,7 +958,7 @@
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 100ms linear;
+  transition: opacity var(--dur-instant) var(--ease-out);
   transition-delay: 0ms;
   z-index: 50;
 }
@@ -896,7 +980,7 @@
   min-width: 16px;
   text-align: center;
   padding: 1px 5px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--bg-app);
   border: 1px solid var(--border-strong);
   color: var(--fg-secondary);
@@ -929,7 +1013,9 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  /* Scrim follows the theme: a flat 50 % black is far heavier than a cream shell
+     needs, and made light themes look like they had dimmed the monitor. */
+  background: hsl(var(--shadow-color) / 0.5);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
@@ -940,7 +1026,7 @@
   padding: min(10vh, 72px) var(--space-4) var(--space-4);
   overflow-y: auto;
   z-index: 100;
-  animation: fade-in 150ms cubic-bezier(0.2, 0, 0, 1);
+  animation: fade-in var(--dur-fast) var(--ease-out);
 }
 @keyframes fade-in {
   from {
@@ -994,7 +1080,7 @@
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-control);
   cursor: pointer;
-  transition: background 100ms linear;
+  transition: background var(--dur-instant) var(--ease-out);
 }
 .palette__item--selected {
   background: var(--accent-gradient);
@@ -1052,6 +1138,13 @@
   font-weight: 500;
   margin-bottom: var(--space-4);
 }
+/* See .titlebar__logo — same full-bleed rule, badge size. */
+.welcome-hero__mark {
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
 .welcome-hero__title {
   font-family: var(--font-display);
   font-size: 36px;
@@ -1084,16 +1177,25 @@
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 120ms ease;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-emphasis);
 }
 .welcome-btn--primary {
   background: var(--accent-gradient);
   color: var(--accent-fg);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: var(--shadow-accent);
 }
 .welcome-btn--primary:hover {
+  background: var(--accent-gradient-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  box-shadow: var(--shadow-accent-hover);
+}
+.welcome-btn--primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-accent);
 }
 .welcome-btn--secondary {
   background: var(--bg-surface);
@@ -1143,7 +1245,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 .welcome-card__item {
   display: flex;
@@ -1166,7 +1268,7 @@
 .welcome-shortcuts {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .welcome-shortcut {
   display: flex;
@@ -1236,7 +1338,7 @@
   padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   background: var(--bg-app);
 }
 .settings-modal__tab {
@@ -1286,17 +1388,24 @@
 .theme-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
   padding: 10px;
   border-radius: var(--radius-panel);
   border: 1px solid var(--border-subtle);
   background: var(--bg-app);
   cursor: pointer;
   text-align: left;
-  transition: all 120ms ease;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-emphasis);
 }
 .theme-card:hover {
   border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.theme-card:active {
+  transform: translateY(0);
 }
 .theme-card.is-selected {
   border-color: var(--accent);
@@ -1432,16 +1541,11 @@
   text-align: center;
   margin-bottom: var(--space-5);
 }
+/* See .titlebar__logo — same full-bleed rule, larger size. */
 .about-brand__logo {
+  display: block;
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-panel);
-  background: var(--accent-gradient);
-  color: var(--accent-fg);
-  font-size: 24px;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
   margin: 0 auto var(--space-3);
 }
 .about-brand__title {
@@ -1557,7 +1661,7 @@
   background: var(--bg-active);
   border: 1px solid var(--border-strong);
   cursor: pointer;
-  transition: background 150ms ease;
+  transition: background var(--dur-fast) var(--ease-out);
   flex: 0 0 auto;
 }
 .toggle-switch::after {
@@ -1569,7 +1673,7 @@
   height: 14px;
   border-radius: 50%;
   background: var(--fg-primary);
-  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
+  transition: transform var(--dur-fast) var(--ease-emphasis);
 }
 .toggle-switch:checked {
   background: var(--accent);

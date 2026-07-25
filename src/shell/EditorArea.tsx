@@ -20,7 +20,7 @@ function ConflictBanner({ docId }: { docId: string }) {
   if (!doc?.conflict) return null;
   return (
     <div className="conflict-banner" role="alert">
-      <AlertTriangle size={15} />
+      <AlertTriangle size={16} />
       <span>This file changed on disk.</span>
       <div className="conflict-banner__actions">
         <Button variant="subtle" onClick={() => doc.path && void reloadPath(docId, doc.path)}>

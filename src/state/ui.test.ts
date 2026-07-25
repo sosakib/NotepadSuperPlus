@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { useUiStore } from "./ui.ts";
+import { SELECTABLE_THEMES } from "../theme/themes.ts";
 
 const reset = (): void =>
   useUiStore.setState({
@@ -66,11 +67,24 @@ describe("ui store", () => {
     expect(useUiStore.getState().splitRatio).toBe(0.8);
   });
 
-  it("cycles theme through system -> dark -> light -> high-contrast -> system", () => {
-    const seq = ["dark", "light", "high-contrast", "system"];
+  it("cycles theme through system and every selectable theme, then wraps", () => {
+    // Derived from the theme pack, not hand-listed: the point of the cycle is that a
+    // newly added theme is reachable from the rail button without touching this test.
+    const seq = [...SELECTABLE_THEMES.map((t) => t.id), "system"];
     for (const expected of seq) {
       useUiStore.getState().cycleTheme();
       expect(useUiStore.getState().themeSetting).toBe(expected);
+    }
+  });
+
+  it("reaches every bundled theme from the rail button", () => {
+    const seen = new Set<string>();
+    for (let i = 0; i < SELECTABLE_THEMES.length + 1; i++) {
+      useUiStore.getState().cycleTheme();
+      seen.add(useUiStore.getState().themeSetting);
+    }
+    for (const theme of SELECTABLE_THEMES) {
+      expect(seen).toContain(theme.id);
     }
   });
 });

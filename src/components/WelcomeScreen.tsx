@@ -1,4 +1,4 @@
-import { FileText, Plus, FolderOpen, Command, Sparkles, Clock, Keyboard } from "lucide-react";
+import { FileText, Plus, FolderOpen, Command, Clock, Keyboard } from "lucide-react";
 import { useDocumentsStore } from "../state/documents.ts";
 import { useUiStore } from "../state/ui.ts";
 import { openFile, openPath } from "../actions/fileActions.ts";
@@ -6,6 +6,7 @@ import { useRecentFiles } from "../actions/useRecentFiles.ts";
 import { registry } from "../commands/index.ts";
 import { Kbd } from "./Kbd.tsx";
 import { basename } from "../utils/path.ts";
+import brandMark from "../assets/brand-mark.png";
 
 /** Shortcuts surfaced on the welcome screen, resolved from the command registry
  * so the labels can never drift from the real keymap. */
@@ -26,7 +27,7 @@ export function WelcomeScreen() {
     <div className="welcome-screen">
       <div className="welcome-hero">
         <div className="welcome-hero__badge">
-          <Sparkles size={14} />
+          <img className="welcome-hero__mark" src={brandMark} alt="" aria-hidden />
           <span>Notepad Super Plus</span>
         </div>
         <h1 className="welcome-hero__title">Focus. Read. Write. Organize.</h1>

@@ -7,6 +7,7 @@ import {
 import { useUiStore } from "../state/ui.ts";
 import { IconButton } from "../components/IconButton.tsx";
 import { ViewModeSwitch } from "./ViewModeSwitch.tsx";
+import brandMark from "../assets/brand-mark.png";
 
 /** Application title bar: brand, view-mode switch, command-palette, settings, export entries. */
 export function TitleBar() {
@@ -23,9 +24,7 @@ export function TitleBar() {
         onClick={toggleAbout}
         title="About Notepad Super Plus"
       >
-        <span className="titlebar__logo" aria-hidden>
-          N+
-        </span>
+        <img className="titlebar__logo" src={brandMark} alt="" aria-hidden />
         <span className="titlebar__name">Notepad Super Plus</span>
       </button>
       <div className="titlebar__center">

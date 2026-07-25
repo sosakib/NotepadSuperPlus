@@ -4,6 +4,7 @@ import { IconButton } from "./IconButton.tsx";
 import { Button } from "./Button.tsx";
 import { useDialogDismiss } from "./useDialogDismiss.ts";
 import { useAppVersion } from "../actions/useAppVersion.ts";
+import brandMark from "../assets/brand-mark.png";
 
 export function AboutDialog() {
   const aboutOpen = useUiStore((s) => s.aboutOpen);
@@ -31,14 +32,14 @@ export function AboutDialog() {
 
         <div className="about-modal__body">
           <div className="about-brand">
-            <div className="about-brand__logo">N+</div>
+            <img className="about-brand__logo" src={brandMark} alt="" aria-hidden />
             <h1 className="about-brand__title">Notepad Super Plus</h1>
             <span className="about-brand__badge">v{version} • Desktop Edition</span>
           </div>
 
           <p className="about-modal__lead">
-            A premium, lightweight, open-source desktop Markdown editor designed for speed, focus,
-            and technical documentation excellence.
+            A free, open-source desktop Markdown editor built for speed, focus, and technical
+            writing. MIT-licensed and community-driven — every feature, no accounts, no paid tiers.
           </p>
 
           <div className="about-specs">
@@ -69,8 +70,11 @@ export function AboutDialog() {
         <div className="about-modal__footer">
           <span className="about-modal__footer-text">
             Made with{" "}
-            <Heart size={14} style={{ color: "#ef4444", fill: "#ef4444", display: "inline" }} /> for
-            the developer community.
+            <Heart
+              size={14}
+              style={{ color: "var(--danger)", fill: "var(--danger)", display: "inline" }}
+            />{" "}
+            for the developer community.
           </span>
           <Button onClick={() => setAboutOpen(false)}>Close</Button>
         </div>

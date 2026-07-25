@@ -30,6 +30,47 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
   auto-scroll to the active tab, middle-click to close, roving tab index.
 - Themed scrollbars across every scroll container.
 - Settings shortcuts grouped by command category; About tab facts grid.
+- **Official brand icon across every surface.** The placeholder "M" set is gone: the exe,
+  taskbar, Start Menu, desktop shortcut, installed-app entry, File Explorer, Alt+Tab,
+  installer and uninstaller now carry the real mark, as do the title bar, welcome screen,
+  About dialog and Settings → About. `public/favicon.ico` added for the WebView tab.
+- **Three new themes**, each filling a gap the pack actually had rather than adding
+  another variation: **Everforest** (the only warm dark — every other one is cool),
+  **Solarized Light** (a second light theme, warm paper rather than cool white), and
+  **Minimal Monochrome** (zero-chroma chrome; status colours deliberately kept).
+- **`src/theme/contrast.test.ts`** — 215 assertions holding all 10 themes to WCAG 2.2
+  floors (4.5:1 text, 3:1 accent and status colours) plus a minimum separation for the
+  primary/secondary/muted text ramp, and the same floor for every Markdown syntax
+  palette. A theme that regresses now fails CI.
+- Icon motion: rail, tab-close and new-tab glyphs respond to hover and press with
+  transform-only CSS (no animation runtime added). Fully suppressed under
+  `prefers-reduced-motion`.
+
+### Fixed (packaging)
+- **The NSIS installer shipped the stock NSIS icon, not the app icon.** `installerIcon`
+  and `uninstallerIcon` were never set, so Tauri used its default; the app `.exe` itself
+  was always correct. Confirmed by extracting the icon from the compiled `setup.exe`
+  before and after the fix.
+
+### Fixed (themes)
+- **31 contrast failures across the bundled themes.** Measured, not eyeballed. Worst
+  cases: Apple Light's muted text at **2.45:1**, Solarized's green and cyan at
+  **2.93/2.97:1** in the editor, Apple Dark's muted at 3.07:1, and white button labels on
+  the Apple Dark / GitHub accents at 3.68/3.75:1. Nord's three Snow Storm tints measured
+  10.84/10.26/9.25:1 — a text ramp with no hierarchy — and its signature `#5e81ac` active
+  row carried primary text at 3.50:1. Every palette now clears its floor; each adjustment
+  is commented with the value it replaced.
+- **Gradients ignored the active theme.** `--accent-gradient` was a hardcoded Apple-blue
+  ramp, so Nord, Catppuccin, Midnight Blue, GitHub and High Contrast painted blue
+  gradients that clashed with their own accent across six surfaces. Now derived from
+  `--accent` via `color-mix()`.
+- **Shadows were hardcoded for dark themes.** A flat 45 %-black drop and a 50 %-black
+  modal scrim greyed out the light themes. Shadow tint and opacity now follow the theme's
+  scheme through a new `data-scheme` attribute.
+- **The theme rail button reached only 4 of the bundled themes** (D2). The cycle is now
+  derived from the theme pack, so a new theme joins it automatically.
+- **Editor syntax palettes never met their documented 4.5:1 claim.** The docstring in
+  `src/editor/theme.ts` asserted it; nothing checked. Six themes were failing.
 
 ### Changed
 - **Status bar is no longer a full-width accent band** — surface-toned with muted text,

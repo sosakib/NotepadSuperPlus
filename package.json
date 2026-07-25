@@ -9,6 +9,11 @@
     "node": ">=20"
   },
   "packageManager": "pnpm@9.15.9",
+  "pnpm": {
+    "overrides": {
+      "brace-expansion@5": "^5.0.8"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

@@ -1,4 +1,5 @@
 import { useAppVersion } from "../actions/useAppVersion.ts";
+import brandMark from "../assets/brand-mark.png";
 
 /** Identity and build information. */
 export function AboutTab() {
@@ -7,9 +8,7 @@ export function AboutTab() {
   return (
     <div className="settings-section">
       <div className="about-brand">
-        <div className="about-brand__logo" aria-hidden>
-          N+
-        </div>
+        <img className="about-brand__logo" src={brandMark} alt="" aria-hidden />
         <h3 className="about-brand__title">Notepad Super Plus</h3>
         <span className="about-brand__badge">Version {version} · Windows desktop</span>
       </div>

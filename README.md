@@ -2,6 +2,8 @@
 
 > A lightweight, MIT-licensed desktop Markdown editor for Windows: Notepad++-fast, GitHub-faithful rendering, and nothing you don't need.
 
+**Free and open source, forever.** Every feature is in the box — no accounts, no paid tier, no telemetry.
+
 Notepad Super Plus is a Tauri 2 desktop app focused exclusively on viewing and editing Markdown. It pairs a CodeMirror 6 source editor with a sanitized, GitHub-flavored live preview, a workspace explorer with full-text search, and a themeable, keyboard-first shell.
 
 ## Features

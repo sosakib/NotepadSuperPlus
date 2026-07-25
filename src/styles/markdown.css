@@ -167,9 +167,21 @@
   border-left-color: var(--success);
   background: color-mix(in srgb, var(--success) 10%, var(--bg-surface));
 }
+/*
+ * The one callout colour with no semantic token behind it. GitHub renders IMPORTANT in
+ * purple, and the token set has no purple — note/tip/warning/caution all map cleanly to
+ * accent/success/warning/danger, this one does not. Kept as GitHub's value rather than
+ * forced onto an existing token, because reusing --accent would make IMPORTANT and NOTE
+ * identical, which is worse than one un-themed hue.
+ *
+ * Hoisted to a variable so it is declared once and is obvious when a purple token
+ * eventually exists. Note this whole `.markdown-alert-*` block is currently unrendered:
+ * FR-3.6 (GitHub callouts) is not implemented, so nothing emits these classes yet.
+ */
 .markdown-alert-important {
-  border-left-color: #a855f7;
-  background: color-mix(in srgb, #a855f7 10%, var(--bg-surface));
+  --alert-important: #a855f7;
+  border-left-color: var(--alert-important);
+  background: color-mix(in srgb, var(--alert-important) 10%, var(--bg-surface));
 }
 .markdown-alert-warning {
   border-left-color: var(--warning);

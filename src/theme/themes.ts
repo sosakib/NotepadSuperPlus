@@ -2,8 +2,14 @@
  * Theme engine — semantic token layer (docs/04_UI_UX_Guidelines.md §3.3).
  *
  * Themes override the *semantic* tokens only. Components must consume tokens,
- * never literal colors (enforced by review — docs/13 §6). The token set here is
- * intentionally small; the bundled theme pack (Nord/Dracula/…) arrives in Stage 9.
+ * never literal colors (enforced by review — docs/13 §6).
+ *
+ * Every palette here is held to the WCAG floors asserted in `contrast.test.ts`:
+ * 4.5:1 for text on each surface it can land on, 3:1 for accent and status colors,
+ * and a minimum separation between the primary/secondary/muted text ramp so the
+ * three tiers stay distinguishable. Palettes borrowed from established schemes are
+ * adjusted where the original fails those floors — the notes on each theme record
+ * what moved and why, so nobody "restores" a value back into a failure.
  */
 
 export type ThemeId =
@@ -15,6 +21,9 @@ export type ThemeId =
   | "github"
   | "nord"
   | "catppuccin"
+  | "everforest"
+  | "solarized-light"
+  | "monochrome"
   | "high-contrast";
 
 export type ThemeSetting = ThemeId | "system";
@@ -49,6 +58,11 @@ export interface Theme {
   tokens: ThemeTokens;
 }
 
+/**
+ * Two values moved off the Tailwind slate/blue ramp for contrast:
+ * `fg-muted` slate-500 → #8390a2 (3.07:1 on bg-surface, unreadable) and
+ * `accent` blue-500 → #3473da (white label on the button was 3.68:1).
+ */
 const appleDark: Theme = {
   id: "apple-dark",
   name: "Apple Dark",
@@ -62,10 +76,10 @@ const appleDark: Theme = {
     "bg-active": "#475569",
     "fg-primary": "#f8fafc",
     "fg-secondary": "#cbd5e1",
-    "fg-muted": "#64748b",
+    "fg-muted": "#8390a2",
     "border-subtle": "#1e293b",
     "border-strong": "#334155",
-    accent: "#3b82f6",
+    accent: "#3473da",
     "accent-fg": "#ffffff",
     danger: "#ef4444",
     warning: "#f59e0b",
@@ -87,7 +101,8 @@ const appleLight: Theme = {
     "bg-active": "#e2e8f0",
     "fg-primary": "#0f172a",
     "fg-secondary": "#475569",
-    "fg-muted": "#94a3b8",
+    // slate-400 was 2.45:1 on bg-surface — the worst offender in the whole pack.
+    "fg-muted": "#697483",
     "border-subtle": "#e2e8f0",
     "border-strong": "#cbd5e1",
     accent: "#2563eb",
@@ -112,7 +127,7 @@ const midnightBlue: Theme = {
     "bg-active": "#32446a",
     "fg-primary": "#e2e8f0",
     "fg-secondary": "#94a3b8",
-    "fg-muted": "#64748b",
+    "fg-muted": "#778599", // was slate-500, 3.56:1 on bg-surface
     "border-subtle": "#1e293b",
     "border-strong": "#334155",
     accent: "#38bdf8",
@@ -137,18 +152,26 @@ const github: Theme = {
     "bg-active": "#3d444d",
     "fg-primary": "#f0f6fc",
     "fg-secondary": "#8b949e",
-    "fg-muted": "#6e7681",
+    "fg-muted": "#7c838d", // was GitHub's fgColor-muted, 3.77:1 on bg-surface
     "border-subtle": "#21262d",
     "border-strong": "#30363d",
-    accent: "#2f81f7",
+    accent: "#2a74de", // GitHub's accent blue darkened: white label was 3.75:1
     "accent-fg": "#ffffff",
     danger: "#f85149",
     warning: "#d29922",
     success: "#3fb950",
-    selection: "#1f6beb",
+    selection: "#1e68e3", // darkened from GitHub's #1f6beb: primary text was 4.42:1
   },
 };
 
+/**
+ * Nord's three Snow Storm tints (#d8dee9/#e5e9f0/#eceff4) are near-identical by
+ * design, which collapsed the text ramp: primary/secondary/muted measured
+ * 10.84/10.26/9.25:1, so emphasis was invisible. Secondary and muted are pulled
+ * down toward Polar Night to restore a real hierarchy (10.84/7.44/5.67), and
+ * `bg-active` — Nord's signature #5e81ac — is darkened because primary text on it
+ * was only 3.50:1.
+ */
 const nord: Theme = {
   id: "nord",
   name: "Nord Inspired",
@@ -159,10 +182,10 @@ const nord: Theme = {
     "bg-surface": "#3b4252",
     "bg-raised": "#434c5e",
     "bg-hover": "#4c566a",
-    "bg-active": "#5e81ac",
+    "bg-active": "#506e93",
     "fg-primary": "#eceff4",
-    "fg-secondary": "#e5e9f0",
-    "fg-muted": "#d8dee9",
+    "fg-secondary": "#c3c8d1",
+    "fg-muted": "#a9afba",
     "border-subtle": "#3b4252",
     "border-strong": "#4c566a",
     accent: "#88c0d0",
@@ -187,7 +210,7 @@ const catppuccin: Theme = {
     "bg-active": "#585b70",
     "fg-primary": "#cdd6f4",
     "fg-secondary": "#a6adc8",
-    "fg-muted": "#7f849c",
+    "fg-muted": "#81869d", // Catppuccin overlay1 nudged: was 4.44:1 on bg-app
     "border-subtle": "#313244",
     "border-strong": "#45475a",
     accent: "#89b4fa",
@@ -196,6 +219,99 @@ const catppuccin: Theme = {
     warning: "#f9e2af",
     success: "#a6e3a1",
     selection: "#45475a",
+  },
+};
+
+/**
+ * Added because every other dark theme in the pack is *cool* — navy, slate, arctic,
+ * pastel lavender. Everforest is the only warm option: green-grey surfaces and a
+ * sage accent, for readers who find blue-cast screens fatiguing at night.
+ */
+const everforest: Theme = {
+  id: "everforest",
+  name: "Everforest",
+  description: "Warm forest greens, easy at night",
+  scheme: "dark",
+  tokens: {
+    "bg-app": "#2d353b",
+    "bg-surface": "#343f44",
+    "bg-raised": "#3d484d",
+    "bg-hover": "#475258",
+    "bg-active": "#4a5358",
+    "fg-primary": "#d3c6aa",
+    "fg-secondary": "#b3bcae",
+    "fg-muted": "#a4ad9f",
+    "border-subtle": "#343f44",
+    "border-strong": "#475258",
+    accent: "#a7c080",
+    "accent-fg": "#2d353b",
+    danger: "#e67e80",
+    warning: "#dbbc7f",
+    success: "#83c092",
+    selection: "#46554c",
+  },
+};
+
+/**
+ * Added because Apple Light was the pack's only light theme, and a cool white page
+ * is the wrong surface for long reading in a bright room. Solarized's cream base is
+ * a genuinely different light identity, not a second version of the same one. The
+ * accent is darkened from Solarized's #268bd2, which cannot carry white label text.
+ */
+const solarizedLight: Theme = {
+  id: "solarized-light",
+  name: "Solarized Light",
+  description: "Warm paper tones for bright rooms",
+  scheme: "light",
+  tokens: {
+    "bg-app": "#fdf6e3",
+    "bg-surface": "#f4ecd8",
+    "bg-raised": "#fffdf5",
+    "bg-hover": "#eee8d5",
+    "bg-active": "#e3dcc6",
+    "fg-primary": "#073642",
+    "fg-secondary": "#4a5f66",
+    "fg-muted": "#5a6c72",
+    "border-subtle": "#e3dcc6",
+    "border-strong": "#c8c0a8",
+    accent: "#1f6f9f",
+    "accent-fg": "#ffffff",
+    danger: "#b62422",
+    warning: "#8a6800",
+    success: "#5c6d00",
+    selection: "#d7e7f0",
+  },
+};
+
+/**
+ * Added because every other theme is chromatic, and an accent that draws the eye is
+ * the wrong default for people who just want the prose to be the only coloured thing
+ * on screen. Chrome is zero-chroma; `danger`/`warning`/`success` deliberately are
+ * *not*, because a destructive confirmation must still read as destructive — losing
+ * that would be a usability regression dressed up as consistency.
+ */
+const monochrome: Theme = {
+  id: "monochrome",
+  name: "Minimal Monochrome",
+  description: "Zero-chroma chrome, prose is the only colour",
+  scheme: "dark",
+  tokens: {
+    "bg-app": "#121212",
+    "bg-surface": "#1a1a1a",
+    "bg-raised": "#232323",
+    "bg-hover": "#2c2c2c",
+    "bg-active": "#383838",
+    "fg-primary": "#f2f2f2",
+    "fg-secondary": "#c0c0c0",
+    "fg-muted": "#8e8e8e",
+    "border-subtle": "#232323",
+    "border-strong": "#3a3a3a",
+    accent: "#d4d4d4",
+    "accent-fg": "#121212",
+    danger: "#e0796f",
+    warning: "#d3ac63",
+    success: "#7fb98a",
+    selection: "#3a3a3a",
   },
 };
 
@@ -236,6 +352,9 @@ export const THEMES: Record<ThemeId, Theme> = {
   github,
   nord,
   catppuccin,
+  everforest,
+  "solarized-light": solarizedLight,
+  monochrome,
   "high-contrast": highContrast,
 };
 
@@ -251,6 +370,9 @@ export const SELECTABLE_THEMES: readonly Theme[] = [
   github,
   nord,
   catppuccin,
+  everforest,
+  solarizedLight,
+  monochrome,
   highContrast,
 ];
 

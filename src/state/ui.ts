@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { resolveTheme, type ThemeId, type ThemeSetting } from "../theme/themes.ts";
+import {
+  SELECTABLE_THEMES,
+  resolveTheme,
+  type ThemeId,
+  type ThemeSetting,
+} from "../theme/themes.ts";
 
 export type PanelId = "explorer" | "outline" | "search";
 export type ViewMode = "source" | "preview" | "split";
@@ -59,7 +64,13 @@ export interface UiState {
 
 const clamp = (n: number, min: number, max: number): number => Math.min(max, Math.max(min, n));
 
-const THEME_CYCLE: ThemeSetting[] = ["system", "dark", "light", "high-contrast"];
+/**
+ * Derived from the theme pack rather than hand-listed: the old literal reached only
+ * 4 of the bundled themes, so the rail button silently skipped most of them and every
+ * new theme had to be remembered in two places. Adding one to `SELECTABLE_THEMES` now
+ * puts it in the cycle automatically.
+ */
+const THEME_CYCLE: ThemeSetting[] = ["system", ...SELECTABLE_THEMES.map((t) => t.id)];
 
 export const useUiStore = create<UiState>((set, get) => ({
   themeSetting: "system",

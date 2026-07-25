@@ -64,9 +64,27 @@ cargo test  --manifest-path src-tauri/Cargo.toml
 
 ## Icons
 
-App icons are generated from a source image with `pnpm tauri icon <path-to-1024px.png>`, which
-writes the full set into `src-tauri/icons/`. Production-quality icons land in Stage 13; the
-current set is a generated placeholder.
+The brand mark is the **only** approved icon artwork — see [BRAND_GUIDELINES.md](../BRAND_GUIDELINES.md).
+Masters live in `Icon/` (`.ai` and `.svg` vector, plus a 7-frame full-bleed `.ico`).
+
+`assets/icon-source.png` is the build-ready 1024×1024 export: the vector master cropped to its
+opaque bounds, because the raw 8192×8192 export centres the artwork in only ~59 % of its canvas and
+would otherwise ship a dead margin at every size. Regenerate the platform set from it with:
+
+```bash
+pnpm tauri icon assets/icon-source.png
+```
+
+That writes `src-tauri/icons/`. Two follow-ups every time it is run:
+
+1. `pnpm tauri icon` also emits `src-tauri/icons/android/` and `ios/` — delete both; this is a
+   Windows-first desktop app and they are not bundled.
+2. It generates a 6-frame `icon.ico` (no 128 px). Overwrite it with the official 7-frame file so
+   Windows has a native 128 px variant for large Explorer views:
+   `cp Icon/NotebookSuperPlus_FullBleed.ico src-tauri/icons/icon.ico`
+
+`public/favicon.ico` is the same official `.ico`, served by Vite for the WebView/dev tab.
+`src/assets/brand-mark.png` is its 128 px frame, imported by the in-app surfaces.
 
 ## Logging
 
