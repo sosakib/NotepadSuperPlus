@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { OutlineHeading, DocStats } from "../markdown/render.ts";
+import type { Frontmatter } from "../markdown/frontmatter.ts";
 
 /** Latest rendered output per document, fed by the render controller/worker. */
 export interface DocRender {
@@ -8,6 +9,8 @@ export interface DocRender {
   outline: OutlineHeading[];
   /** Word/char counts computed in the worker (never on the typing path). */
   stats: DocStats;
+  /** Parsed YAML frontmatter, or null when the document has none (FR-3.3). */
+  frontmatter: Frontmatter | null;
 }
 
 interface RenderState {

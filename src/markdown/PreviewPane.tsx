@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDocumentsStore } from "../state/documents.ts";
 import { useRenderStore } from "../state/render.ts";
 import { registerPreview, syncEditorToPreview } from "./scrollSync.ts";
+import { FrontmatterPanel } from "./FrontmatterPanel.tsx";
 
 /**
  * Renders the active document's sanitized HTML. The HTML is produced and
@@ -11,6 +12,9 @@ import { registerPreview, syncEditorToPreview } from "./scrollSync.ts";
 export function PreviewPane({ syncScroll = false }: { syncScroll?: boolean }) {
   const activeId = useDocumentsStore((s) => s.activeId);
   const html = useRenderStore((s) => (activeId ? (s.results[activeId]?.html ?? "") : ""));
+  const frontmatter = useRenderStore((s) =>
+    activeId ? (s.results[activeId]?.frontmatter ?? null) : null,
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,7 +29,10 @@ export function PreviewPane({ syncScroll = false }: { syncScroll?: boolean }) {
       onScroll={syncScroll ? syncEditorToPreview : undefined}
     >
       {html ? (
-        <article className="markdown-body" dangerouslySetInnerHTML={{ __html: html }} />
+        <>
+          {frontmatter ? <FrontmatterPanel frontmatter={frontmatter} /> : null}
+          <article className="markdown-body" dangerouslySetInnerHTML={{ __html: html }} />
+        </>
       ) : (
         <p className="preview-pane__empty">Nothing to preview yet.</p>
       )}

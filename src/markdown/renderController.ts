@@ -22,8 +22,8 @@ class RenderController {
     if (!this.worker) {
       this.worker = new Worker(new URL("./md.worker.ts", import.meta.url), { type: "module" });
       this.worker.onmessage = (e: MessageEvent<RenderResponse>) => {
-        const { docId, version, html, outline, stats } = e.data;
-        useRenderStore.getState().setResult(docId, { version, html, outline, stats });
+        const { docId, version, html, outline, stats, frontmatter } = e.data;
+        useRenderStore.getState().setResult(docId, { version, html, outline, stats, frontmatter });
       };
     }
     return this.worker;

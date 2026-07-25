@@ -9,6 +9,7 @@ import { visit } from "unist-util-visit";
 import { toString } from "mdast-util-to-string";
 import type { Root as MdastRoot } from "mdast";
 import type { Root as HastRoot } from "hast";
+import { splitFrontmatter, type Frontmatter } from "./frontmatter.ts";
 
 /**
  * The Markdown rendering pipeline (pure — no DOM, no worker), so it can be unit-
@@ -38,6 +39,8 @@ export interface RenderResult {
   html: string;
   outline: OutlineHeading[];
   stats: DocStats;
+  /** Parsed YAML frontmatter, or null when the document has none (FR-3.3). */
+  frontmatter: Frontmatter | null;
 }
 
 function computeStats(text: string): DocStats {
@@ -142,7 +145,12 @@ const processor = unified()
 
 /** Renders Markdown source to sanitized HTML plus a heading outline. */
 export async function renderMarkdown(text: string): Promise<RenderResult> {
-  const file = await processor.process(text);
+  // Frontmatter is lifted out before parsing, or its fences render as a thematic
+  // break and its keys as a stray heading. `body` keeps the original line numbering
+  // (see splitFrontmatter), so the outline and scroll sync stay aligned.
+  const { frontmatter, body } = splitFrontmatter(text);
+  const file = await processor.process(body);
   const outline = (file.data as { outline?: OutlineHeading[] }).outline ?? [];
-  return { html: String(file), outline, stats: computeStats(text) };
+  // Stats describe the prose the reader sees, so metadata is excluded.
+  return { html: String(file), outline, stats: computeStats(body), frontmatter };
 }

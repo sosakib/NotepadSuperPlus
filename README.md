@@ -11,7 +11,7 @@ Notepad++-quick. GitHub-accurate preview. No accounts, no paid tier, no telemetr
 [![License: MIT](https://img.shields.io/badge/License-MIT-2978EF.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4.svg)](docs/INSTALL.md)
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB.svg)](https://tauri.app)
-[![Tests](https://img.shields.io/badge/tests-316%20passing-3fb950.svg)](#quality)
+[![Tests](https://img.shields.io/badge/tests-328%20passing-3fb950.svg)](#quality)
 [![Version](https://img.shields.io/badge/version-0.9.0-8957e5.svg)](docs/RELEASE_NOTES.md)
 
 [**Download**](https://github.com/sosakib/NotepadSuperPlus/releases) ·
@@ -54,6 +54,7 @@ write.
 - **GitHub-flavored Markdown**: tables, task lists, strikethrough, autolinks
 - Rendering happens in a **Web Worker** and is **sanitized before it touches the DOM** — the
   preview cannot execute anything a document puts in it
+- **Frontmatter panel** — YAML metadata shown as a collapsible panel, not leaked into the body
 - **Document outline**, live word and character counts, read-time estimate
 - **Export** to standalone HTML, Markdown or plain text
 
@@ -149,7 +150,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
 
 | Gate | Status |
 |---|---|
-| TypeScript tests | **316 passing** / 15 files |
+| TypeScript tests | **328 passing** / 16 files |
 | Rust tests | **34 passing** |
 | `clippy -D warnings`, `fmt`, `eslint`, `prettier`, `tsc` | clean |
 | `pnpm audit --prod` · `cargo audit` | **0 vulnerabilities** |
@@ -181,8 +182,8 @@ tests/        end-to-end tests (not yet written — see roadmap)
 
 ## Roadmap
 
-Toward **1.0**: syntax-highlighted code blocks, a frontmatter panel, and an end-to-end test
-suite. Startup and session restore are done — see
+Toward **1.0**: syntax-highlighted code blocks and an end-to-end test suite. Startup, session
+restore and the frontmatter panel are done — see
 [STARTUP_PERFORMANCE.md](docs/reports/STARTUP_PERFORMANCE.md). Tracked in
 [`docs/reports/REMAINING_TASKS.md`](docs/reports/REMAINING_TASKS.md).
 

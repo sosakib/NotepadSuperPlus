@@ -10,6 +10,14 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Frontmatter panel (FR-3.3).** YAML frontmatter is lifted out of the document and
+  shown as a collapsible metadata panel above the preview. Previously its `---` fences
+  rendered as a thematic break and its keys as a stray heading, so metadata leaked into
+  the rendered body — wrong output, not just a missing feature. The block is replaced by
+  an equal number of blank lines rather than removed, so every heading line number,
+  outline entry and `data-source-line` stays aligned and scroll sync keeps working. No
+  YAML dependency added: flat `key: value` pairs, inline `[a, b]` arrays and `- item`
+  lists are parsed; nested mappings are shown verbatim rather than silently dropped.
 - **Session restore (FR-6.4).** Open documents, caret positions, view mode and the
   workspace folder are saved to `session.json` and restored on launch. Files that moved
   or were deleted are dropped silently rather than restored as error tabs, and the
