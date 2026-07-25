@@ -71,3 +71,21 @@ export function getDocText(docId: string): string {
   }
   return savedStates.get(docId)?.doc.toString() ?? "";
 }
+
+/**
+ * 1-based caret position of a document, for session restore (FR-6.4).
+ *
+ * Reads the live view when the document is active, otherwise its saved state. A
+ * document with neither — one restored but never focused — has no caret to report,
+ * so line 1 is the honest answer rather than a remembered position that never existed.
+ */
+export function getDocCursor(docId: string): { line: number; column: number } {
+  const state =
+    activeView && useDocumentsStore.getState().activeId === docId
+      ? activeView.state
+      : savedStates.get(docId);
+  if (!state) return { line: 1, column: 1 };
+  const head = state.selection.main.head;
+  const line = state.doc.lineAt(head);
+  return { line: line.number, column: head - line.from + 1 };
+}

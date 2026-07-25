@@ -39,18 +39,13 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        // Split the two large, rarely-changing vendor graphs out of the app
-        // chunk so they parse independently and stay cacheable across builds.
+        // React only. CodeMirror used to be listed here too, and that quietly
+        // defeated lazy-loading the editor: a named manualChunk reachable from the
+        // entry gets a `modulepreload` link, so the browser downloaded and parsed all
+        // ~550 kB during startup even though no editor was mounted. Left unnamed, it
+        // lands inside the lazy SourcePane chunk and is fetched on first use.
         manualChunks: {
           react: ["react", "react-dom"],
-          codemirror: [
-            "@codemirror/state",
-            "@codemirror/view",
-            "@codemirror/commands",
-            "@codemirror/language",
-            "@codemirror/search",
-            "@codemirror/lang-markdown",
-          ],
         },
       },
     },

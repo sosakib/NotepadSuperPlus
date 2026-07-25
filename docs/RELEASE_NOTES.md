@@ -23,6 +23,9 @@ would be a claim the code cannot back.
 - Export to standalone HTML, Markdown or plain text
 
 **Workspace**
+- **Session restore** — your open tabs, caret positions, view mode and workspace folder come
+  back exactly as you left them. Files that moved or were deleted are dropped quietly instead of
+  reopening as errors.
 - Folder explorer with lazy loading; create, rename, duplicate, trash (deletes always go to the
   OS recycle bin, never a hard delete)
 - Workspace search with regex, case and whole-word toggles, respecting `.gitignore`
@@ -52,8 +55,7 @@ Read these before installing.
 
 | | |
 |---|---|
-| **Startup takes 1.8–2.5 s** | The design budget is under 500 ms. The app is usable, but it does not launch instantly. |
-| **Sessions are not restored** | Closing the app loses your open tabs and cursor positions. Settings persist; documents do not. |
+| **Startup takes ~1.4 s** | Down from ~2 s, and the boot payload is 82 % smaller — but ~950 ms of that is Tauri/WebView2 initialising before any of our code runs, so it cannot go much lower. The original "under 500 ms" target was not achievable; see [STARTUP_PERFORMANCE.md](reports/STARTUP_PERFORMANCE.md). |
 | **Fenced code blocks are not syntax-highlighted** | They render as plain monospace text in the preview. |
 | **YAML frontmatter renders as body text** | It is not yet parsed into a panel. |
 | **Installers are unsigned** | SmartScreen will warn on download. See [INSTALL.md](INSTALL.md). |

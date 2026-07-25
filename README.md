@@ -11,7 +11,7 @@ Notepad++-quick. GitHub-accurate preview. No accounts, no paid tier, no telemetr
 [![License: MIT](https://img.shields.io/badge/License-MIT-2978EF.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4.svg)](docs/INSTALL.md)
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB.svg)](https://tauri.app)
-[![Tests](https://img.shields.io/badge/tests-309%20passing-3fb950.svg)](#quality)
+[![Tests](https://img.shields.io/badge/tests-316%20passing-3fb950.svg)](#quality)
 [![Version](https://img.shields.io/badge/version-0.9.0-8957e5.svg)](docs/RELEASE_NOTES.md)
 
 [**Download**](https://github.com/sosakib/NotepadSuperPlus/releases) ·
@@ -33,7 +33,7 @@ It is not a note-taking system, a wiki, or a knowledge graph. It opens `.md` fil
 write.
 
 > **This is a 0.9 pre-release.** The feature set is close to final and it is stable for daily
-> use, but startup is slower than intended and sessions are not yet restored. Please read
+> use, but startup is ~1.4 s and fenced code blocks are not yet syntax-highlighted. Please read
 > [Known limitations](docs/RELEASE_NOTES.md#known-limitations) before installing.
 
 ## Screenshots
@@ -59,6 +59,7 @@ write.
 
 ### Work with folders
 
+- **Session restore** — open tabs, caret positions, view mode and workspace come back on launch
 - **Workspace explorer** — open a folder, browse lazily, create / rename / duplicate / trash
 - **Deletes always go to the recycle bin.** There is no hard delete anywhere in the app
 - **Workspace search** with regex, case and whole-word toggles, honouring `.gitignore`
@@ -148,8 +149,8 @@ cargo test --manifest-path src-tauri/Cargo.toml
 
 | Gate | Status |
 |---|---|
-| TypeScript tests | **309 passing** / 14 files |
-| Rust tests | **25 passing** |
+| TypeScript tests | **316 passing** / 15 files |
+| Rust tests | **34 passing** |
 | `clippy -D warnings`, `fmt`, `eslint`, `prettier`, `tsc` | clean |
 | `pnpm audit --prod` · `cargo audit` | **0 vulnerabilities** |
 
@@ -180,8 +181,9 @@ tests/        end-to-end tests (not yet written — see roadmap)
 
 ## Roadmap
 
-Toward **1.0**: startup performance, syntax-highlighted code blocks, frontmatter panel, session
-restore, and an end-to-end test suite. Tracked in
+Toward **1.0**: syntax-highlighted code blocks, a frontmatter panel, and an end-to-end test
+suite. Startup and session restore are done — see
+[STARTUP_PERFORMANCE.md](docs/reports/STARTUP_PERFORMANCE.md). Tracked in
 [`docs/reports/REMAINING_TASKS.md`](docs/reports/REMAINING_TASKS.md).
 
 Beyond that: math and Mermaid rendering, GitHub callouts, PDF export, smart list continuation,

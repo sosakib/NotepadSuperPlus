@@ -11,7 +11,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { SELECTABLE_THEMES, THEMES, type Theme, type ThemeId, type ThemeTokens } from "./themes.ts";
-import { SYNTAX_PALETTES } from "../editor/theme.ts";
+import { SYNTAX_PALETTES } from "../editor/syntaxPalettes.ts";
 
 type TokenKey = keyof ThemeTokens;
 
@@ -139,7 +139,7 @@ describe("global.css token fallbacks", () => {
 });
 
 /**
- * `src/editor/theme.ts` claims its palettes clear 4.5:1 against each theme's editor
+ * `src/editor/syntaxPalettes.ts` claims its palettes clear 4.5:1 against each theme's editor
  * background. That claim was never checked, and borrowed palettes are exactly where it
  * breaks — an accent ring tuned for a dark base is not safe on a light one.
  */

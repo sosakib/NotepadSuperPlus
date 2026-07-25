@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { languageIdForFilename } from "../editor/languages.ts";
+import { languageIdForFilename } from "../editor/languageLabels.ts";
 import { basename } from "../utils/path.ts";
 
 /**

@@ -1696,3 +1696,12 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Placeholder while a lazily-loaded editor pane resolves. Deliberately blank: the
+   chunk arrives from local disk in a frame or two, and a spinner that appears and
+   vanishes that fast reads as a glitch rather than as progress. */
+.editor-pane-loading {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: var(--bg-app);
+}

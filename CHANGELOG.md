@@ -9,6 +9,33 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+### Added
+- **Session restore (FR-6.4).** Open documents, caret positions, view mode and the
+  workspace folder are saved to `session.json` and restored on launch. Files that moved
+  or were deleted are dropped silently rather than restored as error tabs, and the
+  active tab is re-found by path so dropping an earlier tab cannot select the wrong
+  document. Unsaved buffers are deliberately not persisted — writing their text to disk
+  unasked is crash-draft recovery (FR-1.7), a separate feature.
+- **Startup benchmark harness** (`scripts/bench/startup.ps1`). Median-of-N cold start
+  with `-FailOver` for CI gating, plus a per-phase breakdown. The app reports its own
+  readiness because startup cannot be timed from outside the process — the native
+  window handle exists long before WebView2 paints.
+
+### Performance
+- **Boot JavaScript cut from 1143 KB to 205 KB (-82 %)**; in-page startup ~520 ms →
+  ~400 ms. Three causes, all the same shape — a cheap function in an expensive module:
+  the documents store pulled all of CodeMirror through `languageIdForFilename` (which
+  returns a status-bar string); `App.tsx` pulled it through `applyEditorSyntaxVars`
+  (which writes CSS variables); and a `codemirror` entry in `manualChunks` made Vite
+  `modulepreload` all 547 KB, silently defeating the lazy-loaded editor panes.
+- Editor panes and all four dialogs are now `React.lazy`.
+
+### Changed
+- **The < 500 ms cold-start budget is documented as unachievable.** ~950 ms elapses
+  before the first line of this codebase's setup runs — binary load plus Tauri/WebView2
+  init. Our own setup body costs 2–7 ms. Measurements and recommended replacement
+  budgets in [docs/reports/STARTUP_PERFORMANCE.md](docs/reports/STARTUP_PERFORMANCE.md).
+
 ## [0.9.0] — 2026-07-26
 
 First public pre-release. Feature set is close to final; see

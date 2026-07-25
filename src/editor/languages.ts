@@ -3,6 +3,8 @@ import { languages } from "@codemirror/language-data";
 import { markdown } from "@codemirror/lang-markdown";
 import type { Extension } from "@codemirror/state";
 
+export { languageIdForFilename } from "./languageLabels.ts";
+
 /**
  * Language resolution by filename. Markdown is the first-class citizen (rich
  * parsing + embedded fenced-code languages); the adjacent code/data formats
@@ -11,13 +13,6 @@ import type { Extension } from "@codemirror/state";
  */
 
 const MARKDOWN_RE = /\.(md|markdown|mdown|mkd)$/i;
-
-/** A stable, human-readable language label for the status bar (no async load). */
-export function languageIdForFilename(filename: string): string {
-  if (MARKDOWN_RE.test(filename)) return "Markdown";
-  const desc = LanguageDescription.matchFilename(languages, filename);
-  return desc?.name ?? "Plain Text";
-}
 
 /**
  * Synchronously resolves the language for filenames we can handle without a

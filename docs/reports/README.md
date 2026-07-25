@@ -13,6 +13,7 @@ numbered design docs in [`../`](../).
 
 | Report | Date | Subject |
 |---|---|---|
+| [`STARTUP_PERFORMANCE.md`](STARTUP_PERFORMANCE.md) | 2026-07-26 | Cold-start measurement and attribution, and why the < 500 ms budget is unreachable |
 | [`RELEASE_PREPARATION_REPORT.md`](RELEASE_PREPARATION_REPORT.md) | 2026-07-26 | Release pass: de-monetisation, icon integration, theme accessibility, QA. **Start here.** |
 | [`PROGRESS.md`](PROGRESS.md) | 2026-07-26 | Phase-by-phase checklist for the above, with every finding's final status |
 | [`REMAINING_TASKS.md`](REMAINING_TASKS.md) | 2026-07-21 | Audited gap analysis to v1.0 — the four open blockers live here |

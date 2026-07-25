@@ -13,6 +13,7 @@ mod fs;
 mod fsops;
 mod recent;
 mod search;
+mod session;
 mod watcher;
 
 use config::{Config, ConfigState};
@@ -21,6 +22,7 @@ use fs::FileContent;
 use fsops::Entry;
 use recent::RecentState;
 use serde::Serialize;
+use session::{Session, SessionState};
 use std::path::Path;
 use tauri::{Emitter, Manager};
 use tracing_subscriber::EnvFilter;
@@ -60,6 +62,66 @@ fn cli_paths(paths: tauri::State<'_, CliPaths>) -> Vec<String> {
 #[tauri::command]
 fn app_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
+}
+
+/// Process start, captured before any Tauri work.
+///
+/// The bench harness cannot time startup from outside: the native window handle
+/// exists long before WebView2 paints, so an external observer measures ~40 ms for a
+/// window nobody can use yet. The app has to report its own readiness.
+static PROCESS_START: std::sync::OnceLock<std::time::Instant> = std::sync::OnceLock::new();
+
+/// Milliseconds from process start to the end of Tauri's `setup` hook. Splits the
+/// pre-page time into "our Rust work" and "WebView2 bringing itself up", which decides
+/// whether the remaining startup cost is something this codebase can act on at all.
+static SETUP_DONE_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// Milliseconds from process start to the *first line* of the setup hook. Everything
+/// before this is binary load, tracing init, and Tauri/plugin construction — none of
+/// which this crate's own setup body can be blamed for.
+static SETUP_ENTER_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// Records that the UI reached its interactive phase.
+///
+/// No-op unless `NSP_BENCH_OUT` names a file to write, so benchmarking costs nothing
+/// in normal use beyond one fire-and-forget IPC call.
+/// In-page boot phases, milliseconds since the webview's navigation start.
+#[derive(serde::Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+struct InPagePhases {
+    script_eval: f64,
+    /// Deserialized but not reported: it has measured within 5 ms of `script_eval`
+    /// on every run, so printing it only widened the line. Kept so the frontend
+    /// payload stays stable and it can be surfaced again without a protocol change.
+    #[allow(dead_code)]
+    react_mounted: f64,
+    interactive: f64,
+}
+
+#[tauri::command]
+fn bench_ready(in_page: Option<InPagePhases>) {
+    let Ok(path) = std::env::var("NSP_BENCH_OUT") else {
+        return;
+    };
+    let Some(start) = PROCESS_START.get() else {
+        return;
+    };
+    let total = start.elapsed().as_secs_f64() * 1000.0;
+    let p = in_page.unwrap_or_default();
+    // `shell` is everything before the page: process start, our Rust setup, and
+    // WebView2 bringing up its runtime. Attributing it separately is the difference
+    // between optimising and guessing — and `rust` isolates the part we wrote from
+    // the part the platform imposes.
+    let shell = (total - p.interactive).max(0.0);
+    let rust = SETUP_DONE_MS.load(std::sync::atomic::Ordering::Relaxed);
+    let pre = SETUP_ENTER_MS.load(std::sync::atomic::Ordering::Relaxed);
+    let line = format!(
+        "{total:.0} shell={shell:.0} pre-setup={pre} rust={rust} script={:.0} interactive={:.0}",
+        p.script_eval, p.interactive
+    );
+    if let Err(e) = std::fs::write(&path, line) {
+        tracing::warn!(error = %e, path = %path, "failed to write bench marker");
+    }
 }
 
 /// Result of a successful save.
@@ -177,6 +239,18 @@ fn config_path(config: tauri::State<'_, ConfigState>) -> String {
     config.path()
 }
 
+/// Returns the previous session, already pruned of files that no longer exist.
+#[tauri::command]
+fn session_get(session: tauri::State<'_, SessionState>) -> Session {
+    session.get()
+}
+
+/// Persists the open documents, caret positions and view mode (FR-6.4).
+#[tauri::command]
+fn session_save(snapshot: Session, session: tauri::State<'_, SessionState>) -> NspResult<Session> {
+    session.save(snapshot)
+}
+
 /// Searches the workspace for text, respecting .gitignore by default.
 #[tauri::command]
 async fn search_workspace(query: search::SearchQuery) -> NspResult<search::SearchResults> {
@@ -188,6 +262,7 @@ async fn search_workspace(query: search::SearchQuery) -> NspResult<search::Searc
 
 /// Builds and runs the Tauri application.
 pub fn run() {
+    let _ = PROCESS_START.set(std::time::Instant::now());
     init_tracing();
     tracing::info!(
         version = env!("CARGO_PKG_VERSION"),
@@ -209,6 +284,12 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            if let Some(t0) = PROCESS_START.get() {
+                SETUP_ENTER_MS.store(
+                    t0.elapsed().as_millis() as u64,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
+            }
             let cwd = std::env::current_dir().unwrap_or_else(|_| std::env::temp_dir());
             app.manage(CliPaths(paths_from_args(std::env::args(), &cwd)));
             let handle = app.handle().clone();
@@ -218,12 +299,20 @@ pub fn run() {
                 .app_data_dir()
                 .unwrap_or_else(|_| std::env::temp_dir());
             app.manage(RecentState::load(data_dir.clone()));
-            app.manage(ConfigState::load(data_dir));
+            app.manage(ConfigState::load(data_dir.clone()));
+            app.manage(SessionState::load(data_dir));
+            if let Some(t0) = PROCESS_START.get() {
+                SETUP_DONE_MS.store(
+                    t0.elapsed().as_millis() as u64,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
+            }
             tracing::info!("application setup complete");
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             app_version,
+            bench_ready,
             cli_paths,
             fs_read_file,
             fs_write_file,
@@ -238,7 +327,9 @@ pub fn run() {
             search_workspace,
             config_get,
             config_save,
-            config_path
+            config_path,
+            session_get,
+            session_save
         ])
         .run(tauri::generate_context!())
         .expect("error while running Notepad Super Plus");
