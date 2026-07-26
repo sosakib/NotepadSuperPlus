@@ -10,7 +10,8 @@ Performance is a P0 feature with hard budgets. Every budget below is CI-benchmar
 
 | Metric | Budget | Tolerance (CI fail) |
 |---|---|---|
-| Cold start → interactive editor | < 500 ms | +10 % vs baseline |
+| Cold start → interactive, **in-page** (the part we own) | < 500 ms | +10 % vs baseline |
+| Cold start → interactive, total (incl. WebView2 init) | < 2000 ms | reported, not gated — see §2 |
 | Warm start (session restore, 5 tabs) | < 700 ms | +10 % |
 | Idle RAM (5 tabs, 1 workspace) | < 150 MB | +15 MB |
 | Typing latency, 1 MB file | < 16 ms p95 | any p95 > 16 ms |
@@ -21,18 +22,42 @@ Performance is a P0 feature with hard budgets. Every budget below is CI-benchmar
 | Workspace search, 10k files | first results < 200 ms, complete < 3 s | +25 % |
 | Installer size | < 15 MB Win/Linux | +1 MB |
 
-## 2. Startup plan (< 500 ms)
+## 2. Startup plan
 
-Startup is decomposed and each slice owned:
+> **Revised 2026-07-26.** The original budget was **< 500 ms cold start**, with ~150 ms
+> allotted to "process + webview init". That allocation was wrong by roughly 7×, and the
+> total was never achievable on WebView2. Measured on the development machine, ~**1031 ms**
+> elapses inside Tauri's `.run()` — building the event loop, creating the native window and
+> attaching the WebView2 runtime — **before the first line of this crate's setup hook runs**.
+> Logging init measures 0 ms, the embedded asset table 0 ms, and our whole setup body 2–3 ms.
+> Full attribution: [reports/STARTUP_PERFORMANCE.md](reports/STARTUP_PERFORMANCE.md).
+>
+> Keeping an impossible number as the budget made every measurement a failure and told
+> nobody anything. The budget is therefore split into the part the platform imposes and the
+> part this codebase owns — and only the second is gated.
+
+| Budget | Target | Status | Gated |
+|---|---|---|---|
+| **In-page: navigation → interactive** | **< 500 ms** | **~456 ms** ✅ | **Yes** — `scripts/bench/startup.ps1 -FailInPageOver 500` in `release.yml` |
+| Total cold start | < 2000 ms | ~1487 ms ✅ | Reported, not gated — dominated by platform cost and sensitive to machine load, so a tight gate would be flaky rather than informative |
+| Shell (process + Tauri + WebView2) | not ours | ~1031 ms | No — no code here can move it |
+
+### The part we own
 
 | Slice | Budget | Technique |
 |---|---|---|
-| Process + webview init | ~150 ms | Tauri defaults; no plugins beyond needed set; single window |
-| First HTML/CSS paint | ~100 ms | Inline critical CSS; shell renders skeleton before JS |
-| JS boot → editor interactive | ~200 ms | Code-split: boot bundle = shell + CM6 + stores only. **Deferred:** Shiki, KaTeX, Mermaid, settings UI, export, workspace search UI — dynamic `import()` on first use |
-| Session restore | ~50 ms | Active tab only; other tabs hydrate on activation ([06] §8) |
+| First HTML/CSS paint | ~100 ms | Shell renders before the editor exists |
+| JS boot → interactive | ~350 ms | Boot payload is **shell + React + stores only — 205 KB**. Deferred behind `import()`: CodeMirror, the Markdown worker, Shiki grammars, all four dialogs, every editor pane |
+| Session restore | not on the critical path | Restore is fired and not awaited; tabs appear as their files load ([06] §8) |
 
-Rules: no synchronous IPC during boot; config read is one command; fonts are system (no webfont fetch); tree-shaking verified via bundle-size CI report (budget per chunk).
+**Rules.** No synchronous IPC during boot; config and session are one command each and
+neither blocks paint; fonts are system (no webfont fetch).
+
+**Never put CodeMirror, the Markdown worker or Shiki back into `manualChunks`.** A named
+manual chunk reachable from the entry gets a `modulepreload` link, which silently undoes the
+lazy loading — the browser downloads and parses it during startup regardless. That one line
+of config cost 547 KB of boot payload once already. Re-run the bench after any change to
+`build.rollupOptions`.
 
 ## 3. Memory plan (< 150 MB)
 

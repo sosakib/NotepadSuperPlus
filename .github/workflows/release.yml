@@ -36,13 +36,14 @@ jobs:
       - name: Build installers
         run: pnpm tauri build
 
-      # Reported, not gated. The original < 500 ms budget is unreachable for a WebView2
-      # app -- ~1 s elapses in Tauri/WebView2 window creation before any of our code runs
-      # (docs/reports/STARTUP_PERFORMANCE.md). Add -FailOver once a budget is agreed.
-      - name: Startup benchmark (reported)
+      # Gated on the in-page number -- the part this codebase controls (budget 500 ms).
+      # The total carries only a loose 2000 ms sanity ceiling: ~1 s of it is Tauri and
+      # WebView2 creating the window before any of our code runs, and it moves with
+      # machine load, so a tight gate there would be flaky rather than informative.
+      # See docs/09 §2 and docs/reports/STARTUP_PERFORMANCE.md.
+      - name: Startup benchmark (gated)
         shell: pwsh
-        continue-on-error: true
-        run: ./scripts/bench/startup.ps1 -Runs 7
+        run: ./scripts/bench/startup.ps1 -Runs 9 -FailInPageOver 500 -FailOver 2000
 
       # Same script contributors run locally, so CI and a local release cannot drift.
       - name: Package release bundle

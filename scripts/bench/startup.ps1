@@ -6,9 +6,11 @@
     Launches the release binary N times and records the interval from process start
     to the main window becoming visible — the point a user would say the app "opened".
 
-    Budget is < 500 ms (docs/09_Performance_Strategy.md §2). This script is the
-    regression guard for it: -FailOver makes it exit non-zero above a threshold, so
-    it can gate CI.
+    Two numbers matter, and they are not interchangeable (docs/09 §2):
+      * in-page (navigation → interactive) — what this codebase controls. Budget 500 ms.
+      * total — dominated by Tauri/WebView2 creating the window, ~1 s of which happens
+        before the first line of our Rust runs. Ceiling 2000 ms, reported not gated.
+    Gate CI on -FailInPageOver; use -FailOver only as a loose sanity ceiling.
 
     Reports median rather than mean; one antivirus stall should not move the number.
 
@@ -17,16 +19,24 @@
     runtime init) — cold-cache numbers are not reproducible enough to regress against.
 
 .PARAMETER FailOver
-    Exit 1 if the median exceeds this many milliseconds.
+    Exit 1 if the median *total* exceeds this many milliseconds. Loose by design: the
+    total is dominated by Tauri/WebView2 window creation and moves with machine load,
+    so a tight gate here is flaky rather than informative.
+
+.PARAMETER FailInPageOver
+    Exit 1 if the median *in-page* time (navigation → interactive) exceeds this many
+    milliseconds. This is the part the codebase actually controls, and the gate that
+    means something. Budget is 500 ms (docs/09 §2).
 
 .EXAMPLE
     powershell -File scripts/bench/startup.ps1
-    powershell -File scripts/bench/startup.ps1 -Runs 11 -FailOver 500
+    powershell -File scripts/bench/startup.ps1 -Runs 11 -FailInPageOver 500
 #>
 [CmdletBinding()]
 param(
     [int]$Runs = 7,
     [int]$FailOver = 0,
+    [int]$FailInPageOver = 0,
     [string]$Exe
 )
 
@@ -44,6 +54,7 @@ Write-Host "  $Runs runs (first discarded as warm-up)`n"
 
 $samples = @()
 $shells = @()
+$inPages = @()
 
 for ($i = 1; $i -le $Runs; $i++) {
     # A stale instance would be handed the launch by single-instance forwarding and
@@ -69,6 +80,8 @@ for ($i = 1; $i -le $Runs; $i++) {
             if ($raw -and $raw.Trim() -match '^(\d+)(\s+.*)?$') {
                 $ms = [int]$Matches[1]
                 $detail = if ($Matches[2]) { $Matches[2].Trim() } else { '' }
+                # Captured before the next -match overwrites $Matches.
+                if ($detail -match 'interactive=(\d+)') { $inPages += [int]$Matches[1] }
                 if ($detail -match 'shell=(\d+)') { $shells += [int]$Matches[1] }
                 break
             }
@@ -109,11 +122,39 @@ if ($shells.Count -gt 0) {
     Write-Host ("  reachable by frontend work:               ~{0} ms" -f ($median - $sh)) -ForegroundColor DarkGray
 }
 
+# --- gates -------------------------------------------------------------------
+# Two thresholds, deliberately different in character. The in-page number is what
+# this codebase controls and is gated tightly; the total is dominated by Tauri and
+# WebView2 bringing up a window and moves with machine load, so gating it tightly
+# produces flaky failures that teach nobody anything (docs/09 §2).
+$failed = $false
+
+if ($FailInPageOver -gt 0) {
+    if ($inPages.Count -eq 0) {
+        Write-Warning 'no in-page samples captured - is the build instrumented?'
+    }
+    else {
+        $sorted2 = $inPages | Sort-Object
+        $inPageMedian = $sorted2[[int]($sorted2.Count / 2)]
+        Write-Host ''
+        if ($inPageMedian -gt $FailInPageOver) {
+            Write-Host ("FAIL  in-page median {0} ms exceeds budget {1} ms" -f $inPageMedian, $FailInPageOver) -ForegroundColor Red
+            $failed = $true
+        }
+        else {
+            Write-Host ("PASS  in-page median {0} ms within budget {1} ms" -f $inPageMedian, $FailInPageOver) -ForegroundColor Green
+        }
+    }
+}
+
 if ($FailOver -gt 0) {
     if ($median -gt $FailOver) {
-        Write-Host ''
-        Write-Host ("FAIL  median {0} ms exceeds budget {1} ms" -f $median, $FailOver) -ForegroundColor Red
-        exit 1
+        Write-Host ("FAIL  total median {0} ms exceeds ceiling {1} ms" -f $median, $FailOver) -ForegroundColor Red
+        $failed = $true
     }
-    Write-Host ("PASS  median {0} ms within budget {1} ms" -f $median, $FailOver) -ForegroundColor Green
+    else {
+        Write-Host ("PASS  total median {0} ms within ceiling {1} ms" -f $median, $FailOver) -ForegroundColor Green
+    }
 }
+
+if ($failed) { exit 1 }

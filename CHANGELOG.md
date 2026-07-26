@@ -9,6 +9,13 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-07-26
+
+First stable release. All four v1.0 blockers from the 2026-07-21 audit are closed or
+substantially closed; the startup budget was corrected after measurement proved the
+original unreachable (see [docs/09](docs/09_Performance_Strategy.md) §2). Remaining gaps
+are listed in the release notes rather than implied to be absent.
+
 ### Fixed (data integrity)
 - **Every UTF-16 file was rejected as binary.** `read_file` sniffed the first 8 KB for a
   NUL byte and bailed; UTF-16 encodes ASCII as `XX 00`, so *no* UTF-16 document could
@@ -36,8 +43,6 @@ only appears when modules are combined.
   [docs/reports/E2E_COVERAGE.md](docs/reports/E2E_COVERAGE.md).
 - `matchMedia` stubbed in the test setup — jsdom does not implement it, so mounting the
   real `App` previously threw on its first effect and rendered nothing.
-
-### Added
 - **Syntax highlighting in fenced code blocks (FR-3.2), via Shiki.** 26 grammars, each
   loaded on first use, running inside the Markdown worker — the eager boot payload is
   **unchanged at 204.7 KB** and cold start did not regress. Uses Shiki's JavaScript
@@ -82,10 +87,21 @@ only appears when modules are combined.
 - Editor panes and all four dialogs are now `React.lazy`.
 
 ### Changed
-- **The < 500 ms cold-start budget is documented as unachievable.** ~950 ms elapses
-  before the first line of this codebase's setup runs — binary load plus Tauri/WebView2
-  init. Our own setup body costs 2–7 ms. Measurements and recommended replacement
-  budgets in [docs/reports/STARTUP_PERFORMANCE.md](docs/reports/STARTUP_PERFORMANCE.md).
+- **The startup budget was corrected, and is now gated.** The original
+  "< 500 ms cold start" allotted ~150 ms to process + webview init; measurement put that
+  slice at **~1031 ms** — inside Tauri's `.run()`, before the first line of this crate's
+  setup hook. Logging init measures 0 ms, the embedded asset table 0 ms, our setup body
+  2–3 ms. The single-instance plugin, previously suspected, is exonerated.
+  The budget is therefore split into what the platform imposes and what this codebase
+  owns, and only the second is gated:
+  **in-page (navigation → interactive) < 500 ms — currently ~483 ms, enforced in
+  `release.yml`**; total cold start < 2000 ms — currently ~1482 ms, reported only, since
+  it moves with machine load and a tight gate there would be flaky rather than
+  informative. Full attribution in
+  [docs/reports/STARTUP_PERFORMANCE.md](docs/reports/STARTUP_PERFORMANCE.md).
+- README no longer claims "opens fast" or "Notepad++-quick". At ~1.5 s cold start those
+  claims were not defensible, and the release notes now state the number instead.
+- CI runs `pnpm format:check`, which was enforced locally but never in CI.
 
 ## [0.9.0] — 2026-07-26
 

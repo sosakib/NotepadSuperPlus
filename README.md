@@ -4,15 +4,15 @@
 
 # Notepad Super Plus
 
-**A Markdown editor that opens fast, renders faithfully, and asks nothing of you.**
+**A Markdown editor that renders faithfully, themes beautifully, and asks nothing of you.**
 
-Notepad++-quick. GitHub-accurate preview. No accounts, no paid tier, no telemetry.
+GitHub-accurate preview. Ten accessible themes. No accounts, no paid tier, no telemetry.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-2978EF.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4.svg)](docs/INSTALL.md)
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB.svg)](https://tauri.app)
 [![Tests](https://img.shields.io/badge/tests-353%20passing-3fb950.svg)](#quality)
-[![Version](https://img.shields.io/badge/version-0.9.0-8957e5.svg)](docs/RELEASE_NOTES.md)
+[![Version](https://img.shields.io/badge/version-1.0.0-8957e5.svg)](docs/RELEASE_NOTES.md)
 
 [**Download**](https://github.com/sosakib/NotepadSuperPlus/releases) ·
 [Install guide](docs/INSTALL.md) ·
@@ -32,9 +32,10 @@ search, and wraps it in a keyboard-first shell with ten accessible themes.
 It is not a note-taking system, a wiki, or a knowledge graph. It opens `.md` files and lets you
 write.
 
-> **This is a 0.9 pre-release.** The feature set is close to final and it is stable for daily
-> use, but startup is ~1.3 s and no automated test drives the real window yet. Please read
-> [Known limitations](docs/RELEASE_NOTES.md#known-limitations) before installing.
+> **1.0.0.** Stable for daily use on Windows 10/11. Two things to know before installing:
+> the installers are **not code-signed**, so SmartScreen will warn, and cold start is
+> **~1.5 s** — of which ~1 s is WebView2 initialising before any app code runs. Full list of
+> what is and is not in this release: [Known limitations](docs/RELEASE_NOTES.md#known-limitations).
 
 ## Screenshots
 
