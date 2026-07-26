@@ -18,6 +18,13 @@ export default defineConfig({
       "decode-named-character-reference": require.resolve("decode-named-character-reference"),
     },
   },
+  worker: {
+    // The Markdown worker loads Shiki grammars with dynamic `import()`, one per
+    // language on first use. Vite's default worker format is `iife`, which Rollup
+    // cannot code-split, so the build fails outright. The worker is already created
+    // with `{ type: "module" }`, so ES output is what it was always meant to be.
+    format: "es",
+  },
   // Prevent Vite from obscuring Rust errors.
   clearScreen: false,
   server: {

@@ -8,8 +8,9 @@ import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import { toString } from "mdast-util-to-string";
 import type { Root as MdastRoot } from "mdast";
-import type { Root as HastRoot } from "hast";
+import type { Root as HastRoot, Element } from "hast";
 import { splitFrontmatter, type Frontmatter } from "./frontmatter.ts";
+import { highlightToHast } from "./highlight.ts";
 
 /**
  * The Markdown rendering pipeline (pure — no DOM, no worker), so it can be unit-
@@ -92,6 +93,64 @@ function rehypeSourceLines() {
 }
 
 /**
+ * rehype plugin: replace fenced code blocks with Shiki-highlighted markup (FR-3.2).
+ *
+ * Runs *before* sanitization, so the highlighted output is subject to exactly the same
+ * schema as everything else — highlighting buys no trust. Shiki's inline colour styles
+ * are already rewritten to `tok-*` classes by `highlightToHast`, so `style` stays
+ * forbidden.
+ *
+ * Blocks with no language, or a language we do not bundle, are left untouched.
+ */
+function rehypeHighlight() {
+  return async (tree: HastRoot): Promise<void> => {
+    // Collected first, then awaited: `visit` is synchronous, so the work cannot be
+    // done inline, and gathering lets independent blocks highlight concurrently.
+    const jobs: { parent: Element; code: string; lang: string }[] = [];
+
+    visit(tree, "element", (node: Element) => {
+      if (node.tagName !== "pre") return;
+      const [child] = node.children.filter((c) => c.type === "element") as Element[];
+      if (!child || child.tagName !== "code") return;
+
+      const classes = child.properties?.className;
+      const list = Array.isArray(classes) ? classes.map(String) : [];
+      const langClass = list.find((c) => c.startsWith("language-"));
+      if (!langClass) return;
+
+      const text = child.children
+        .filter((c): c is { type: "text"; value: string } => c.type === "text")
+        .map((c) => c.value)
+        .join("");
+      if (text.trim() === "") return;
+
+      jobs.push({ parent: node, code: text, lang: langClass.slice("language-".length) });
+    });
+
+    if (jobs.length === 0) return;
+
+    const results = await Promise.all(
+      jobs.map((j) => highlightToHast(j.code, j.lang).catch(() => null)),
+    );
+
+    jobs.forEach((job, i) => {
+      const out = results[i];
+      if (!out) return;
+      const pre = out.children.find(
+        (c): c is Element => c.type === "element" && c.tagName === "pre",
+      );
+      if (!pre) return;
+      // Swap the children in rather than replacing the node, so the source-line data
+      // attribute stamped on the original <pre> survives for scroll sync.
+      job.parent.children = pre.children;
+      const existing = job.parent.properties?.className;
+      const keep = Array.isArray(existing) ? existing.map(String) : [];
+      job.parent.properties = { ...job.parent.properties, className: [...keep, "shiki"] };
+    });
+  };
+}
+
+/**
  * All rendered ids are prefixed (DOM-clobbering defense — a document must not be
  * able to shadow `document.getElementById` lookups the app relies on). Internal
  * `#anchor` links are rewritten to the prefixed form so they keep working.
@@ -139,6 +198,7 @@ const processor = unified()
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)
   .use(rehypeSourceLines)
+  .use(rehypeHighlight)
   .use(rehypeInternalAnchors)
   .use(rehypeSanitize, schema)
   .use(rehypeStringify);

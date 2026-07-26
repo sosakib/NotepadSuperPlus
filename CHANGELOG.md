@@ -10,6 +10,21 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 ## [Unreleased]
 
 ### Added
+- **Syntax highlighting in fenced code blocks (FR-3.2), via Shiki.** 26 grammars, each
+  loaded on first use, running inside the Markdown worker — the eager boot payload is
+  **unchanged at 204.7 KB** and cold start did not regress. Uses Shiki's JavaScript
+  regex engine rather than Oniguruma, avoiding a ~500 KB WASM fetch before the first
+  code block can render.
+  - Colours are emitted as `tok-*` **classes, never inline styles**. Shiki normally
+    writes `style="color:…"`, and permitting a `style` attribute through the sanitizer
+    would open a CSS-injection surface in a pane that renders untrusted documents. The
+    rewrite happens before sanitization, so the schema still refuses `style` outright.
+  - Those classes map onto the existing `--cm-*` editor palette, so code blocks inherit
+    the WCAG contrast guarantee `contrast.test.ts` already enforces on all 10 themes
+    instead of introducing a second, unchecked palette. Verified: rendered token colour
+    tracks `--cm-keyword` exactly as the theme changes.
+  - The grammar list is fixed rather than a dynamic import of the fence string, so a
+    document cannot probe the bundle. Unknown languages render unhighlighted, as before.
 - **Frontmatter panel (FR-3.3).** YAML frontmatter is lifted out of the document and
   shown as a collapsible metadata panel above the preview. Previously its `---` fences
   rendered as a thematic break and its keys as a stray heading, so metadata leaked into

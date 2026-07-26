@@ -56,9 +56,8 @@ Read these before installing.
 | | |
 |---|---|
 | **Startup takes ~1.4 s** | Down from ~2 s, and the boot payload is 82 % smaller — but ~950 ms of that is Tauri/WebView2 initialising before any of our code runs, so it cannot go much lower. The original "under 500 ms" target was not achievable; see [STARTUP_PERFORMANCE.md](reports/STARTUP_PERFORMANCE.md). |
-| **Fenced code blocks are not syntax-highlighted** | They render as plain monospace text in the preview. |
 | **Installers are unsigned** | SmartScreen will warn on download. See [INSTALL.md](INSTALL.md). |
-| **No end-to-end tests** | 328 unit tests and 36 Rust tests pass, but no automated test clicks through a real window. |
+| **No end-to-end tests** | 342 unit tests and 36 Rust tests pass, but no automated test clicks through a real window. |
 
 Also absent in this release: math (KaTeX), Mermaid diagrams, GitHub callouts, emoji shortcodes,
 `[TOC]`, PDF export, auto-save, crash-draft recovery, and smart list continuation.

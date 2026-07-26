@@ -199,3 +199,46 @@
   font-size: 13px;
   margin-bottom: 4px;
 }
+
+/* ---- Fenced code highlighting (FR-3.2) ----
+ * Shiki emits inline `style="color:var(--nsp-token-x)"`; the render pipeline rewrites
+ * those into `tok-*` classes before sanitization, so `style` stays forbidden in the
+ * schema. Colours reuse the editor's `--cm-*` palette, which contrast.test.ts already
+ * holds to 4.5:1 on every theme — code blocks inherit that guarantee rather than
+ * introducing a second, unchecked palette. */
+.markdown-body pre.shiki code .tok-keyword {
+  color: var(--cm-keyword);
+}
+.markdown-body pre.shiki code .tok-string,
+.markdown-body pre.shiki code .tok-string-expression {
+  color: var(--cm-string);
+}
+.markdown-body pre.shiki code .tok-constant {
+  color: var(--cm-variable);
+}
+.markdown-body pre.shiki code .tok-number {
+  color: var(--cm-number);
+}
+.markdown-body pre.shiki code .tok-comment {
+  color: var(--cm-comment);
+  font-style: italic;
+}
+.markdown-body pre.shiki code .tok-function {
+  color: var(--cm-function);
+}
+.markdown-body pre.shiki code .tok-parameter {
+  color: var(--cm-property);
+}
+.markdown-body pre.shiki code .tok-punctuation {
+  color: var(--cm-meta);
+}
+.markdown-body pre.shiki code .tok-link {
+  color: var(--cm-link);
+}
+/* Shiki wraps each source line in a span. Targeted as a direct child of <code> rather
+   than by class: codeToHast (unlike codeToHtml) does not add `class="line"`, so a
+   `.line` selector silently matches nothing and every line runs together. */
+.markdown-body pre.shiki code > span {
+  display: block;
+  min-height: 1em;
+}

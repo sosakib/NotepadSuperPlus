@@ -1,14 +1,20 @@
 # Remaining Tasks to Reach v1.0
 
-> **Addendum, 2026-07-26.** Two of the four blockers below are now closed and one has
-> changed shape. **B3 (session restore) is implemented and verified.** **B1 is measured
+> **Addendum, 2026-07-26.** Three of the four blockers below are now closed. **B4
+> (end-to-end tests) is the only one still fully open.**
+>
+> **B2 is closed:** FR-3.2 syntax highlighting ships via Shiki (26 grammars, lazy-loaded
+> in the worker, boot payload unchanged) and FR-3.3 frontmatter is lifted into a panel
+> instead of leaking into the rendered body.
+>
+> **B3 (session restore) is implemented and verified.** **B1 is measured
 > and partly closed**: boot JavaScript is down 82 % and in-page startup ~23 %, but the
 > **< 500 ms budget turns out to be unreachable** — ~950 ms elapses before the first line
 > of this codebase runs (binary load + Tauri/WebView2 init), while our own setup body
 > costs 2–7 ms. Full attribution and recommended replacement budgets:
 > [STARTUP_PERFORMANCE.md](STARTUP_PERFORMANCE.md). A bench harness now exists at
 > `scripts/bench/startup.ps1`, so §2's "no regression guard" no longer holds.
-> **B2 and B4 are untouched.** Everything else below stands as written on 2026-07-21.
+> Everything else below stands as written on 2026-07-21.
 
 **Audit date:** 2026-07-21 · **Branch audited:** `develop` @ `e65fa14` · **Method:** full folder walk, all 22 `docs/` files + 6 root reports read, source grepped for each claimed feature, all gates re-run independently.
 
