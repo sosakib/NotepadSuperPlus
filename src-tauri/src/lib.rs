@@ -11,6 +11,7 @@ mod config;
 mod error;
 mod fs;
 mod fsops;
+mod journeys;
 mod recent;
 mod search;
 mod session;

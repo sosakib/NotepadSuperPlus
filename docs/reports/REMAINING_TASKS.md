@@ -1,7 +1,11 @@
 # Remaining Tasks to Reach v1.0
 
-> **Addendum, 2026-07-26.** Three of the four blockers below are now closed. **B4
-> (end-to-end tests) is the only one still fully open.**
+> **Addendum, 2026-07-26.** Three of the four blockers below are closed and **B4 is
+> substantially closed**: 20 journey tests (9 Rust, 11 UI) now cover 7 of the 10
+> release-blocking journeys, and they found three real bugs — UTF-16 files were rejected
+> as binary outright, UTF-16 CRLF was silently converted on save, and `.gitignore` was
+> ignored outside a git repo. What remains is driving the real window under WebDriver;
+> scope and gaps in [E2E_COVERAGE.md](E2E_COVERAGE.md).
 >
 > **B2 is closed:** FR-3.2 syntax highlighting ships via Shiki (26 grammars, lazy-loaded
 > in the worker, boot payload unchanged) and FR-3.3 frontmatter is lifted into a panel

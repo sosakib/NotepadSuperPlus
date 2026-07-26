@@ -86,6 +86,11 @@ pub fn search_workspace(q: &SearchQuery) -> NspResult<SearchResults> {
         .git_ignore(q.respect_gitignore)
         .git_global(q.respect_gitignore)
         .git_exclude(q.respect_gitignore)
+        // The `ignore` crate defaults to `require_git(true)`, which silently disables
+        // every gitignore rule outside a git repository. A workspace is just a folder
+        // here — plenty of them have a `.gitignore` and no `.git` — so the toggle did
+        // nothing for those users while the README promised it worked.
+        .require_git(false)
         .hidden(true)
         .build();
 

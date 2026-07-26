@@ -11,7 +11,7 @@ Notepad++-quick. GitHub-accurate preview. No accounts, no paid tier, no telemetr
 [![License: MIT](https://img.shields.io/badge/License-MIT-2978EF.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4.svg)](docs/INSTALL.md)
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB.svg)](https://tauri.app)
-[![Tests](https://img.shields.io/badge/tests-342%20passing-3fb950.svg)](#quality)
+[![Tests](https://img.shields.io/badge/tests-353%20passing-3fb950.svg)](#quality)
 [![Version](https://img.shields.io/badge/version-0.9.0-8957e5.svg)](docs/RELEASE_NOTES.md)
 
 [**Download**](https://github.com/sosakib/NotepadSuperPlus/releases) ·
@@ -33,7 +33,7 @@ It is not a note-taking system, a wiki, or a knowledge graph. It opens `.md` fil
 write.
 
 > **This is a 0.9 pre-release.** The feature set is close to final and it is stable for daily
-> use, but startup is ~1.3 s and there is no automated end-to-end test suite yet. Please read
+> use, but startup is ~1.3 s and no automated test drives the real window yet. Please read
 > [Known limitations](docs/RELEASE_NOTES.md#known-limitations) before installing.
 
 ## Screenshots
@@ -152,8 +152,8 @@ cargo test --manifest-path src-tauri/Cargo.toml
 
 | Gate | Status |
 |---|---|
-| TypeScript tests | **342 passing** / 17 files |
-| Rust tests | **36 passing** |
+| TypeScript tests | **353 passing** / 18 files |
+| Rust tests | **45 passing** |
 | `clippy -D warnings`, `fmt`, `eslint`, `prettier`, `tsc` | clean |
 | `pnpm audit --prod` · `cargo audit` | **0 vulnerabilities** |
 
@@ -179,13 +179,14 @@ release/      generated installer bundle (gitignored — see scripts/)
 scripts/      build & release automation
 src/          React + TypeScript frontend
 src-tauri/    Rust core and Tauri config
-tests/        end-to-end tests (not yet written — see roadmap)
+tests/        e2e fixtures (journey suites live in src/ and src-tauri/ — see docs/reports/E2E_COVERAGE.md)
 ```
 
 ## Roadmap
 
-Toward **1.0**: an end-to-end test suite. Startup, session restore, syntax highlighting and the
-frontmatter panel are done — see
+Toward **1.0**: driving the real window under WebDriver (the last gap — see
+[E2E_COVERAGE.md](docs/reports/E2E_COVERAGE.md)). Startup, session restore, syntax highlighting
+and the frontmatter panel are done — see
 [STARTUP_PERFORMANCE.md](docs/reports/STARTUP_PERFORMANCE.md). Tracked in
 [`docs/reports/REMAINING_TASKS.md`](docs/reports/REMAINING_TASKS.md).
 

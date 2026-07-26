@@ -13,6 +13,7 @@ numbered design docs in [`../`](../).
 
 | Report | Date | Subject |
 |---|---|---|
+| [`E2E_COVERAGE.md`](E2E_COVERAGE.md) | 2026-07-26 | Journey-test coverage against the 10 release-blocking journeys, and exactly what is still untested |
 | [`STARTUP_PERFORMANCE.md`](STARTUP_PERFORMANCE.md) | 2026-07-26 | Cold-start measurement and attribution, and why the < 500 ms budget is unreachable |
 | [`RELEASE_PREPARATION_REPORT.md`](RELEASE_PREPARATION_REPORT.md) | 2026-07-26 | Release pass: de-monetisation, icon integration, theme accessibility, QA. **Start here.** |
 | [`PROGRESS.md`](PROGRESS.md) | 2026-07-26 | Phase-by-phase checklist for the above, with every finding's final status |

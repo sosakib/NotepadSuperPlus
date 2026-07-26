@@ -9,6 +9,34 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+### Fixed (data integrity)
+- **Every UTF-16 file was rejected as binary.** `read_file` sniffed the first 8 KB for a
+  NUL byte and bailed; UTF-16 encodes ASCII as `XX 00`, so *no* UTF-16 document could
+  ever be opened. The UTF-16 branches in `decode`/`encode` were unreachable dead code
+  and the documented "UTF-8 / UTF-16 / BOM are detected and preserved" was false. The
+  BOM check now runs before the binary sniff.
+- **CRLF was silently converted to LF when saving a UTF-16 file.** `detect_eol` scanned
+  raw bytes for `0D 0A`, which are never adjacent in UTF-16, so every such file reported
+  LF. It now reads the decoded text.
+- **`.gitignore` was ignored outside a git repository.** The `ignore` crate defaults to
+  `require_git(true)`, so the "respect .gitignore" toggle did nothing in a plain folder —
+  and a workspace here is just a folder. Now `require_git(false)`.
+
+All three were found by the new journey tests, having survived 300+ unit tests: each
+only appears when modules are combined.
+
+### Added
+- **Journey test suites (blocker B4, partial).** `src-tauri/src/journeys.rs` (9 tests)
+  drives the Rust surface across module boundaries against a real temporary filesystem —
+  open/edit/save round-trips, session save→restore, workspace open→list→search, settings
+  persistence. `src/journeys.test.tsx` (11 tests) renders the **real `App`** and clicks
+  through it, covering the lazily-loaded panes and dialogs that unit tests cannot see.
+  7 of the 10 release-blocking journeys in `docs/10 §3` are now covered or substantially
+  covered; what is *not* is enumerated in
+  [docs/reports/E2E_COVERAGE.md](docs/reports/E2E_COVERAGE.md).
+- `matchMedia` stubbed in the test setup — jsdom does not implement it, so mounting the
+  real `App` previously threw on its first effect and rendered nothing.
+
 ### Added
 - **Syntax highlighting in fenced code blocks (FR-3.2), via Shiki.** 26 grammars, each
   loaded on first use, running inside the Markdown worker — the eager boot payload is

@@ -60,8 +60,13 @@ pub fn canonicalize_for_write(path: &Path) -> NspResult<PathBuf> {
     Ok(parent.join(name))
 }
 
-fn detect_eol(bytes: &[u8]) -> &'static str {
-    if bytes.windows(2).any(|w| w == b"\r\n") {
+/// Detects line endings from *decoded text*, not raw bytes.
+///
+/// A byte-level scan is wrong for UTF-16: there, CRLF is `0D 00 0A 00`, so the bytes
+/// `0D 0A` are never adjacent and every UTF-16 file would be reported as LF — then
+/// saved back with its line endings silently converted.
+fn detect_eol(text: &str) -> &'static str {
+    if text.contains("\r\n") {
         "crlf"
     } else {
         "lf"
@@ -113,13 +118,21 @@ pub fn read_file(path: &Path) -> NspResult<FileContent> {
     }
     let bytes = fs::read(&abs).map_err(|e| NspError::io(&abs, &e))?;
 
-    let sniff = &bytes[..bytes.len().min(BINARY_SNIFF)];
-    if sniff.contains(&0) {
-        return Err(NspError::binary(&abs));
+    // UTF-16 encodes ASCII as `XX 00`, so a UTF-16 text file is full of NUL bytes by
+    // construction. Running the binary sniff on one rejected *every* UTF-16 document —
+    // which made the UTF-16 branches in `decode`/`encode` unreachable and the
+    // "UTF-8 / UTF-16 / BOM detected and preserved" claim false. A BOM is a strong
+    // enough signal to skip the sniff.
+    let utf16_bom = bytes.starts_with(&[0xFF, 0xFE]) || bytes.starts_with(&[0xFE, 0xFF]);
+    if !utf16_bom {
+        let sniff = &bytes[..bytes.len().min(BINARY_SNIFF)];
+        if sniff.contains(&0) {
+            return Err(NspError::binary(&abs));
+        }
     }
 
-    let eol = detect_eol(&bytes).to_string();
     let (raw, encoding) = decode(&abs, &bytes)?;
+    let eol = detect_eol(&raw).to_string();
     // Normalize to LF for the editor; `eol` remembers the original for save.
     let content = raw.replace("\r\n", "\n");
 
