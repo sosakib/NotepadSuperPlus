@@ -27,6 +27,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
+      # Formatting was enforced locally but never in CI, so a drifted file could merge.
+      - run: pnpm format:check
       - run: pnpm test
       - run: pnpm build
       - name: Upload frontend build

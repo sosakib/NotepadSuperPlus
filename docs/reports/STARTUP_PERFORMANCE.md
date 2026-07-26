@@ -39,6 +39,39 @@ Unset, the command returns immediately, so this costs nothing in normal use.
 
 ---
 
+## Addendum, 2026-07-26 — the pre-setup window, measured rather than assumed
+
+The first version of this report said the ~950 ms before our setup hook was "binary load
+plus Tauri/WebView2 init" and named the single-instance plugin as a suspect. That was an
+inference, not a measurement, and the report said so. It has now been measured.
+
+Two more marks were added inside the pre-setup window — after `init_tracing()`, and after
+`tauri::generate_context!()` (which is evaluated as an argument to `.run()`, so it executes
+*before* the setup hook and was a genuine candidate: it deserializes the config and builds
+the embedded asset table, now ~180 chunks).
+
+Clean 12-sample run, median **1487 ms**:
+
+```
+tracing    = 0 ms      process start → logging ready
+context    = 0 ms      → embedded asset table built
+pre-setup  = 1031 ms   → first line of our setup hook
+rust       = 1034 ms   → end of our setup hook   (body: 2–3 ms)
+interactive= 456 ms    navigation → UI usable
+```
+
+**Our code accounts for essentially none of it.** Logging costs 0 ms, the asset table costs
+0 ms, the setup body costs 2–3 ms. The whole ~1031 ms elapses inside Tauri's `.run()` while
+it builds the event loop, creates the native window and attaches the WebView2 runtime —
+before it calls the setup hook at all.
+
+The single-instance plugin is therefore **exonerated**: plugin `init()` only constructs a
+struct, and everything measurable around it is zero.
+
+**Conclusion, now on evidence rather than inference: the < 500 ms budget is unreachable for
+this architecture.** The in-page portion alone (~456 ms) nearly exhausts it, and a
+zero-cost frontend would still start in ~1031 ms.
+
 ## Where the time goes
 
 Representative run:

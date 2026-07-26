@@ -82,6 +82,21 @@ static SETUP_DONE_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU6
 /// which this crate's own setup body can be blamed for.
 static SETUP_ENTER_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 
+/// Process start → logging initialised.
+static PHASE_TRACING_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+/// Process start → `generate_context!()` finished building the embedded asset table.
+static PHASE_CONTEXT_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// Records milliseconds since process start into `slot`.
+fn mark(slot: &std::sync::atomic::AtomicU64) {
+    if let Some(t0) = PROCESS_START.get() {
+        slot.store(
+            t0.elapsed().as_millis() as u64,
+            std::sync::atomic::Ordering::Relaxed,
+        );
+    }
+}
+
 /// Records that the UI reached its interactive phase.
 ///
 /// No-op unless `NSP_BENCH_OUT` names a file to write, so benchmarking costs nothing
@@ -116,8 +131,10 @@ fn bench_ready(in_page: Option<InPagePhases>) {
     let shell = (total - p.interactive).max(0.0);
     let rust = SETUP_DONE_MS.load(std::sync::atomic::Ordering::Relaxed);
     let pre = SETUP_ENTER_MS.load(std::sync::atomic::Ordering::Relaxed);
+    let tracing_ms = PHASE_TRACING_MS.load(std::sync::atomic::Ordering::Relaxed);
+    let ctx = PHASE_CONTEXT_MS.load(std::sync::atomic::Ordering::Relaxed);
     let line = format!(
-        "{total:.0} shell={shell:.0} pre-setup={pre} rust={rust} script={:.0} interactive={:.0}",
+        "{total:.0} shell={shell:.0} tracing={tracing_ms} context={ctx} pre-setup={pre} rust={rust} script={:.0} interactive={:.0}",
         p.script_eval, p.interactive
     );
     if let Err(e) = std::fs::write(&path, line) {
@@ -269,6 +286,16 @@ pub fn run() {
         version = env!("CARGO_PKG_VERSION"),
         "Notepad Super Plus starting"
     );
+    mark(&PHASE_TRACING_MS);
+
+    // `generate_context!()` is evaluated as an argument to `.run()`, which means it
+    // executes *before* the setup hook — so it lands inside the pre-setup window that
+    // dominates cold start. It deserializes the config and builds the embedded asset
+    // table, and the asset table now holds ~180 chunks. Timed separately rather than
+    // assumed cheap: last time an assumption about this window went untested, it
+    // produced a confident wrong answer about the whole budget.
+    let context = tauri::generate_context!();
+    mark(&PHASE_CONTEXT_MS);
 
     tauri::Builder::default()
         // Must be the first plugin: a second launch (e.g. Explorer "Open with"
@@ -332,7 +359,7 @@ pub fn run() {
             session_get,
             session_save
         ])
-        .run(tauri::generate_context!())
+        .run(context)
         .expect("error while running Notepad Super Plus");
 }
 

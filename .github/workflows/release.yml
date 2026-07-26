@@ -36,6 +36,14 @@ jobs:
       - name: Build installers
         run: pnpm tauri build
 
+      # Reported, not gated. The original < 500 ms budget is unreachable for a WebView2
+      # app -- ~1 s elapses in Tauri/WebView2 window creation before any of our code runs
+      # (docs/reports/STARTUP_PERFORMANCE.md). Add -FailOver once a budget is agreed.
+      - name: Startup benchmark (reported)
+        shell: pwsh
+        continue-on-error: true
+        run: ./scripts/bench/startup.ps1 -Runs 7
+
       # Same script contributors run locally, so CI and a local release cannot drift.
       - name: Package release bundle
         shell: pwsh
