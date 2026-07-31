@@ -68,9 +68,37 @@ before it calls the setup hook at all.
 The single-instance plugin is therefore **exonerated**: plugin `init()` only constructs a
 struct, and everything measurable around it is zero.
 
-**Conclusion, now on evidence rather than inference: the < 500 ms budget is unreachable for
-this architecture.** The in-page portion alone (~456 ms) nearly exhausts it, and a
-zero-cost frontend would still start in ~1031 ms.
+**Conclusion, now on evidence rather than inference:** our code is not the cost. The whole
+~1031 ms is Tauri/WebView2 bringing up a window.
+
+### Correction, same day — one machine was not enough
+
+The paragraph above originally ended "the < 500 ms budget is unreachable for this
+architecture." Running the same gated benchmark on a clean **GitHub Actions
+`windows-latest` runner** showed that claim was too strong:
+
+| | Dev desktop (loaded) | CI runner (clean) |
+|---|---|---|
+| Total cold start | 1484 ms | **598 ms** |
+| Shell (Tauri + WebView2) | ~1031 ms | **~480 ms** |
+| In-page (nav → interactive) | ~456 ms | **116 ms** |
+
+**The same binary, a 2.5× spread.** The architecture finding stands — the shell dominates
+and our own code costs ~0 ms of it — but "unreachable" was a conclusion drawn from a single,
+heavily loaded machine. On clean hardware the total lands at ~600 ms, close enough that
+< 500 ms is not absurd, merely out of reach *here*.
+
+What this changes:
+
+- The **in-page budget of 500 ms is comfortable**, not tight: 116 ms on CI, 456 ms on a
+  loaded desktop. It is the right thing to gate.
+- The **2000 ms total ceiling** is a sanity check for the slow end, not a target.
+- Any future startup claim must say **which machine**. A single-machine measurement was
+  enough to prove our code was not at fault; it was not enough to declare a budget impossible.
+
+Two of the nine CI runs produced no readiness marker within 30 s and were discarded — a
+first-run WebView2 initialisation cost on a fresh runner image. The median of the remaining
+seven is what is reported. Worth watching if it becomes more frequent.
 
 ## Where the time goes
 
