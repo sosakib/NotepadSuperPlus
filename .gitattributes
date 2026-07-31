@@ -1,0 +1,51 @@
+# Normalize line endings in the repository, and let each checkout use its own.
+# Without this, a Windows checkout commits CRLF and every cross-platform diff is
+# whole-file noise. `text=auto` stores LF and converts on checkout per platform.
+* text=auto
+
+# Files that must keep LF even on Windows: shell scripts break with CRLF shebangs,
+# and these formats are consumed by tools that assume LF.
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.json      text eol=lf
+*.toml      text eol=lf
+
+# PowerShell is Windows-native tooling; CRLF is correct and expected there.
+*.ps1       text eol=crlf
+*.psm1      text eol=crlf
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+
+# NSIS installer scripts are read by makensis on Windows.
+*.nsh       text eol=crlf
+*.nsi       text eol=crlf
+
+# Binary: never touch line endings, never try to diff or merge.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.icns      binary
+*.ai        binary
+*.pdf       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.otf       binary
+*.exe       binary
+*.msi       binary
+*.dll       binary
+
+# SVG is text and worth diffing, but should not be linguist-counted as source —
+# a 700 KB vector export would otherwise dominate the language stats.
+*.svg       text linguist-detectable=false
+
+# Keep GitHub's language bar honest: report the app, not its documentation or the
+# generated lockfile.
+docs/**             linguist-documentation
+*.md                linguist-documentation
+pnpm-lock.yaml      linguist-generated
+Cargo.lock          linguist-generated
