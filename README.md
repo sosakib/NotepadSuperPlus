@@ -39,13 +39,36 @@ write.
 
 ## Screenshots
 
-<!-- Drop the four PNGs into assets/screenshots/ (specs in that folder's README) and uncomment.
-<img src="assets/screenshots/split-view.png" alt="Split view">
-<img src="assets/screenshots/themes.png" alt="Theme picker">
--->
+<div align="center">
 
-*Screenshots are being captured for the 1.0 release. Exact specs are in
-[`assets/screenshots/README.md`](assets/screenshots/README.md) — contributions welcome.*
+<img src="assets/screenshots/split-view.png" alt="Split view — Markdown source on the left, live preview on the right, in the Solarized Light theme" width="820">
+
+<sub><b>Split view.</b> Source and preview side by side, scroll-synced. Solarized Light.</sub>
+
+</div>
+
+<table>
+<tr>
+<td width="50%">
+<img src="assets/screenshots/editor.png" alt="Source editor with syntax-highlighted Markdown, line numbers, file explorer and recent files">
+<sub><b>Source.</b> CodeMirror 6 with Markdown highlighting, outline, and a recent-files list.</sub>
+</td>
+<td width="50%">
+<img src="assets/screenshots/preview.png" alt="Rendered Markdown preview showing headings, body text and a blockquote">
+<sub><b>Preview.</b> GitHub-flavored rendering, sanitized in a worker before it reaches the DOM.</sub>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="assets/screenshots/themes.png" alt="Preferences dialog showing the theme picker with Apple Dark, Apple Light, Midnight Blue, GitHub, Nord and Catppuccin swatches">
+<sub><b>Themes.</b> Ten of them, each held to WCAG contrast floors by an automated test.</sub>
+</td>
+<td width="50%">
+<img src="assets/screenshots/about.png" alt="About panel showing version 1.0.0, MIT licence, Tauri 2 Rust core and CodeMirror 6">
+<sub><b>About.</b> MIT, Tauri 2 + Rust core, CodeMirror 6. No account, no sign-in.</sub>
+</td>
+</tr>
+</table>
 
 ## Features
 
@@ -201,7 +224,7 @@ Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) 
 [Code of Conduct](CODE_OF_CONDUCT.md). Good first contributions right now: screenshots, theme
 proposals that fill a real gap, and the end-to-end test suite.
 
-Security reports: [SECURITY.md](SECURITY.md). Design conventions:
+Questions and bug reports: [SUPPORT.md](SUPPORT.md). Security reports: [SECURITY.md](SECURITY.md). Design conventions:
 [docs/BRAND_GUIDELINES.md](docs/BRAND_GUIDELINES.md).
 
 ## License

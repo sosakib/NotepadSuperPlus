@@ -1,21 +1,25 @@
 # `assets/screenshots/`
 
-Product screenshots referenced by the root `README.md`.
+Product screenshots used by the root [README](../../README.md).
 
-**Currently empty.** The README links to the filenames below; until they exist those images will
-render as broken links on GitHub. Capturing them is a release-checklist item, not a code task.
+| File | Surface | Theme |
+|---|---|---|
+| `split-view.png` | Split mode — source and preview, scroll-synced | Solarized Light |
+| `editor.png` | Source editor, explorer, recent files | Solarized Light |
+| `preview.png` | Rendered Markdown preview | Solarized Light |
+| `themes.png` | Preferences → Appearance, theme picker | Apple Dark |
+| `about.png` | Preferences → About | Apple Dark |
 
-| Filename | What to capture |
-|---|---|
-| `split-view.png` | Split mode — source left, live preview right, a real document with headings, a table and a fenced code block |
-| `themes.png` | The Settings → Appearance theme grid showing all 10 themes |
-| `command-palette.png` | `Ctrl+Shift+P` open with a query typed and results filtered |
-| `explorer-search.png` | Workspace explorer plus a workspace search with hits |
+All captured at 1920×1152 on a 100 % scale display.
 
-Guidelines:
+## Replacing or adding one
 
-- Capture at **1600×1000** on a 100 % scale display, PNG, no window shadow.
-- Use the **Apple Dark** theme unless the shot is specifically about theming.
-- Open a document with real prose — not lorem ipsum, not an empty buffer.
-- Keep the same window size across all shots so they line up in the README.
+- Match the existing size so the README grid stays aligned.
+- Open a real document with real prose — not lorem ipsum, not an empty buffer.
 - No personal file paths in the title bar, explorer or recent-files list.
+- Prefer PNG. These are already well compressed; do not re-encode as JPEG, the text will smear.
+
+> Several of these show the app previewing its own README, where the shields.io badges render as
+> broken-image icons. That is correct behaviour rather than a bug: the preview blocks remote
+> resources under a strict CSP, which is the same reason the app makes no network calls at all.
+> If you reshoot, a document without remote images will look cleaner.
