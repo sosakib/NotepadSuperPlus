@@ -49,3 +49,8 @@ docs/**             linguist-documentation
 *.md                linguist-documentation
 pnpm-lock.yaml      linguist-generated
 Cargo.lock          linguist-generated
+
+# Prettier is configured with `endOfLine: "auto"` to match this file. With `text=auto`
+# a Windows checkout has CRLF working-tree files, and a hard `endOfLine: "lf"` would
+# make `pnpm format:check` fail on all of them while the repository content is LF and
+# perfectly correct. Change one and you must change the other.
