@@ -13,8 +13,8 @@ export function AboutTab() {
         <span className="about-brand__badge">Version {version} · Windows desktop</span>
       </div>
       <p className="about-modal__lead">
-        A lightweight, open-source Markdown editor built for speed and focus. No telemetry —
-        everything stays on your machine.
+        A free, open-source Markdown editor with faithful rendering and ten accessible themes. No
+        telemetry — everything stays on your machine.
       </p>
       <dl className="about-facts">
         <div className="about-fact">

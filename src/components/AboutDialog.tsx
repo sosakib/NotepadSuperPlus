@@ -38,8 +38,9 @@ export function AboutDialog() {
           </div>
 
           <p className="about-modal__lead">
-            A free, open-source desktop Markdown editor built for speed, focus, and technical
-            writing. MIT-licensed and community-driven — every feature, no accounts, no paid tiers.
+            A free, open-source desktop Markdown editor for technical writing: faithful rendering,
+            ten accessible themes. MIT-licensed and community-driven — every feature, no accounts,
+            no paid tiers.
           </p>
 
           <div className="about-specs">
