@@ -94,7 +94,7 @@ Rules: never animate layout properties (width/height/top) on the editor path; `p
 
 ## 7. Iconography
 
-Lucide icon set (MIT, tree-shakeable, consistent 1.5 px stroke). 16 px in dense chrome, 20 px in rail. Icons always paired with tooltip (500 ms delay) and `aria-label`. File-type glyphs: minimal two-tone set in `/design/icons`.
+Lucide icon set (MIT, tree-shakeable, consistent 1.5 px stroke). 16 px in dense chrome, 20 px in rail. Icons always paired with tooltip (500 ms delay) and `aria-label`. File-type glyphs: minimal two-tone set (not yet created).
 
 ## 8. UX writing
 

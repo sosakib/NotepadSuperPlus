@@ -8,7 +8,7 @@
 
 > **Execution refinement (Stage 0):** the execution plan adopts **gitflow-lite** (`main` +
 > `develop` + `feature/*` `release/*` `hotfix/*`) instead of the pure trunk-based model
-> described below — see [../ROADMAP.md](../ROADMAP.md) → *Branch & workflow model*. Concretely:
+> described below — see [../ROADMAP.md](ROADMAP.md) → *Branch & workflow model*. Concretely:
 > `develop` is the integration branch and features merge there first; `main` stays protected
 > and release-only. The rest of this document (squash-merge, Conventional Commits, SemVer,
 > hotfix flow, protection rules) applies unchanged. The trunk-based description below is

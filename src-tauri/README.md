@@ -5,7 +5,7 @@ persistence, dialogs, window/menu, updater. The webview has **no** direct filesy
 everything goes through the scoped command catalog in
 [docs/16_API_Design.md](../docs/16_API_Design.md).
 
-Populated in **Stage 1+** ([ROADMAP.md](../ROADMAP.md)). Planned structure
+Populated in **Stage 1+** ([ROADMAP.md](../docs/ROADMAP.md)). Planned structure
 ([docs/03_System_Architecture.md](../docs/03_System_Architecture.md) §4):
 
 ```

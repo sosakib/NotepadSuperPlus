@@ -1,0 +1,48 @@
+[package]
+name = "notepad-super-plus"
+version = "1.0.0"
+description = "Lightweight, fast, open-source desktop Markdown editor."
+authors = ["Notepad Super Plus contributors"]
+license = "MIT"
+repository = "https://github.com/sosakib/NotepadSuperPlus"
+edition = "2021"
+rust-version = "1.77"
+
+# The library holds the actual app so it can be shared with a future mobile target
+# and unit-tested without the binary entry point.
+[lib]
+name = "nsp_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+encoding_rs = "0.8"
+chardetng = "0.1"
+notify = "6"
+notify-debouncer-mini = "0.4"
+dirs = "5"
+dunce = "1"
+trash = "5"
+ignore = "0.4"
+regex = "1"
+toml = "0.8"
+
+[features]
+# Enables the WebView devtools in release builds when set (off by default).
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+opt-level = "s"   # optimize for size — installer budget < 15 MB (docs/09 §1)
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

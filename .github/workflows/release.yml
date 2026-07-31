@@ -1,8 +1,9 @@
 name: Release
 
-# Placeholder. The real Windows release pipeline (Tauri build → NSIS/MSI + portable →
-# sign → SBOM + checksums → draft GitHub Release) is implemented in Stage 13.
-# See ROADMAP.md and docs/18_Release_Checklist.md.
+# Builds the Windows installers (NSIS + MSI) on a version tag, generates
+# SHA-256 checksums, and publishes a draft GitHub Release for manual review.
+# Code signing is intentionally absent until a certificate exists — see
+# docs/18_Release_Checklist.md.
 
 on:
   push:
@@ -18,9 +19,44 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Not yet implemented
-        shell: bash
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build installers
+        run: pnpm tauri build
+
+      # Gated on the in-page number -- the part this codebase controls (budget 500 ms).
+      # The total carries only a loose 2000 ms sanity ceiling: ~1 s of it is Tauri and
+      # WebView2 creating the window before any of our code runs, and it moves with
+      # machine load, so a tight gate there would be flaky rather than informative.
+      # See docs/09 §2 and docs/reports/STARTUP_PERFORMANCE.md.
+      - name: Startup benchmark (gated)
+        shell: pwsh
+        run: ./scripts/bench/startup.ps1 -Runs 9 -FailInPageOver 500 -FailOver 2000
+
+      # Same script contributors run locally, so CI and a local release cannot drift.
+      - name: Package release bundle
+        shell: pwsh
         run: |
-          echo "::notice::Release pipeline is a Stage 13 deliverable."
-          echo "Tag: ${GITHUB_REF_NAME:-<none>}"
-          echo "This placeholder intentionally does not publish artifacts yet."
+          ./scripts/package-release.ps1 -SkipBuild
+          Get-Content release/checksums/SHA256SUMS.txt
+
+      - name: Draft GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          body_path: docs/RELEASE_NOTES.md
+          files: |
+            release/installer/*
+            release/checksums/SHA256SUMS.txt

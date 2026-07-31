@@ -1,0 +1,244 @@
+/*
+ * Rendered Markdown (preview). GitHub-flavored look, entirely token-driven so it
+ * follows the active theme (docs/04 §3). Applied to `.markdown-body`.
+ */
+
+.markdown-body {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) 40vh;
+  color: var(--fg-primary);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.7;
+  word-wrap: break-word;
+}
+
+.markdown-body > *:first-child {
+  margin-top: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin: 1.6em 0 0.6em;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.markdown-body h1 {
+  font-size: 1.9em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.markdown-body h2 {
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.markdown-body h3 {
+  font-size: 1.25em;
+}
+.markdown-body h4 {
+  font-size: 1.05em;
+}
+.markdown-body h5 {
+  font-size: 0.95em;
+}
+.markdown-body h6 {
+  font-size: 0.9em;
+  color: var(--fg-secondary);
+}
+
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body blockquote,
+.markdown-body table,
+.markdown-body pre {
+  margin: 0 0 1em;
+}
+
+.markdown-body a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.6em;
+}
+.markdown-body li + li {
+  margin-top: 0.25em;
+}
+.markdown-body li.task-list-item {
+  list-style: none;
+}
+.markdown-body li.task-list-item > input {
+  margin: 0 0.5em 0 -1.4em;
+  vertical-align: middle;
+}
+
+.markdown-body code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: var(--bg-hover);
+}
+.markdown-body pre {
+  padding: var(--space-3) var(--space-4);
+  overflow-x: auto;
+  border-radius: var(--radius-panel);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+.markdown-body pre code {
+  padding: 0;
+  background: none;
+  font-size: 0.86em;
+  line-height: 1.55;
+}
+
+.markdown-body blockquote {
+  padding: 0.2em 1em;
+  color: var(--fg-secondary);
+  border-left: 3px solid var(--border-strong);
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.markdown-body th,
+.markdown-body td {
+  padding: 0.4em 0.85em;
+  border: 1px solid var(--border-subtle);
+}
+.markdown-body th {
+  background: var(--bg-surface);
+  font-weight: 650;
+}
+.markdown-body tr:nth-child(2n) td {
+  background: color-mix(in srgb, var(--fg-primary) 3%, transparent);
+}
+
+.markdown-body hr {
+  height: 1px;
+  border: 0;
+  margin: 1.6em 0;
+  background: var(--border-subtle);
+}
+
+.markdown-body img {
+  max-width: 100%;
+}
+
+.markdown-body kbd {
+  font-family: var(--font-ui);
+  font-size: 0.85em;
+  padding: 0.15em 0.5em;
+  border-radius: 4px;
+  background: var(--bg-app);
+  border: 1px solid var(--border-strong);
+}
+
+/* GitHub & Linear Callouts */
+.markdown-alert {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-control);
+  background: var(--bg-surface);
+}
+.markdown-alert-note {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-surface));
+}
+.markdown-alert-tip {
+  border-left-color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--bg-surface));
+}
+/*
+ * The one callout colour with no semantic token behind it. GitHub renders IMPORTANT in
+ * purple, and the token set has no purple — note/tip/warning/caution all map cleanly to
+ * accent/success/warning/danger, this one does not. Kept as GitHub's value rather than
+ * forced onto an existing token, because reusing --accent would make IMPORTANT and NOTE
+ * identical, which is worse than one un-themed hue.
+ *
+ * Hoisted to a variable so it is declared once and is obvious when a purple token
+ * eventually exists. Note this whole `.markdown-alert-*` block is currently unrendered:
+ * FR-3.6 (GitHub callouts) is not implemented, so nothing emits these classes yet.
+ */
+.markdown-alert-important {
+  --alert-important: #a855f7;
+  border-left-color: var(--alert-important);
+  background: color-mix(in srgb, var(--alert-important) 10%, var(--bg-surface));
+}
+.markdown-alert-warning {
+  border-left-color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 10%, var(--bg-surface));
+}
+.markdown-alert-caution {
+  border-left-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--bg-surface));
+}
+.markdown-alert-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+/* ---- Fenced code highlighting (FR-3.2) ----
+ * Shiki emits inline `style="color:var(--nsp-token-x)"`; the render pipeline rewrites
+ * those into `tok-*` classes before sanitization, so `style` stays forbidden in the
+ * schema. Colours reuse the editor's `--cm-*` palette, which contrast.test.ts already
+ * holds to 4.5:1 on every theme — code blocks inherit that guarantee rather than
+ * introducing a second, unchecked palette. */
+.markdown-body pre.shiki code .tok-keyword {
+  color: var(--cm-keyword);
+}
+.markdown-body pre.shiki code .tok-string,
+.markdown-body pre.shiki code .tok-string-expression {
+  color: var(--cm-string);
+}
+.markdown-body pre.shiki code .tok-constant {
+  color: var(--cm-variable);
+}
+.markdown-body pre.shiki code .tok-number {
+  color: var(--cm-number);
+}
+.markdown-body pre.shiki code .tok-comment {
+  color: var(--cm-comment);
+  font-style: italic;
+}
+.markdown-body pre.shiki code .tok-function {
+  color: var(--cm-function);
+}
+.markdown-body pre.shiki code .tok-parameter {
+  color: var(--cm-property);
+}
+.markdown-body pre.shiki code .tok-punctuation {
+  color: var(--cm-meta);
+}
+.markdown-body pre.shiki code .tok-link {
+  color: var(--cm-link);
+}
+/* Shiki wraps each source line in a span. Targeted as a direct child of <code> rather
+   than by class: codeToHast (unlike codeToHtml) does not add `class="line"`, so a
+   `.line` selector silently matches nothing and every line runs together. */
+.markdown-body pre.shiki code > span {
+  display: block;
+  min-height: 1em;
+}

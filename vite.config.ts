@@ -1,0 +1,60 @@
+import { createRequire } from "node:module";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+const require = createRequire(import.meta.url);
+
+// Tauri expects a fixed port and no clearing of the terminal so its own logs survive.
+const host = process.env.TAURI_DEV_HOST;
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      // The Markdown pipeline runs in a Web Worker (no `document`). This dependency
+      // otherwise resolves to its browser `.dom.js` build, which calls
+      // `document.createElement`. Force the DOM-free entry so the worker doesn't crash.
+      "decode-named-character-reference": require.resolve("decode-named-character-reference"),
+    },
+  },
+  worker: {
+    // The Markdown worker loads Shiki grammars with dynamic `import()`, one per
+    // language on first use. Vite's default worker format is `iife`, which Rollup
+    // cannot code-split, so the build fails outright. The worker is already created
+    // with `{ type: "module" }`, so ES output is what it was always meant to be.
+    format: "es",
+  },
+  // Prevent Vite from obscuring Rust errors.
+  clearScreen: false,
+  server: {
+    port: 1420,
+    strictPort: true,
+    host: host || false,
+    hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
+    watch: {
+      // Don't watch the Rust core; it has its own rebuild loop.
+      ignored: ["**/src-tauri/**"],
+    },
+  },
+  // Produce output the Tauri config points at (../dist relative to src-tauri).
+  build: {
+    outDir: "dist",
+    target: "esnext",
+    // Everything in dist/ is embedded into the installer; .map files would
+    // quadruple the frontend payload. Keep maps in dev (served on demand) only.
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        // React only. CodeMirror used to be listed here too, and that quietly
+        // defeated lazy-loading the editor: a named manualChunk reachable from the
+        // entry gets a `modulepreload` link, so the browser downloaded and parsed all
+        // ~550 kB during startup even though no editor was mounted. Left unnamed, it
+        // lands inside the lazy SourcePane chunk and is fetched on first use.
+        manualChunks: {
+          react: ["react", "react-dom"],
+        },
+      },
+    },
+  },
+});

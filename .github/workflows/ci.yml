@@ -14,48 +14,55 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Stage 0: verify the repository scaffold is intact. Real lint/typecheck/test/build
-  # jobs are added in Stage 1 when the toolchain lands (see ROADMAP.md).
-  scaffold-check:
-    name: Scaffold integrity
+  frontend:
+    name: Frontend (lint · typecheck · build)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify required project files exist
-        shell: bash
-        run: |
-          set -euo pipefail
-          required=(
-            README.md LICENSE CHANGELOG.md ROADMAP.md
-            CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md MAINTAINERS.md
-            .gitignore
-            .github/dependabot.yml
-            .github/PULL_REQUEST_TEMPLATE.md
-            .github/ISSUE_TEMPLATE/bug_report.yml
-            .github/ISSUE_TEMPLATE/feature_request.yml
-            .github/ISSUE_TEMPLATE/documentation.yml
-            .github/ISSUE_TEMPLATE/performance.yml
-            .github/ISSUE_TEMPLATE/config.yml
-          )
-          missing=0
-          for f in "${required[@]}"; do
-            if [[ ! -f "$f" ]]; then echo "::error::missing required file: $f"; missing=1; fi
-          done
-          exit $missing
-      - name: Verify documentation set (docs/00..20)
-        shell: bash
-        run: |
-          set -euo pipefail
-          missing=0
-          for n in $(seq -w 0 20); do
-            if ! ls docs/${n}_*.md >/dev/null 2>&1; then
-              echo "::error::missing documentation file docs/${n}_*.md"; missing=1
-            fi
-          done
-          exit $missing
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      # Formatting was enforced locally but never in CI, so a drifted file could merge.
+      - run: pnpm format:check
+      - run: pnpm test
+      - run: pnpm build
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist
+          retention-days: 3
 
-  # --- Placeholders activated in Stage 1 (kept here so the pipeline shape is visible) ---
-  # lint-and-typecheck:   # pnpm lint, pnpm typecheck, cargo fmt --check, cargo clippy -D warnings
-  # test:                 # vitest (unit + conformance), cargo test --workspace
-  # build:                # pnpm build, cargo build (+ tauri build smoke on windows-latest)
-  # perf:                 # relative startup/latency budget check (docs/09)
+  core:
+    name: Rust core (fmt · clippy · test · build)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Install frontend deps
+        run: pnpm install --frozen-lockfile
+      - name: Build frontend (generate ../dist for tauri context)
+        run: pnpm build
+      - name: rustfmt
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml --all --check
+      - name: clippy
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+      - name: test
+        run: cargo test --manifest-path src-tauri/Cargo.toml --all
+      - name: build (debug)
+        run: cargo build --manifest-path src-tauri/Cargo.toml

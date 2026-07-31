@@ -1,0 +1,185 @@
+/*
+ * Base styles + reset. Semantic color tokens are injected at runtime as CSS custom
+ * properties by the theme engine (src/theme/applyTheme.ts); this file only consumes
+ * them. Component/layout styles live in shell.css.
+ */
+
+:root {
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-display: "Geist", "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", "Geist Mono", "Consolas", ui-monospace, monospace;
+
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-overlay: 14px;
+  --radius-full: 9999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+
+  --rail-width: 48px;
+  --titlebar-height: 42px;
+  --tabbar-height: 40px;
+  --tab-height: 32px;
+  --statusbar-height: 28px;
+
+  /*
+   * Motion. One easing for everything that settles (menus, hovers, fades) and one
+   * gentle overshoot for things that should feel picked up rather than moved. Kept as
+   * tokens because the shell previously mixed `linear`, `ease`, 100/120/150 ms and
+   * `transition: all` across neighbouring components, which reads as jitter.
+   */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-emphasis: cubic-bezier(0.34, 1.32, 0.64, 1);
+  --dur-instant: 90ms;
+  --dur-fast: 140ms;
+  --dur-base: 200ms;
+
+  /*
+   * Derived from --accent, not hardcoded. These were a fixed Apple-blue ramp, so five
+   * of the bundled themes painted blue gradients that clashed with their own accent.
+   * color-mix keeps the theme's hue and only moves lightness.
+   */
+  --accent-gradient: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--accent) 86%, #000) 0%,
+    var(--accent) 52%,
+    color-mix(in oklab, var(--accent) 82%, #fff) 100%
+  );
+  --accent-gradient-hover: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--accent) 74%, #000) 0%,
+    color-mix(in oklab, var(--accent) 90%, #000) 52%,
+    var(--accent) 100%
+  );
+
+  /*
+   * Shadow tint follows the theme: a 45 %-black drop that reads as depth on a navy
+   * shell turns into a dirty smudge on a cream one. `--shadow-color` is overridden
+   * per scheme below.
+   */
+  --shadow-color: 0deg 0% 0%;
+  --shadow-overlay:
+    0 20px 35px -10px hsl(var(--shadow-color) / 0.45), 0 0 0 1px var(--border-subtle);
+  --shadow-dropdown:
+    0 10px 25px -5px hsl(var(--shadow-color) / 0.3), 0 0 0 1px var(--border-subtle);
+  --shadow-accent: 0 4px 14px -4px color-mix(in oklab, var(--accent) 55%, transparent);
+  --shadow-accent-hover: 0 8px 22px -6px color-mix(in oklab, var(--accent) 65%, transparent);
+
+  /* Fallback token values in case the theme engine has not run yet (SSR/tests). */
+  --bg-app: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-raised: #334155;
+  --bg-hover: #3b4f6b;
+  --bg-active: #475569;
+  --fg-primary: #f8fafc;
+  --fg-secondary: #cbd5e1;
+  --fg-muted: #8390a2;
+  --border-subtle: #1e293b;
+  --border-strong: #334155;
+  --accent: #3473da;
+  --accent-fg: #ffffff;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+  --selection: #1d4ed8;
+}
+
+/*
+ * Light themes: a neutral black shadow greys out warm surfaces, so the tint borrows
+ * the shell's own hue and the opacity drops — light UI carries depth with much less
+ * shadow than dark UI does.
+ */
+:root[data-scheme="light"] {
+  --shadow-color: 220deg 45% 22%;
+  --shadow-overlay:
+    0 16px 30px -12px hsl(var(--shadow-color) / 0.18),
+    0 2px 6px -2px hsl(var(--shadow-color) / 0.1), 0 0 0 1px var(--border-subtle);
+  --shadow-dropdown:
+    0 8px 20px -6px hsl(var(--shadow-color) / 0.14), 0 1px 3px -1px hsl(var(--shadow-color) / 0.08),
+    0 0 0 1px var(--border-subtle);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--fg-primary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--selection);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/*
+ * Scrollbars. Native Windows scrollbars ignore the app's theme and read as a
+ * foreign element inside a dark shell, so every scroll container gets a thin,
+ * token-driven bar that only gains contrast on hover.
+ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-muted);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

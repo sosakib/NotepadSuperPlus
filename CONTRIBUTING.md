@@ -3,7 +3,7 @@
 Thanks for your interest! This file is the short version; the full guide with rationale
 is [docs/15_Contribution_Guide.md](docs/15_Contribution_Guide.md).
 
-> **Status:** the project is in the implementation phase, Windows-first. See [ROADMAP.md](ROADMAP.md)
+> **Status:** the project is in the implementation phase, Windows-first. See [docs/ROADMAP.md](docs/ROADMAP.md)
 > for the current stage. Please align PRs with the active stage — features from later stages
 > are usually declined until their stage opens.
 
@@ -36,7 +36,7 @@ Windows build prerequisites are documented in `docs/BUILD.md` (added in Stage 1)
 ## Branch model (gitflow-lite)
 
 Work off `develop` via `feature/<slug>`; open the PR against `develop`. `main` is
-release-only and protected. See [ROADMAP.md](ROADMAP.md) → *Branch & workflow model*.
+release-only and protected. See [docs/ROADMAP.md](docs/ROADMAP.md) → *Branch & workflow model*.
 
 ## Review
 

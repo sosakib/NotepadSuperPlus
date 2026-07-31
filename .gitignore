@@ -28,6 +28,10 @@ src-tauri/target/
 *.AppImage
 release-artifacts/
 
+# Generated release bundle. Rebuild any time with `scripts/package-release.ps1`;
+# binaries belong on a GitHub Release, never in the repository. Safe to delete.
+/release/
+
 # ---- Editors / OS ----
 .vscode/*
 !.vscode/extensions.json
