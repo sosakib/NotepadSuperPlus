@@ -1,10 +1,14 @@
 import { useEffect, useRef } from "react";
-import { X, Plus, FileText } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { useDocumentsStore } from "../state/documents.ts";
 import { closeFile } from "../actions/fileActions.ts";
+import { iconForLanguage } from "../editor/fileIcons.ts";
+import { ViewModeSwitch } from "./ViewModeSwitch.tsx";
 
 /**
- * Editor tab strip: one tab per open document, plus a new-document button.
+ * Editor tab strip: one tab per open document, a new-document button, and the view-mode
+ * switch. The switch lives here rather than in the title bar because it acts on the active
+ * document — the same reason VS Code and Obsidian put the equivalent control by the tabs.
  *
  * The dirty indicator and the close button share one slot (VS Code / Zed
  * behavior): a modified document shows a dot that becomes a close button on
@@ -36,6 +40,7 @@ export function TabBar() {
             const doc = docs[id];
             if (!doc) return null;
             const active = id === activeId;
+            const Icon = iconForLanguage(doc.languageId);
             return (
               <div
                 key={id}
@@ -59,7 +64,7 @@ export function TabBar() {
                   }
                 }}
               >
-                <FileText className="tab__icon" size={14} strokeWidth={1.75} aria-hidden />
+                <Icon className="tab__icon" size={14} strokeWidth={1.75} aria-hidden />
                 <span className="tab__title">{doc.title}</span>
                 <span className="tab__slot">
                   <span className="tab__dot" aria-hidden />
@@ -89,6 +94,7 @@ export function TabBar() {
       >
         <Plus size={16} strokeWidth={2.25} />
       </button>
+      <ViewModeSwitch />
     </div>
   );
 }
