@@ -8,10 +8,11 @@
 
 ```
 <App>
-├── <TitleBar>                       (overlay controls, platform-aware)
+├── <TitleBar>                       (frameless caption bar — brand + window controls)
+│   └── <WindowControls>             (minimize | maximize-restore | close)
 ├── <CommandPalette>                 (portal; fuzzy command + file search)
 ├── <MainLayout>
-│   ├── <ActivityRail>               (Explorer | Outline | Search toggles)
+│   ├── <ActivityRail>               (Explorer | Outline | Search toggles + global actions)
 │   ├── <Sidebar>                    (resizable, collapsible)
 │   │   ├── <ExplorerPanel>
 │   │   │   ├── <WorkspaceHeader>
@@ -25,7 +26,7 @@
 │   │       ├── <SearchInput> (+options: case/word/regex)
 │   │       └── <SearchResults>      (virtualized, grouped by file)
 │   ├── <EditorArea>
-│   │   ├── <TabBar> → <Tab> (pinned | preview | dirty states)
+│   │   ├── <TabBar> → <Tab> (pinned | preview | dirty states) + <ViewModeSwitch>
 │   │   └── <TabContent>             (per active tab)
 │   │       ├── <SourcePane>         (CodeMirror host)
 │   │       ├── <PreviewPane>        (rendered blocks, virtualized)

@@ -9,6 +9,58 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+### Added
+- **Integrated title bar.** The window now runs frameless (`decorations: false`) and the
+  app draws its own caption bar — brand on the left, minimize / maximize / close on the
+  right, matching VS Code, Obsidian and Cursor. One title bar instead of two.
+  - Dragging, double-click-to-maximize, Aero Snap, drag-to-top-maximize and drag-to-edge
+    snapping all come from `data-tauri-drag-region` and the OS, not from custom code.
+  - Resize on all eight edges and the "maximized window must not cover the taskbar" rule
+    are handled by `tao`'s own `WM_NCHITTEST` / `WM_NCCALCSIZE` paths, per-monitor-DPI
+    aware. **No custom resize borders or maximize compensation were written** — see
+    [docs/reports/V15_AUDIT.md](docs/reports/V15_AUDIT.md) §4.2–4.3.
+  - On Windows 11 the frameless window keeps rounded corners and a real drop shadow,
+    drawn by DWM (`shadow` defaults to true).
+  - The view-mode switch moved beside the tab strip (it acts on the active document) and
+    the palette / export entries joined the activity rail's global toggles.
+- **Language labels for every extension the editor can highlight.** The status bar named
+  56 of 223 highlightable extensions, so a `.dart` file highlighted perfectly and reported
+  itself as "Plain Text". The table is now generated from `@codemirror/language-data`
+  (`scripts/gen-language-labels.mjs`) and a test re-derives it from the dependency, so it
+  fails the build rather than rotting. Formats with no CodeMirror grammar — `.bat`, `.csv`,
+  `.log` — are named correctly even though they cannot be highlighted, and dotfiles
+  (`.gitignore`, `.gitattributes`, `.env`) resolve instead of falling through to Plain Text.
+- **Explorer context menu covers ~85 extensions**, up from 6 — every language, config and
+  shell format the editor supports. Registered as a `SystemFileAssociations` verb, so it
+  adds "Open with Notepad Super Plus" **without** changing which app owns any file type.
+- **Open/save dialogs offer Code, Web & styles, Data & config and Text filter groups**
+  alongside Markdown. Opening a `.rs` no longer requires switching to "All Files" first.
+- **File icons per language** in the tab strip, resolved from the document's language id
+  (`src/editor/fileIcons.ts`) rather than hardcoded. Keyed by language id so real icon
+  assets can be added later as data, with no consumer changes.
+
+### Fixed
+- **Preview rendered code files through the Markdown pipeline.** Opening a `.py` and
+  pressing `Ctrl+2` ran Python through remark: `#` comments became headings, `*args` became
+  emphasis, and the outline panel listed the result. View mode is now derived per document —
+  non-Markdown documents stay in Source and the Preview/Split buttons are disabled with a
+  reason. The render request is refused in `renderController` itself, so all four call
+  sites are covered and a fifth cannot forget.
+- Installer hooks enumerated the extension list separately for install and uninstall. The
+  list is now declared once and applied by both, so the two cannot diverge and leave
+  registry keys behind after an uninstall.
+
+### Known limitations
+- The Windows 11 **snap-layout flyout** (hovering the maximize button) is not implemented.
+  It requires returning `HTMAXBUTTON` from a subclassed window procedure, which needs raw
+  Win32 and is ruled out by `#![forbid(unsafe_code)]`. Aero Snap, `Win`+`Z` and `Win`+arrow
+  all still work. Reasoning in [docs/reports/V15_AUDIT.md](docs/reports/V15_AUDIT.md) §4.4.
+- On Windows 11 the context-menu entry appears under **"Show more options"** (Shift+F10),
+  as it does for every app without an `IExplorerCommand` COM handler. Windows 10 shows it
+  directly.
+- The MSI target ships without the context menu — `installerHooks` is NSIS-only. NSIS is
+  the installer the release workflow promotes.
+
 ## [1.0.0] — 2026-07-26
 
 First stable release. All four v1.0 blockers from the 2026-07-21 audit are closed or

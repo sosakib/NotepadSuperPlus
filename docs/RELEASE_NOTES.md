@@ -65,7 +65,7 @@ Read these before installing. They are stated rather than implied.
 | **Cold start is 0.6–1.5 s, and it depends heavily on your machine** | Measured **598 ms** on a clean GitHub Actions runner and **1484 ms** on a loaded development desktop — the same binary, a 2.5× spread. Most of it is Tauri/WebView2 creating the window *before any app code runs*; our own Rust setup measures 2–3 ms and the in-page work 116–456 ms. Expect the fast end on a machine with little background load. Measurements: [STARTUP_PERFORMANCE.md](reports/STARTUP_PERFORMANCE.md). |
 | **No test drives the real window** | 353 TypeScript and 45 Rust tests pass, and 7 of the 10 release-blocking journeys are covered — but the Tauri IPC boundary and the real file dialogs are still verified by hand. Needs a WebDriver; scope in [E2E_COVERAGE.md](reports/E2E_COVERAGE.md). |
 | **Fonts are not bundled** | Inter / Geist / JetBrains Mono are named in the token stacks but no font files ship, so on a stock Windows machine you get Segoe UI and Consolas. |
-| **No screenshots yet** | The README has none. Specs for the four wanted shots are in `assets/screenshots/README.md`. |
+| **Screenshots predate the integrated title bar** | The README screenshots were added in `a585e49`; they show the pre-frameless window with a separate Windows caption bar. Re-shoot before the next release. |
 
 **Not in this release:** math (KaTeX), Mermaid diagrams, GitHub callouts, emoji shortcodes,
 `[TOC]`, PDF export, auto-save, crash-draft recovery, smart list continuation, checkbox
