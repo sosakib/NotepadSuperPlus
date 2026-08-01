@@ -1,3 +1,5 @@
+import { GENERATED_LABELS } from "./languageLabels.generated.ts";
+
 /**
  * Filename → human-readable language label, for the status bar.
  *
@@ -9,83 +11,82 @@
  * app whose first screen is a welcome page with no editor on it.
  *
  * Actual syntax highlighting still resolves through the real registry in
- * `languages.ts`, which only the lazily-loaded editor panes import. This table only
+ * `languages.ts`, which only the lazily-loaded editor panes import. This module only
  * has to name a file, not parse it.
+ *
+ * The bulk of the table is now *generated* from `@codemirror/language-data`
+ * (`scripts/gen-language-labels.mjs`) rather than hand-listed. The hand-maintained version
+ * named 56 of the 223 highlightable extensions, so a `.dart` file highlighted perfectly and
+ * then reported itself as "Plain Text". `OVERRIDES` below is the only hand-maintained part,
+ * and it exists for exactly two reasons — see its comment.
  */
-
-const MARKDOWN_RE = /\.(md|markdown|mdown|mkd|mdx)$/i;
 
 /**
- * Extension → label. Covers the formats this editor actually opens (FR-1.2/1.3) plus
- * what a technical writer has adjacent to their notes. Anything else is Plain Text,
- * which is both true and harmless — the label is informational.
+ * Hand-maintained corrections layered over the generated table.
+ *
+ * Two kinds of entry, and no others:
+ *
+ * 1. **Absent from `language-data`** — formats with no CodeMirror grammar, which still need
+ *    a truthful name. `.bat` and `.csv` have no CM6 mode anywhere; the rest are plain text
+ *    or are matched by alias rather than extension upstream.
+ * 2. **Named awkwardly upstream** — `.ini` resolves to the properties-file grammar, whose
+ *    description is "Properties files"; a status bar reading that for an `.ini` is worse
+ *    than useless. `.diff` is lowercased upstream.
+ *
+ * Anything that is *correct* in the generated table does not belong here, however tempting.
+ * Cosmetic disagreements (LESS vs Less, JSX vs JavaScript for `.jsx`) are left to the
+ * generated value: it names the grammar CodeMirror actually loads, which is the more useful
+ * fact and the one that cannot drift.
  */
-const LABELS: Record<string, string> = {
-  // data / config
-  json: "JSON",
-  jsonc: "JSON",
-  yaml: "YAML",
-  yml: "YAML",
-  toml: "TOML",
-  xml: "XML",
+const OVERRIDES: Record<string, string> = {
+  // No grammar upstream
+  txt: "Plain Text",
+  log: "Log",
   csv: "CSV",
-  ini: "INI",
-  env: "Plain Text",
-  // web
-  html: "HTML",
-  htm: "HTML",
-  css: "CSS",
-  scss: "SCSS",
-  less: "Less",
-  js: "JavaScript",
-  jsx: "JavaScript",
-  mjs: "JavaScript",
-  cjs: "JavaScript",
-  ts: "TypeScript",
-  tsx: "TypeScript",
-  vue: "Vue",
-  svelte: "Svelte",
-  // languages
-  py: "Python",
-  rs: "Rust",
-  go: "Go",
-  java: "Java",
-  kt: "Kotlin",
-  swift: "Swift",
-  c: "C",
-  h: "C",
-  cpp: "C++",
-  cc: "C++",
-  hpp: "C++",
-  cs: "C#",
-  rb: "Ruby",
-  php: "PHP",
-  lua: "Lua",
-  r: "R",
-  sql: "SQL",
-  // shell
-  sh: "Shell",
-  bash: "Shell",
-  zsh: "Shell",
-  ps1: "PowerShell",
-  psm1: "PowerShell",
   bat: "Batch",
   cmd: "Batch",
-  // docs
-  txt: "Plain Text",
+  env: "Env",
+  jsonc: "JSON",
   rst: "reStructuredText",
-  tex: "LaTeX",
+  svelte: "Svelte",
+  zsh: "Shell",
+  gitignore: "Git Ignore",
+  gitattributes: "Git Attributes",
+  // Named awkwardly upstream
+  ini: "INI",
   diff: "Diff",
   patch: "Diff",
 };
 
+const MARKDOWN_RE = /\.(md|markdown|mdown|mkd|mdx)$/i;
+
+/**
+ * Whether a filename is Markdown, and therefore whether the preview pipeline applies to it.
+ *
+ * Exported because the answer decides more than a label: `EditorArea` uses it to skip the
+ * render for code files, and `ViewModeSwitch` uses it to disable Preview and Split. Running a
+ * `.py` through remark turns `#` comments into headings and `*args` into emphasis, so this is
+ * a correctness gate, not a preference.
+ */
+export function isMarkdownFilename(filename: string): boolean {
+  return MARKDOWN_RE.test(filename);
+}
+
 /** A stable, human-readable language label for the status bar (no async load). */
 export function languageIdForFilename(filename: string): string {
-  if (MARKDOWN_RE.test(filename)) return "Markdown";
-  // A dotfile like `.gitignore` has no extension to speak of, and `LICENSE` has none
-  // at all; both are Plain Text rather than a language named after the whole filename.
+  if (isMarkdownFilename(filename)) return "Markdown";
+
   const dot = filename.lastIndexOf(".");
-  if (dot <= 0) return "Plain Text";
-  const ext = filename.slice(dot + 1).toLowerCase();
-  return LABELS[ext] ?? "Plain Text";
+  // A dotfile like `.gitignore` has no extension in the usual sense, but Windows and this
+  // table both key it on the whole trailing name, so `.gitignore` resolves rather than
+  // falling through to "Plain Text". A name with no dot at all (`LICENSE`) still does.
+  const ext =
+    dot === 0
+      ? filename.slice(1).toLowerCase()
+      : dot > 0
+        ? filename.slice(dot + 1).toLowerCase()
+        : "";
+  if (ext === "") return "Plain Text";
+
+  return OVERRIDES[ext] ?? GENERATED_LABELS[ext] ?? "Plain Text";
 }
