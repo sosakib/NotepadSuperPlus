@@ -34,7 +34,7 @@ dunce = "1"
 trash = "5"
 ignore = "0.4"
 regex = "1"
-toml = "0.8"
+toml = "1.1"
 
 [features]
 # Enables the WebView devtools in release builds when set (off by default).
