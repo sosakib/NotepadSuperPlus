@@ -9,6 +9,11 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+### Changed
+- Release packaging names installers the way GitHub serves them (`Notepad.Super.Plus_…`), so
+  `SHA256SUMS.txt` verifies the downloaded files directly; release drafts are titled
+  automatically.
+
 ## [1.0.1] — 2026-10-05
 
 Patch release from the 2026-10-05 security and robustness audit of 1.0.0. No new features,
@@ -351,4 +356,6 @@ this and 1.0.0.
 - Master execution roadmap ([docs/ROADMAP.md](docs/ROADMAP.md)) covering Stages 0–15 (Windows-first to v1.0)
   plus the deferred macOS migration milestone.
 
-[Unreleased]: https://github.com/sosakib/NotepadSuperPlus/commits/main
+[Unreleased]: https://github.com/sosakib/NotepadSuperPlus/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/sosakib/NotepadSuperPlus/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/sosakib/NotepadSuperPlus/releases/tag/v1.0.0

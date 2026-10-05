@@ -5,8 +5,12 @@ is documented in [docs/08_Security_Model.md](docs/08_Security_Model.md).
 
 ## Supported versions
 
-During pre-1.0 development, only the latest release (or `main`/`develop` HEAD) is supported.
-From v1.0, the latest minor release receives security fixes.
+The latest minor release receives security fixes, shipped as a patch release.
+
+| Version | Supported |
+| ------- | --------- |
+| 1.0.x   | ✅ — please update to the latest patch (currently **1.0.1**) |
+| < 1.0   | ❌ — pre-release builds, never published |
 
 ## Reporting a vulnerability
 

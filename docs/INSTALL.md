@@ -8,8 +8,8 @@ Grab the latest installer from the [Releases page](https://github.com/sosakib/No
 
 | File | Use this if |
 |---|---|
-| `Notepad Super Plus_<version>_x64-setup.exe` | **Recommended.** NSIS installer, per-user, no admin rights needed. |
-| `Notepad Super Plus_<version>_x64_en-US.msi` | You deploy via Group Policy, Intune or another MSI-based tool. |
+| `Notepad.Super.Plus_<version>_x64-setup.exe` | **Recommended.** NSIS installer, per-user, no admin rights needed. |
+| `Notepad.Super.Plus_<version>_x64_en-US.msi` | You deploy via Group Policy, Intune or another MSI-based tool. |
 
 ## The SmartScreen warning
 
@@ -30,7 +30,7 @@ Code signing is on the roadmap; it needs a purchased certificate.
 Each release ships `SHA256SUMS.txt`.
 
 ```powershell
-Get-FileHash '.\Notepad Super Plus_0.1.0_x64-setup.exe' -Algorithm SHA256
+Get-FileHash '.\Notepad.Super.Plus_1.0.1_x64-setup.exe' -Algorithm SHA256
 ```
 
 Compare the result against the matching line in `SHA256SUMS.txt`. They should match exactly,
