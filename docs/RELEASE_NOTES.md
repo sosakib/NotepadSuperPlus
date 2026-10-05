@@ -1,71 +1,58 @@
-# Notepad Super Plus 1.0.0
+# Notepad Super Plus 1.0.1
 
-**First stable release** · Windows 10/11 x64 · MIT
+**Patch release** · Windows 10/11 x64 · MIT
 
-A desktop Markdown editor that does one job properly: a CodeMirror 6 source pane, a sanitized
-GitHub-flavored live preview with syntax-highlighted code blocks, a workspace explorer with
-full-text search, session restore, and ten themes held to WCAG contrast floors by automated
-test. No accounts, no paid tier, no telemetry.
+Fixes from a security and robustness audit of 1.0.0, several of which could lose unsaved work.
+No new features, no file-format or settings changes. Updating is recommended for everyone on
+1.0.0 — install over the top; settings, recent files and your session are kept.
 
-## What's in it
+## Fixed — could lose or corrupt your work
 
-**Write and preview**
+- **Clicking a link in the preview replaced the app with that web page.** The editor unloaded
+  along with every unsaved document, and the remote page rendered inside the app window.
+  Now: `#heading` links scroll the preview, web and `mailto:` links open in your browser, and
+  nothing else does anything. A second guard in the Rust core refuses to load any other page
+  even if a link slips through.
+- **Closing the window threw away unsaved edits.** Closing a *tab* asked first; X and Alt+F4
+  did not. The window now lists the unsaved documents and asks.
+- **Saving in a legacy encoding silently corrupted characters.** Typing an emoji into a
+  windows-1252 file and saving wrote the literal text `&#128512;`. The save now stops with a
+  clear message and the file on disk is left untouched — save it as UTF-8 instead.
+- **New file and Duplicate could overwrite a file that appeared at the same moment**, for
+  example one just synced by OneDrive or Dropbox. Both now claim the name atomically.
+- **A crash while updating the recent-files list could wipe it.** It is now written the same
+  atomic way as settings and session.
 
-- Source / Preview / Split with synced scrolling (`Ctrl+1` `Ctrl+2` `Ctrl+3`)
-- GitHub-flavored Markdown — tables, task lists, strikethrough, autolinks
-- **Syntax-highlighted fenced code blocks** — 26 languages via Shiki, grammars loaded on
-  demand, coloured from the same palette as the editor so they stay readable on every theme
-- **Frontmatter panel** — YAML metadata lifted into a collapsible panel instead of leaking
-  into the rendered document
-- Rendered in a Web Worker and sanitized before it reaches the DOM
-- Document outline, live word/character counts, read-time estimate
-- Export to standalone HTML, Markdown or plain text
+## Fixed — everything else
 
-**Work with files and folders**
+- A session restored in **Preview** mode showed "Nothing to preview yet" for every tab.
+- Renaming only the capitalisation of a file (`notes.md` → `Notes.md`) failed with
+  "already exists".
+- A file opened from Explorer during startup could be silently dropped.
+- The explorer treated `C:\notes-old` as part of a workspace at `C:\notes`.
+- Opening a second folder left the first one's file watcher running in the background.
+- Saving inside a workspace briefly flashed a temporary file in the explorer.
+- An internal error in one background task could take the whole app down with it.
 
-- **Session restore** — open tabs, caret positions, view mode and workspace return on launch.
-  Files that moved or were deleted are dropped quietly, not reopened as errors
-- Workspace explorer: browse lazily, create, rename, duplicate, trash
-- **Deletes always go to the recycle bin.** There is no hard delete anywhere in the app
-- Workspace search with regex, case and whole-word toggles, honouring `.gitignore`
-- Command palette (`Ctrl+Shift+P`), fuzzy-matched; every command is keyboard-bindable
+## Security and build
 
-**Ten themes, all measured**
-
-Apple Dark · Apple Light · Midnight Blue · GitHub · Nord · Catppuccin · Everforest ·
-Solarized Light · Minimal Monochrome · High Contrast
-
-Every one is held to WCAG 2.2 floors by an automated test — 4.5:1 for text, 3:1 for accent and
-status colours, plus a minimum separation across the text hierarchy. A palette that fails is a
-build failure, not a shipped regression.
-
-**Windows integration**
-
-- "Open with Notepad Super Plus" in Explorer's context menu for `.md`, `.markdown`, `.mdown`,
-  `.mkd`, `.mdx`, `.txt`
-- File associations, single-instance launch, files opened from the command line
-- Per-user install — no admin rights needed
-
-**Files handled honestly**
-
-- UTF-8 / UTF-16 / BOM and LF / CRLF detected and **preserved**, never silently rewritten
-- Atomic saves — a crash mid-write cannot truncate your file
-- External-change detection: clean buffers reload, dirty buffers raise a conflict banner
-
-**Privacy** — zero telemetry, zero network calls. No update check, no crash reporter, no remote
-resources in the preview. Strict CSP with no remote origin in any directive.
+- Regression tests now hold the preview sanitizer to 23 known XSS payloads and fail the build
+  if the content-security policy or window permissions are ever loosened.
+- CodeQL analysis (TypeScript and Rust) and dependency audits run on every change; all CI
+  actions are pinned to exact commits.
+- The only new permission is opening `http(s)`/`mailto` links in the system browser.
 
 ## Known limitations
 
-Read these before installing. They are stated rather than implied.
+Unchanged from 1.0.0 unless noted.
 
 | | |
 |---|---|
-| **Installers are unsigned** | SmartScreen will warn on download. A code-signing certificate is a purchase, not an engineering step. See [INSTALL.md](INSTALL.md) for what the warning means and how to verify the download. |
-| **Cold start is 0.6–1.5 s, and it depends heavily on your machine** | Measured **598 ms** on a clean GitHub Actions runner and **1484 ms** on a loaded development desktop — the same binary, a 2.5× spread. Most of it is Tauri/WebView2 creating the window *before any app code runs*; our own Rust setup measures 2–3 ms and the in-page work 116–456 ms. Expect the fast end on a machine with little background load. Measurements: [STARTUP_PERFORMANCE.md](reports/STARTUP_PERFORMANCE.md). |
-| **No test drives the real window** | 353 TypeScript and 45 Rust tests pass, and 7 of the 10 release-blocking journeys are covered — but the Tauri IPC boundary and the real file dialogs are still verified by hand. Needs a WebDriver; scope in [E2E_COVERAGE.md](reports/E2E_COVERAGE.md). |
-| **Fonts are not bundled** | Inter / Geist / JetBrains Mono are named in the token stacks but no font files ship, so on a stock Windows machine you get Segoe UI and Consolas. |
-| **No screenshots yet** | The README has none. Specs for the four wanted shots are in `assets/screenshots/README.md`. |
+| **Installers are unsigned** | SmartScreen will warn on download. See [INSTALL.md](INSTALL.md) for what the warning means and how to verify the download. |
+| **Cold start is 0.6–1.5 s, and it depends heavily on your machine** | Most of it is Tauri/WebView2 creating the window *before any app code runs*. Measurements: [STARTUP_PERFORMANCE.md](reports/STARTUP_PERFORMANCE.md). |
+| **No test drives the real window** | 391 TypeScript and 50 Rust tests pass, but the Tauri IPC boundary and real file dialogs are still verified by hand. Scope in [E2E_COVERAGE.md](reports/E2E_COVERAGE.md). |
+| **Fonts are not bundled** | On a stock Windows machine you get Segoe UI and Consolas. |
+| **Local images don't show in the preview** | `![](./pic.png)` is blocked by design (privacy and CSP); planned as a scoped feature. |
 
 **Not in this release:** math (KaTeX), Mermaid diagrams, GitHub callouts, emoji shortcodes,
 `[TOC]`, PDF export, auto-save, crash-draft recovery, smart list continuation, checkbox
@@ -73,11 +60,11 @@ toggle-from-preview, and a portable build.
 
 ## Install
 
-Download `Notepad Super Plus_1.0.0_x64-setup.exe` and run it. Full instructions, checksum
-verification and uninstall steps: [INSTALL.md](INSTALL.md).
+Download `Notepad Super Plus_1.0.1_x64-setup.exe` and run it — it upgrades 1.0.0 in place.
+Full instructions, checksum verification and uninstall steps: [INSTALL.md](INSTALL.md).
 
 ```powershell
-Get-FileHash '.\Notepad Super Plus_1.0.0_x64-setup.exe' -Algorithm SHA256
+Get-FileHash '.\Notepad Super Plus_1.0.1_x64-setup.exe' -Algorithm SHA256
 ```
 
 Compare against `SHA256SUMS.txt` in the release assets.
