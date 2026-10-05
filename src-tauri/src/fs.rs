@@ -171,7 +171,19 @@ fn encode(text: &str, encoding: &str) -> NspResult<Vec<u8>> {
         other => {
             let enc = encoding_rs::Encoding::for_label(other.as_bytes())
                 .ok_or_else(|| NspError::invalid_input(format!("Unknown encoding: {other}")))?;
-            let (bytes, _, _) = enc.encode(text);
+            let (bytes, _, unmappable) = enc.encode(text);
+            // encoding_rs replaces unmappable characters with `&#NNNN;` — writing that
+            // would silently corrupt the document. Refuse instead.
+            if unmappable {
+                return Err(NspError::new(
+                    "E_ENCODING",
+                    format!(
+                        "This document contains characters that can't be saved as {}. \
+                         Save it as UTF-8 instead.",
+                        enc.name()
+                    ),
+                ));
+            }
             Ok(bytes.into_owned())
         }
     }
@@ -316,5 +328,24 @@ mod tests {
             .filter(|e| e.file_name().to_string_lossy().starts_with(".nsp-tmp-"))
             .collect();
         assert!(temps.is_empty(), "temp file left behind");
+    }
+
+    #[test]
+    fn legacy_encoding_roundtrips_representable_text() {
+        let dir = tmp_dir();
+        let p = dir.join("w.md");
+        write_file(&p, "café\n", "windows-1252", "lf").unwrap();
+        assert_eq!(fs::read(&p).unwrap(), b"caf\xE9\n");
+    }
+
+    /// Regression: unmappable characters were written as `&#NNNN;` references.
+    #[test]
+    fn legacy_encoding_refuses_unmappable_characters() {
+        let dir = tmp_dir();
+        let p = dir.join("w.md");
+        fs::write(&p, b"original").unwrap();
+        let err = write_file(&p, "smile \u{1F600}\n", "windows-1252", "lf").unwrap_err();
+        assert_eq!(err.code, "E_ENCODING");
+        assert_eq!(fs::read(&p).unwrap(), b"original"); // file untouched
     }
 }

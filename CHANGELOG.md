@@ -9,6 +9,44 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-10-05
+
+Patch release from the 2026-10-05 security and robustness audit of 1.0.0. No new features,
+no file-format or settings changes.
+
+### Fixed (data integrity)
+- **Clicking a link in the preview replaced the app with that page.** The WebView navigated
+  away, unloading the editor and every unsaved buffer, and a remote page rendered inside the
+  app window. `#anchors` now scroll the preview, web and `mailto:` links open in the system
+  browser, everything else is ignored, and a Rust navigation guard refuses any other origin.
+- **Closing the window discarded unsaved edits.** X / Alt+F4 quit without asking (only tab
+  close asked). The window now lists the unsaved documents and asks first.
+- **Saving in a legacy encoding silently corrupted characters.** An emoji in a windows-1252
+  file was written as `&#128512;`. The save now fails with a clear error and the file on disk
+  is left untouched.
+- **New file / Duplicate could overwrite a file that appeared at the same moment** (e.g. from
+  a sync client). Both now claim the name atomically.
+- **`recent.json` was written non-atomically**; a crash mid-write emptied the recent list.
+
+### Fixed
+- **A session restored in Preview mode showed "Nothing to preview yet" for every tab.**
+- Renaming only the case of a file (`notes.md` → `Notes.md`) was rejected as "already exists".
+- A panic while holding internal state could abort the whole app on the next access; locks now
+  recover instead.
+- A file opened from Explorer while the app was still starting up could be dropped.
+- The workspace treated sibling folders sharing a name prefix (`C:\notes-old` for `C:\notes`)
+  as inside it, and was case-sensitive on NTFS.
+- Opening another folder left the previous folder's recursive file watch running.
+- Saving inside an open workspace briefly flickered a temporary file in the explorer.
+
+### Security
+- XSS regression net: 23 payloads against the preview and HTML export, plus a test that fails
+  if the CSP or window capabilities are loosened.
+- CI: CodeQL re-enabled (JavaScript/TypeScript and Rust), `pnpm audit` and `cargo audit` jobs
+  added, every GitHub Action pinned to a commit SHA.
+- Development dependencies updated (Vitest 3, Vite 6); `pnpm audit` went from 1 critical and
+  20 high findings to 2 moderate, all in test tooling. Shipped dependencies had none.
+
 ## [1.0.0] — 2026-07-26
 
 First stable release. All four v1.0 blockers from the 2026-07-21 audit are closed or

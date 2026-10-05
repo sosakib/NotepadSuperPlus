@@ -203,7 +203,7 @@ fn recent_list(recent: tauri::State<'_, RecentState>) -> Vec<String> {
 fn ws_open(path: String, watcher: tauri::State<'_, WatcherState>) -> NspResult<Vec<Entry>> {
     let abs = fs::canonicalize_existing(Path::new(&path))?;
     let entries = fsops::list_dir(&abs)?;
-    watcher.watch_dir(&abs);
+    watcher.watch_workspace(&abs);
     Ok(entries)
 }
 
@@ -310,7 +310,24 @@ pub fn run() {
                 let _ = app.emit("cli:open", paths);
             }
         }))
+        // Defense in depth for the preview: the main window may only ever show the
+        // app itself. Anything else (a link a document smuggled past the click
+        // handler, a future regression) is refused instead of replacing the editor.
+        .plugin(
+            tauri::plugin::Builder::<tauri::Wry>::new("nav-guard")
+                .on_navigation(|_webview, url| {
+                    let allowed = url.scheme() == "tauri"
+                        || url.host_str() == Some("tauri.localhost")
+                        || (cfg!(debug_assertions) && url.host_str() == Some("localhost"));
+                    if !allowed {
+                        tracing::warn!(%url, "blocked navigation away from the app");
+                    }
+                    allowed
+                })
+                .build(),
+        )
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             if let Some(t0) = PROCESS_START.get() {
                 SETUP_ENTER_MS.store(

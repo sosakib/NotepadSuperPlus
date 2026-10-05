@@ -69,7 +69,9 @@ export function getDocText(docId: string): string {
   if (activeView && useDocumentsStore.getState().activeId === docId) {
     return activeView.state.doc.toString();
   }
-  return savedStates.get(docId)?.doc.toString() ?? "";
+  // A document opened but never shown in the editor (e.g. restored while in Preview
+  // mode) only has its pending text; without this the preview renders it empty.
+  return savedStates.get(docId)?.doc.toString() ?? pendingContent.get(docId) ?? "";
 }
 
 /**

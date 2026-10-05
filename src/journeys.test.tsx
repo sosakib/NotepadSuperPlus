@@ -212,9 +212,13 @@ describe("UI journeys", () => {
     );
     expect(previewTab, "view-mode switch should offer a Preview option").toBeDefined();
     await user.click(previewTab as HTMLButtonElement);
-    await waitFor(() => {
-      expect(document.querySelector(".preview-pane")).not.toBeNull();
-    });
+    // The preview pane is a lazy chunk; under a parallel suite it can take over 1 s.
+    await waitFor(
+      () => {
+        expect(document.querySelector(".preview-pane")).not.toBeNull();
+      },
+      { timeout: 5_000 },
+    );
     expect(useUiStore.getState().viewMode).toBe("preview");
   });
 

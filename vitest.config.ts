@@ -9,6 +9,8 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
     css: false,
+    // Shiki's cold grammar load can pass the 5 s default when suites run in parallel.
+    testTimeout: 15_000,
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,tsx}"],

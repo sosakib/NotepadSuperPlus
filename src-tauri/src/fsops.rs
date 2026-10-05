@@ -3,7 +3,8 @@
 
 use crate::error::{NspError, NspResult};
 use serde::Serialize;
-use std::fs;
+use std::fs::{self, OpenOptions};
+use std::io::{self, ErrorKind};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Serialize)]
@@ -105,11 +106,28 @@ pub fn create(dir: &Path, name: &str, is_dir: bool) -> NspResult<Entry> {
     let target = dir.join(name);
     ensure_absent(&target)?;
     if is_dir {
-        fs::create_dir(&target).map_err(|e| NspError::io(&target, &e))?;
+        fs::create_dir(&target).map_err(|e| already_exists_or_io(&target, &e))?;
     } else {
-        fs::File::create(&target).map_err(|e| NspError::io(&target, &e))?;
+        // `create_new` fails if the file appeared since `ensure_absent` — never truncate.
+        OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&target)
+            .map_err(|e| already_exists_or_io(&target, &e))?;
     }
     to_entry(&target)
+}
+
+fn already_exists_or_io(path: &Path, e: &io::Error) -> NspError {
+    if e.kind() == ErrorKind::AlreadyExists {
+        NspError::with_path(
+            "E_INVALID_INPUT",
+            "Something with that name already exists.",
+            path,
+        )
+    } else {
+        NspError::io(path, e)
+    }
 }
 
 /// Renames a file or directory in place.
@@ -119,7 +137,14 @@ pub fn rename(from: &Path, new_name: &str) -> NspResult<Entry> {
         .parent()
         .ok_or_else(|| NspError::invalid_input("Path has no parent directory."))?;
     let target = parent.join(new_name);
-    if target != from {
+    // NTFS is case-insensitive: renaming "notes.md" to "Notes.md" finds *itself* in
+    // ensure_absent. Only check for a collision when it's a genuinely different name.
+    // (std::fs::rename on Windows replaces an existing target and has no portable
+    // "no-replace" mode, so a tiny race remains here; acceptable for interactive use.)
+    let same_file = target
+        .to_string_lossy()
+        .eq_ignore_ascii_case(&from.to_string_lossy());
+    if !same_file {
         ensure_absent(&target)?;
     }
     fs::rename(from, &target).map_err(|e| NspError::io(from, &e))?;
@@ -131,7 +156,9 @@ pub fn trash(path: &Path) -> NspResult<()> {
     trash::delete(path).map_err(|e| NspError::with_path("E_IO", e.to_string(), path))
 }
 
-fn unique_sibling(path: &Path) -> PathBuf {
+/// Claims a free "<stem> copy[ N].<ext>" sibling by creating it with `create_new`,
+/// so a file that appears concurrently can never be overwritten.
+fn claim_unique_sibling(path: &Path) -> NspResult<PathBuf> {
     let parent = path.parent().unwrap_or_else(|| Path::new("."));
     let stem = path
         .file_stem()
@@ -141,13 +168,24 @@ fn unique_sibling(path: &Path) -> PathBuf {
         .extension()
         .map(|s| format!(".{}", s.to_string_lossy()))
         .unwrap_or_default();
-    let mut candidate = parent.join(format!("{stem} copy{ext}"));
-    let mut n = 2;
-    while candidate.exists() {
-        candidate = parent.join(format!("{stem} copy {n}{ext}"));
-        n += 1;
+    for n in 1u32.. {
+        let name = if n == 1 {
+            format!("{stem} copy{ext}")
+        } else {
+            format!("{stem} copy {n}{ext}")
+        };
+        let candidate = parent.join(name);
+        match OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&candidate)
+        {
+            Ok(_) => return Ok(candidate),
+            Err(e) if e.kind() == ErrorKind::AlreadyExists => continue,
+            Err(e) => return Err(NspError::io(&candidate, &e)),
+        }
     }
-    candidate
+    unreachable!("u32 range exhausted")
 }
 
 /// Copies a file next to itself with a " copy" suffix.
@@ -158,8 +196,12 @@ pub fn duplicate(path: &Path) -> NspResult<Entry> {
             "Duplicating folders isn't supported yet.",
         ));
     }
-    let target = unique_sibling(path);
-    fs::copy(path, &target).map_err(|e| NspError::io(path, &e))?;
+    // The copy only ever overwrites the empty placeholder this call just claimed.
+    let target = claim_unique_sibling(path)?;
+    fs::copy(path, &target).map_err(|e| {
+        let _ = fs::remove_file(&target);
+        NspError::io(path, &e)
+    })?;
     to_entry(&target)
 }
 
@@ -252,5 +294,32 @@ mod tests {
         assert_eq!(first.name, "doc copy.md");
         let second = duplicate(&p).unwrap();
         assert_eq!(second.name, "doc copy 2.md");
+    }
+
+    #[test]
+    fn create_never_truncates_an_existing_file() {
+        let dir = tmp_dir();
+        fs::write(dir.join("a.md"), "keep me").unwrap();
+        assert!(create(&dir, "a.md", false).is_err());
+        assert_eq!(fs::read_to_string(dir.join("a.md")).unwrap(), "keep me");
+    }
+
+    #[test]
+    fn duplicate_copies_content() {
+        let dir = tmp_dir();
+        let p = dir.join("doc.md");
+        fs::write(&p, "hello").unwrap();
+        let e = duplicate(&p).unwrap();
+        assert_eq!(fs::read_to_string(&e.path).unwrap(), "hello");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn rename_allows_case_only_change() {
+        let dir = tmp_dir();
+        let p = dir.join("notes.md");
+        fs::write(&p, "x").unwrap();
+        let e = rename(&p, "Notes.md").unwrap();
+        assert_eq!(e.name, "Notes.md");
     }
 }

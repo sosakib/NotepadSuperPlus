@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { basename, parentDir } from "./path.ts";
+import { basename, isInside, parentDir } from "./path.ts";
 
 describe("basename", () => {
   it("returns the final segment for both separators", () => {
@@ -25,5 +25,16 @@ describe("parentDir", () => {
 
   it("ignores trailing separators", () => {
     expect(parentDir("C:\\Users\\me\\project\\")).toBe("C:\\Users\\me");
+  });
+});
+
+describe("isInside", () => {
+  it("matches the root and its descendants", () => {
+    expect(isInside("C:\\notes", "C:\\notes")).toBe(true);
+    expect(isInside("C:\\notes\\a\\b.md", "C:\\notes")).toBe(true);
+    expect(isInside("c:\\NOTES\\b.md", "C:\\notes\\")).toBe(true);
+  });
+  it("does not match sibling folders sharing a prefix", () => {
+    expect(isInside("C:\\notes-old\\x.md", "C:\\notes")).toBe(false);
   });
 });

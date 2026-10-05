@@ -6,6 +6,7 @@ import { useFsWatcher } from "./actions/useFsWatcher.ts";
 import { useCliOpen } from "./actions/useCliOpen.ts";
 import { useSettingsPersistence } from "./actions/useSettingsPersistence.ts";
 import { useSessionPersistence } from "./actions/useSessionPersistence.ts";
+import { useCloseGuard } from "./actions/useCloseGuard.ts";
 import { applyTheme } from "./theme/applyTheme.ts";
 import { applyEditorSyntaxVars } from "./editor/syntaxPalettes.ts";
 import { markStartupPhase, reportInteractive } from "./perf.ts";
@@ -35,6 +36,7 @@ export default function App() {
   useCliOpen();
   useSettingsPersistence();
   useSessionPersistence();
+  useCloseGuard();
 
   const resolvedTheme = useUiStore((s) => s.resolvedTheme);
   const themeSetting = useUiStore((s) => s.themeSetting);

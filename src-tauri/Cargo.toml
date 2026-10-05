@@ -1,6 +1,6 @@
 [package]
 name = "notepad-super-plus"
-version = "1.0.0"
+version = "1.0.1"
 description = "Lightweight, fast, open-source desktop Markdown editor."
 authors = ["Notepad Super Plus contributors"]
 license = "MIT"
@@ -35,6 +35,7 @@ trash = "5"
 ignore = "0.4"
 regex = "1"
 toml = "0.8"
+tauri-plugin-opener = "~2.5"
 
 [features]
 # Enables the WebView devtools in release builds when set (off by default).

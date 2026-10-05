@@ -77,7 +77,10 @@ impl ConfigState {
     }
 
     pub fn get(&self) -> Config {
-        self.inner.lock().expect("config lock").clone()
+        self.inner
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
     }
 
     /// Writes settings to disk atomically-ish (temp file then rename).
@@ -96,7 +99,10 @@ impl ConfigState {
             NspError::io(&self.path, &e)
         })?;
 
-        *self.inner.lock().expect("config lock") = config.clone();
+        *self
+            .inner
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = config.clone();
         Ok(config)
     }
 

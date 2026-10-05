@@ -1,24 +1,17 @@
 name: CodeQL
 
-# Static analysis for the JS/TS and Rust code. Guarded by source paths so it only runs
-# once code exists; the weekly schedule is enabled in Stage 11 (Security Hardening).
-# See docs/ROADMAP.md and docs/08_Security_Model.md §6.
+# Static analysis for the JS/TS and Rust code (docs/08_Security_Model.md §6).
 
 on:
   workflow_dispatch:
-  # Automatic runs are disabled for now: uploading CodeQL results (SARIF) to code
-  # scanning requires a PUBLIC repository or GitHub Advanced Security. On the current
-  # private/free plan the "Perform CodeQL Analysis" upload step fails with
-  # "Resource not accessible by integration". Re-enable these triggers once the repo
-  # is public or GHAS is available (planned: Stage 11 — docs/08 §6).
-  # push:
-  #   branches: [main, develop]
-  #   paths: ["src/**", "src-tauri/**"]
-  # pull_request:
-  #   branches: [main, develop]
-  #   paths: ["src/**", "src-tauri/**"]
-  # schedule:
-  #   - cron: "0 3 * * 1"
+  push:
+    branches: [main, develop]
+    paths: ["src/**", "src-tauri/**"]
+  pull_request:
+    branches: [main, develop]
+    paths: ["src/**", "src-tauri/**"]
+  schedule:
+    - cron: "0 3 * * 1"
 
 permissions:
   contents: read
@@ -31,15 +24,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ["javascript-typescript"]
-        # "rust" added in Stage 1 once src-tauri exists.
+        include:
+          - language: javascript-typescript
+            build-mode: none
+          - language: rust
+            build-mode: none
     steps:
-      - uses: actions/checkout@v4
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: github/codeql-action/init@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
         with:
-          language: ${{ matrix.language }}
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+      - uses: github/codeql-action/analyze@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
+        with:
+          category: "/language:${{ matrix.language }}"

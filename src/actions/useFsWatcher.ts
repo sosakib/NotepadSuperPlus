@@ -5,7 +5,7 @@ import { useWorkspaceStore } from "../state/workspace.ts";
 import { unwatch } from "../ipc/fs.ts";
 import { reloadPath } from "./fileActions.ts";
 import { refreshDir } from "./workspaceActions.ts";
-import { parentDir } from "../utils/path.ts";
+import { isInside, parentDir } from "../utils/path.ts";
 
 interface ChangePayload {
   path: string;
@@ -28,7 +28,7 @@ export function useFsWatcher(): void {
 
           // Keep the workspace tree in sync with changes inside the open folder.
           const wsRoot = useWorkspaceStore.getState().root;
-          if (wsRoot && path.startsWith(wsRoot)) {
+          if (wsRoot && isInside(path, wsRoot)) {
             const dir = parentDir(path);
             if (useWorkspaceStore.getState().children[dir]) void refreshDir(dir);
           }
@@ -37,7 +37,7 @@ export function useFsWatcher(): void {
           const docId = store.findByPath(path);
           if (!docId) {
             // Don't unwatch workspace paths — the tree watch is recursive.
-            if (!wsRoot || !path.startsWith(wsRoot)) void unwatch(path);
+            if (!wsRoot || !isInside(path, wsRoot)) void unwatch(path);
             return;
           }
           const doc = store.docs[docId];
