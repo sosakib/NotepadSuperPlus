@@ -145,7 +145,10 @@ impl SessionState {
     }
 
     pub fn get(&self) -> Session {
-        self.inner.lock().expect("session lock").clone()
+        self.inner
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
     }
 
     /// Writes the session via temp-file + rename, so an interrupted save cannot
@@ -179,7 +182,10 @@ impl SessionState {
             NspError::io(&self.path, &e)
         })?;
 
-        *self.inner.lock().expect("session lock") = session.clone();
+        *self
+            .inner
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = session.clone();
         Ok(session)
     }
 }

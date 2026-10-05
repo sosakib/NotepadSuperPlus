@@ -48,7 +48,10 @@ impl WatcherState {
                 for ev in events {
                     let path = ev.path;
                     {
-                        let mut sup = cb_shared.suppress.lock().expect("suppress lock");
+                        let mut sup = cb_shared
+                            .suppress
+                            .lock()
+                            .unwrap_or_else(std::sync::PoisonError::into_inner);
                         if let Some(when) = sup.get(&path) {
                             if when.elapsed() < SUPPRESS_WINDOW {
                                 sup.remove(&path);
@@ -84,7 +87,10 @@ impl WatcherState {
     }
 
     pub fn watch(&self, path: &Path) {
-        let mut guard = self.debouncer.lock().expect("debouncer lock");
+        let mut guard = self
+            .debouncer
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         if let Some(deb) = guard.as_mut() {
             if deb
                 .watcher()
@@ -93,7 +99,7 @@ impl WatcherState {
             {
                 self.watched
                     .lock()
-                    .expect("watched lock")
+                    .unwrap_or_else(std::sync::PoisonError::into_inner)
                     .insert(path.to_path_buf());
             }
         }
@@ -101,23 +107,32 @@ impl WatcherState {
 
     /// Watches a directory tree (workspace root) for changes.
     pub fn watch_dir(&self, path: &Path) {
-        let mut guard = self.debouncer.lock().expect("debouncer lock");
+        let mut guard = self
+            .debouncer
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         if let Some(deb) = guard.as_mut() {
             if deb.watcher().watch(path, RecursiveMode::Recursive).is_ok() {
                 self.watched
                     .lock()
-                    .expect("watched lock")
+                    .unwrap_or_else(std::sync::PoisonError::into_inner)
                     .insert(path.to_path_buf());
             }
         }
     }
 
     pub fn unwatch(&self, path: &Path) {
-        let mut guard = self.debouncer.lock().expect("debouncer lock");
+        let mut guard = self
+            .debouncer
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         if let Some(deb) = guard.as_mut() {
             let _ = deb.watcher().unwatch(path);
         }
-        self.watched.lock().expect("watched lock").remove(path);
+        self.watched
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .remove(path);
     }
 
     /// Marks a path as about-to-be-written so the resulting event is ignored.
@@ -125,7 +140,7 @@ impl WatcherState {
         self.shared
             .suppress
             .lock()
-            .expect("suppress lock")
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .insert(path.to_path_buf(), Instant::now());
     }
 }

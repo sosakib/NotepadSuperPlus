@@ -30,11 +30,18 @@ impl RecentState {
     }
 
     pub fn list(&self) -> Vec<String> {
-        self.inner.lock().expect("recent lock").files.clone()
+        self.inner
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .files
+            .clone()
     }
 
     pub fn add(&self, file: String) {
-        let mut store = self.inner.lock().expect("recent lock");
+        let mut store = self
+            .inner
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         store.files.retain(|f| f != &file);
         store.files.insert(0, file);
         store.files.truncate(MAX_RECENT);
