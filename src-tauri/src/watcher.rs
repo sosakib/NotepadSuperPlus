@@ -29,6 +29,8 @@ struct Shared {
 pub struct WatcherState {
     debouncer: Mutex<Option<Debouncer<RecommendedWatcher>>>,
     watched: Mutex<HashSet<PathBuf>>,
+    /// The current workspace root, so opening another folder can drop the old watch.
+    workspace: Mutex<Option<PathBuf>>,
     shared: Shared,
 }
 
@@ -47,6 +49,13 @@ impl WatcherState {
                 };
                 for ev in events {
                     let path = ev.path;
+                    // Our own atomic-save temp files (fs.rs) are never interesting.
+                    if path
+                        .file_name()
+                        .is_some_and(|n| n.to_string_lossy().starts_with(".nsp-tmp-"))
+                    {
+                        continue;
+                    }
                     {
                         let mut sup = cb_shared
                             .suppress
@@ -82,6 +91,7 @@ impl WatcherState {
         Self {
             debouncer: Mutex::new(debouncer),
             watched: Mutex::new(HashSet::new()),
+            workspace: Mutex::new(None),
             shared,
         }
     }
@@ -119,6 +129,21 @@ impl WatcherState {
                     .insert(path.to_path_buf());
             }
         }
+    }
+
+    /// Makes `path` the watched workspace root, replacing any previous one.
+    pub fn watch_workspace(&self, path: &Path) {
+        let previous = self
+            .workspace
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .replace(path.to_path_buf());
+        if let Some(old) = previous {
+            if old != path {
+                self.unwatch(&old);
+            }
+        }
+        self.watch_dir(path);
     }
 
     pub fn unwatch(&self, path: &Path) {

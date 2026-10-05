@@ -203,7 +203,7 @@ fn recent_list(recent: tauri::State<'_, RecentState>) -> Vec<String> {
 fn ws_open(path: String, watcher: tauri::State<'_, WatcherState>) -> NspResult<Vec<Entry>> {
     let abs = fs::canonicalize_existing(Path::new(&path))?;
     let entries = fsops::list_dir(&abs)?;
-    watcher.watch_dir(&abs);
+    watcher.watch_workspace(&abs);
     Ok(entries)
 }
 
