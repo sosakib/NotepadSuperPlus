@@ -13,14 +13,16 @@ export function useCliOpen(): void {
     let unlisten: (() => void) | undefined;
     void (async () => {
       try {
+        // Subscribe before draining the launch paths, so a second launch during
+        // startup isn't lost.
+        unlisten = await listen<string[]>("cli:open", (event) => {
+          for (const path of event.payload) void openPath(path);
+        });
         const { invoke } = await import("@tauri-apps/api/core");
         const initial = await invoke<string[]>("cli_paths");
         for (const path of initial) {
           await openPath(path);
         }
-        unlisten = await listen<string[]>("cli:open", (event) => {
-          for (const path of event.payload) void openPath(path);
-        });
       } catch {
         /* browser dev — no Tauri runtime */
       }

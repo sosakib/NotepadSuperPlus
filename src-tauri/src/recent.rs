@@ -48,8 +48,13 @@ impl RecentState {
         if let Some(parent) = self.path.parent() {
             let _ = std::fs::create_dir_all(parent);
         }
+        // Temp + rename, like config and session: a crash mid-write must not leave
+        // invalid JSON that `load()` would silently replace with an empty list.
         if let Ok(json) = serde_json::to_string_pretty(&*store) {
-            let _ = std::fs::write(&self.path, json);
+            let tmp = self.path.with_extension("json.tmp");
+            if std::fs::write(&tmp, json).is_ok() && std::fs::rename(&tmp, &self.path).is_err() {
+                let _ = std::fs::remove_file(&tmp);
+            }
         }
     }
 }
