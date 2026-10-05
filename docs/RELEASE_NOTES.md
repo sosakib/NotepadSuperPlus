@@ -48,9 +48,9 @@ Unchanged from 1.0.0 unless noted.
 
 | | |
 |---|---|
-| **Installers are unsigned** | SmartScreen will warn on download. See [INSTALL.md](INSTALL.md) for what the warning means and how to verify the download. |
-| **Cold start is 0.6–1.5 s, and it depends heavily on your machine** | Most of it is Tauri/WebView2 creating the window *before any app code runs*. Measurements: [STARTUP_PERFORMANCE.md](reports/STARTUP_PERFORMANCE.md). |
-| **No test drives the real window** | 391 TypeScript and 50 Rust tests pass, but the Tauri IPC boundary and real file dialogs are still verified by hand. Scope in [E2E_COVERAGE.md](reports/E2E_COVERAGE.md). |
+| **Installers are unsigned** | SmartScreen will warn on download. See [INSTALL.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/docs/INSTALL.md) for what the warning means and how to verify the download. |
+| **Cold start is 0.6–1.5 s, and it depends heavily on your machine** | Most of it is Tauri/WebView2 creating the window *before any app code runs*. Measurements: [STARTUP_PERFORMANCE.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/docs/reports/STARTUP_PERFORMANCE.md). |
+| **No test drives the real window** | 391 TypeScript and 50 Rust tests pass, but the Tauri IPC boundary and real file dialogs are still verified by hand. Scope in [E2E_COVERAGE.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/docs/reports/E2E_COVERAGE.md). |
 | **Fonts are not bundled** | On a stock Windows machine you get Segoe UI and Consolas. |
 | **Local images don't show in the preview** | `![](./pic.png)` is blocked by design (privacy and CSP); planned as a scoped feature. |
 
@@ -60,11 +60,11 @@ toggle-from-preview, and a portable build.
 
 ## Install
 
-Download `Notepad Super Plus_1.0.1_x64-setup.exe` and run it — it upgrades 1.0.0 in place.
-Full instructions, checksum verification and uninstall steps: [INSTALL.md](INSTALL.md).
+Download `Notepad.Super.Plus_1.0.1_x64-setup.exe` and run it — it upgrades 1.0.0 in place.
+Full instructions, checksum verification and uninstall steps: [INSTALL.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/docs/INSTALL.md).
 
 ```powershell
-Get-FileHash '.\Notepad Super Plus_1.0.1_x64-setup.exe' -Algorithm SHA256
+Get-FileHash '.\Notepad.Super.Plus_1.0.1_x64-setup.exe' -Algorithm SHA256
 ```
 
 Compare against `SHA256SUMS.txt` in the release assets.
@@ -72,4 +72,4 @@ Compare against `SHA256SUMS.txt` in the release assets.
 ## Feedback
 
 [GitHub Issues](https://github.com/sosakib/NotepadSuperPlus/issues) ·
-full history in [CHANGELOG.md](../CHANGELOG.md)
+full history in [CHANGELOG.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/CHANGELOG.md)

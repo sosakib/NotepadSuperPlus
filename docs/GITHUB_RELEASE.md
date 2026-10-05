@@ -1,94 +1,84 @@
-# Publishing v1.0.0 to GitHub
+# Publishing a release to GitHub
 
-Everything in the repository is ready. What remains are the steps that reach outside it —
-each needs a human decision, so none were taken automatically.
-
-Current state: **6 commits on `develop`, working tree clean, nothing pushed, no tag created.**
+How a version of Notepad Super Plus gets from `main` to a GitHub Release. The full quality
+checklist is [18_Release_Checklist.md](18_Release_Checklist.md); this is the mechanical part.
+Last used for **v1.0.1** (2026-10-05).
 
 ---
 
-## 1. Decide: does the repo go public?
+## 1. Prepare the release PR
 
-It is currently **private**. Two things in the project depend on this:
+On a `fix/…` (patch) or `release/…` branch off `main` ([14_Git_Workflow.md](14_Git_Workflow.md) §5):
 
-- **CodeQL** (`.github/workflows/codeql.yml`) is `workflow_dispatch`-only because code scanning
-  needs a public repo or GitHub Advanced Security.
-- **Branch protection** on `main` is Pro-gated for private repos, so `main` is directly pushable.
+1. Bump the version in **all three** places — they must match, the installer name comes from
+   `tauri.conf.json`:
+   - `package.json` → `"version"`
+   - `src-tauri/Cargo.toml` → `version` (then any `cargo` command updates `Cargo.lock`)
+   - `src-tauri/tauri.conf.json` → `"version"`
+2. README version badge and the status line under the intro.
+3. `CHANGELOG.md`: move entries from `[Unreleased]` into a dated `## [X.Y.Z]` section and add
+   its compare link at the bottom.
+4. Rewrite `docs/RELEASE_NOTES.md` for this version — **it becomes the GitHub Release body**.
+   Keep the *Known limitations* table honest and update the installer filename in *Install*.
+5. Optional but cheap: `powershell -File scripts/package-release.ps1 -Clean` builds the
+   installers locally, and `./scripts/bench/startup.ps1 -Runs 9 -FailInPageOver 500 -FailOver 2000`
+   runs the same startup gate CI will.
 
-Going public also means the MIT licence starts doing its job. Nothing in the repo blocks it:
-no secrets are committed, `.env` is ignored, and `pnpm audit --prod` / `cargo audit` are clean.
+Open the PR into `main`. The repository only allows **squash merges**, so the PR title becomes
+the commit subject — use `release: Notepad Super Plus X.Y.Z`.
 
-## 2. Merge `develop` → `main`
+## 2. Merge and tag
 
-`release.yml` triggers on tags, not on a branch, but the tag should sit on `main`.
-
-```bash
-git checkout main
-git merge --no-ff develop
-```
-
-## 3. Tag
-
-**No tag was created for you** — pushing one triggers the release workflow, which builds
-installers and drafts a public GitHub Release. That is an outward-facing action and yours to
-start.
-
-```bash
-git tag -a v1.0.0 -m "Notepad Super Plus 1.0.0"
-```
-
-## 4. Push
+When CI is green (Frontend, Rust core, cargo-audit, CodeQL ×2):
 
 ```bash
-git push origin main
-git push origin v1.0.0
+gh pr merge <N> --squash --delete-branch
+git checkout main && git pull --ff-only
+git tag -a vX.Y.Z -m "Notepad Super Plus X.Y.Z"
+git push origin vX.Y.Z
 ```
 
-The tag push starts `.github/workflows/release.yml`, which will:
+Then fast-forward `develop` so it does not fall behind: `git push origin main:develop`.
 
-1. Install dependencies and run `pnpm tauri build`
-2. Run the **gated** startup benchmark — in-page < 500 ms, total < 2000 ms. **The release fails
-   here if startup regresses.**
-3. Assemble `release/` with `scripts/package-release.ps1` (installers + SHA-256 checksums)
-4. Create a **draft** GitHub Release using `docs/RELEASE_NOTES.md` as the body, with the
-   installers and `SHA256SUMS.txt` attached
+## 3. What the tag starts
 
-It drafts rather than publishes, so you get to look before anyone else does.
+`.github/workflows/release.yml`:
 
-## 5. Before hitting Publish on the draft
+1. `pnpm tauri build` on `windows-latest`
+2. The **gated** startup benchmark — in-page < 500 ms, total < 2000 ms. The release fails here
+   if startup regresses.
+3. `scripts/package-release.ps1 -SkipBuild` — installers + `SHA256SUMS.txt`
+4. A **draft** GitHub Release with `docs/RELEASE_NOTES.md` as the body and the NSIS `.exe`,
+   `.msi` and `SHA256SUMS.txt` attached
 
-- [ ] **Install the `.exe` on a machine that has never run the app.** Never performed. This is
-      the single most valuable remaining check — it is the only way to catch a missing runtime
-      dependency or a broken shortcut.
-- [ ] Eyeball the OS surfaces: taskbar, Alt+Tab, Start Menu, File Explorer, the installer
-      wizard in flight. All were verified by extracting icons from the binaries, not by looking.
-- [ ] Verify the attached checksums match what you downloaded.
-- [ ] Add screenshots. The README's screenshot block is commented out so nothing renders broken;
-      specs for the four wanted shots are in `assets/screenshots/README.md`. This is the highest
-      -value 20 minutes available — the interface work is currently invisible to anyone deciding
-      whether to download.
-- [ ] Confirm the release notes' limitations still read as true to you, particularly the unsigned
-      installer and the ~1.5 s cold start.
+Nobody sees a draft until it is published.
 
-## 6. Not done, and deliberately
+## 4. Before pressing Publish
 
-- **Code signing.** Installers are unsigned, so SmartScreen warns every downloader.
-  `docs/INSTALL.md` explains the warning honestly rather than hiding it. Fixing it requires
-  buying a certificate (~$100–400/yr) and adding it to `release.yml` — a purchase, not an
-  engineering task.
-- **Auto-updater.** Designed in `docs/08 §5`, not implemented; it needs signing keys first.
-- **SBOM and attestations.** `docs/18 §4` release-gate items, not wired up.
-- **Portable build.** FR-11.4, not built.
+- [ ] Title reads `Notepad Super Plus X.Y.Z`, tag `vX.Y.Z`, target `main`.
+- [ ] Three assets attached; download the `.exe` and check it against `SHA256SUMS.txt`.
+- [ ] Install it over the previous version: settings, recent files and session survive.
+- [ ] Install it once on a machine that has **never** run the app (still never performed —
+      the only way to catch a missing runtime dependency or a broken shortcut).
+- [ ] "Set as the latest release" is ticked.
 
-## 7. If something goes wrong
+## 5. Not done, and deliberately
 
-The release is a draft until you publish it, and the tag is the only thing that triggers it. To
-retry after a failed workflow:
+- **Code signing.** Installers are unsigned, so SmartScreen warns every downloader;
+  [INSTALL.md](INSTALL.md) explains it. Fixing it is buying a certificate (or Azure Trusted
+  Signing) and wiring it into `release.yml`.
+- **Auto-updater.** Designed in [08](08_Security_Model.md) §5, not implemented; needs signing keys.
+- **SBOM and attestations.** [18](18_Release_Checklist.md) §4 items, not wired up.
+
+## 6. If the workflow fails
+
+The release is a draft until published and the tag is the only trigger, so while it is still a
+draft:
 
 ```bash
-git tag -d v1.0.0
-git push origin :refs/tags/v1.0.0
+git tag -d vX.Y.Z
+git push origin :refs/tags/vX.Y.Z
 ```
 
-Then fix, re-tag and push again. Deleting a tag that has already been published to users is
-worse than shipping a `v1.0.1`, so only do this while the release is still a draft.
+Delete the draft release too, fix, re-tag and push. Once a release has been **published**, never
+move its tag — ship the next patch version instead.

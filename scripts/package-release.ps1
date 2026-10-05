@@ -82,9 +82,12 @@ if (-not $installers) {
 }
 
 $copied = foreach ($f in $installers) {
-    $dest = Join-Path $release "installer\$($f.Name)"
+    # GitHub replaces spaces in asset names with dots on upload. Use that name up front so
+    # SHA256SUMS.txt and `sha256sum -c` match the file people actually download.
+    $name = $f.Name -replace ' ', '.'
+    $dest = Join-Path $release "installer\$name"
     Copy-Item $f.FullName $dest -Force
-    Write-Host ("  + {0}  ({1:N1} MB)" -f $f.Name, ($f.Length / 1MB))
+    Write-Host ("  + {0}  ({1:N1} MB)" -f $name, ($f.Length / 1MB))
     Get-Item $dest
 }
 

@@ -12,7 +12,7 @@ body:
     attributes:
       label: App version
       description: Help → About, or the release tag. Include "built from source @ <commit>" if applicable.
-      placeholder: v0.x.y
+      placeholder: v1.0.1
     validations:
       required: true
   - type: dropdown
