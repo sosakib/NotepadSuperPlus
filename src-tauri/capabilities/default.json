@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "Baseline capability for the main window. Least-privilege: only core defaults are granted in Stage 1. Filesystem, dialog, and updater permissions are added with the commands that need them in later stages (docs/08 §2, docs/16).",
   "windows": ["main"],
-  "permissions": ["core:default", "dialog:default"]
+  "permissions": ["core:default", "dialog:default", "opener:default"]
 }
