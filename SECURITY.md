@@ -9,7 +9,8 @@ The latest minor release receives security fixes, shipped as a patch release.
 
 | Version | Supported |
 | ------- | --------- |
-| 1.0.x   | ✅ — please update to the latest patch (currently **1.0.1**) |
+| 1.5.x   | ✅ — please update to the latest release (currently **1.5.0**) |
+| 1.0.x   | ⚠️ — legacy minor, please upgrade to 1.5.0 |
 | < 1.0   | ❌ — pre-release builds, never published |
 
 ## Reporting a vulnerability

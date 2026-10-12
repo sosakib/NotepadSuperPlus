@@ -2,7 +2,7 @@
 
 How a version of Notepad Super Plus gets from `main` to a GitHub Release. The full quality
 checklist is [18_Release_Checklist.md](18_Release_Checklist.md); this is the mechanical part.
-Last used for **v1.0.1** (2026-10-05).
+Last used for **v1.5.0** (2026-10-13).
 
 ---
 

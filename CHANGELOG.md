@@ -9,6 +9,8 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-10-13
+
 ### Added
 - **Integrated title bar.** The window now runs frameless (`decorations: false`) and the
   app draws its own caption bar — brand on the left, minimize / maximize / close on the
@@ -23,6 +25,16 @@ and hand-curated before each release (see [docs/14_Git_Workflow.md](docs/14_Git_
     drawn by DWM (`shadow` defaults to true).
   - The view-mode switch moved beside the tab strip (it acts on the active document) and
     the palette / export entries joined the activity rail's global toggles.
+- **Inline Tab Strip.** Document tabs are unified directly into the title bar beside the
+  brand mark and new file button, recovering 32–40px of vertical workspace previously lost to
+  a separate tab row.
+- **Studio UI/UX Overhaul from Showcase Film.**
+  - **Animated sidebar collapse:** Smooth sliding transition with cubic-bezier easing (`200ms cubic-bezier(0.16, 1, 0.3, 1)`), adhering to `prefers-reduced-motion`.
+  - **Activity rail indicators:** 3px rounded pill active indicator on the left border with subtle background fills.
+  - **Theme Chip & Popover:** Live swatch indicator showing the current theme with an accessible, keyboard-navigable 10-theme picker popover.
+  - **iOS-style raised segmented control:** Clean pill transition switch between Source, Preview, and Split view modes.
+  - **Live debounced search:** 200ms debounced search-as-you-type in the workspace search panel with safe matched-text highlight wrapping.
+  - **Stylized task list checkboxes:** 18px custom rounded checkboxes in the Markdown preview with accent fill and crisp white checkmark SVG.
 - **Language labels for every extension the editor can highlight.** The status bar named
   56 of 223 highlightable extensions, so a `.dart` file highlighted perfectly and reported
   itself as "Plain Text". The table is now generated from `@codemirror/language-data`
@@ -408,6 +420,7 @@ this and 1.0.0.
 - Master execution roadmap ([docs/ROADMAP.md](docs/ROADMAP.md)) covering Stages 0–15 (Windows-first to v1.0)
   plus the deferred macOS migration milestone.
 
-[Unreleased]: https://github.com/sosakib/NotepadSuperPlus/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/sosakib/NotepadSuperPlus/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/sosakib/NotepadSuperPlus/compare/v1.0.1...v1.5.0
 [1.0.1]: https://github.com/sosakib/NotepadSuperPlus/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/sosakib/NotepadSuperPlus/releases/tag/v1.0.0

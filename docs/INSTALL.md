@@ -30,7 +30,7 @@ Code signing is on the roadmap; it needs a purchased certificate.
 Each release ships `SHA256SUMS.txt`.
 
 ```powershell
-Get-FileHash '.\Notepad.Super.Plus_1.0.1_x64-setup.exe' -Algorithm SHA256
+Get-FileHash '.\Notepad.Super.Plus_1.5.0_x64-setup.exe' -Algorithm SHA256
 ```
 
 Compare the result against the matching line in `SHA256SUMS.txt`. They should match exactly,

@@ -32,14 +32,17 @@ Smart lists / pair-close / table nav; checkbox write-back; paste-image; export H
 All P0 requirements ([01]) shipped and verified; GFM parity ≥ 95 %; performance budgets green on 3 OS; signed installers + updater; docs site; security review complete ([18] full gate).
 *Target: ~12 months from Phase 1 start ([12] §14 effort model).*
 
-## v1.x (P1 backlog, priority order)
+## v1.5 — "Studio & Integration" (shipped 2026-10-13)
 
-0. ~~Code-file first-class support~~ — **done.** Labels generated from
+0. ~~Code-file first-class support & Studio UI overhaul~~ — **done.** Labels generated from
    `@codemirror/language-data` (223 extensions, previously 56 named), Markdown preview gated
    per document, open-dialog filter groups, Explorer context menu widened from 6 to ~85
-   extensions, and the title bar integrated into the app. See
+   extensions, integrated frameless title bar with native-like window controls, inline tab bar,
+   smooth sidebar animation, live theme chip with popover, and showcase film UI updates. See
    [21_Windows_Integration_And_File_Types.md](21_Windows_Integration_And_File_Types.md) and
-   [reports/V15_AUDIT.md](reports/V15_AUDIT.md).
+   [21_UI_Update_From_Showcase_Film.md](21_UI_Update_From_Showcase_Film.md).
+
+## v1.x (P1 backlog, remaining items)
 1. Math (KaTeX) + Mermaid + callouts + emoji (FR-3.4–3.7)
 2. Export PDF + print; `[TOC]`
 3. Favorites/pins; preview tab; recently-closed list
