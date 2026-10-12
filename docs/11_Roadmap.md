@@ -34,6 +34,12 @@ All P0 requirements ([01]) shipped and verified; GFM parity ≥ 95 %; performanc
 
 ## v1.x (P1 backlog, priority order)
 
+0. ~~Code-file first-class support~~ — **done.** Labels generated from
+   `@codemirror/language-data` (223 extensions, previously 56 named), Markdown preview gated
+   per document, open-dialog filter groups, Explorer context menu widened from 6 to ~85
+   extensions, and the title bar integrated into the app. See
+   [21_Windows_Integration_And_File_Types.md](21_Windows_Integration_And_File_Types.md) and
+   [reports/V15_AUDIT.md](reports/V15_AUDIT.md).
 1. Math (KaTeX) + Mermaid + callouts + emoji (FR-3.4–3.7)
 2. Export PDF + print; `[TOC]`
 3. Favorites/pins; preview tab; recently-closed list

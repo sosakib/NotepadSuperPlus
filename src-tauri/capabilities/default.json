@@ -1,7 +1,17 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Baseline capability for the main window. Least-privilege: only core defaults are granted in Stage 1. Filesystem, dialog, and updater permissions are added with the commands that need them in later stages (docs/08 §2, docs/16).",
+  "description": "Baseline capability for the main window. Least-privilege: only core defaults are granted in Stage 1. Filesystem, dialog, and updater permissions are added with the commands that need them in later stages (docs/08 §2, docs/16). The five core:window grants are exactly what the custom title bar needs and no more: `start-dragging` backs data-tauri-drag-region (core:window:default covers the double-click path via allow-internal-toggle-maximize, but NOT the drag), and minimize/toggle-maximize/unmaximize/close back the three window buttons. Deliberately absent: set-position, set-size, set-decorations, set-always-on-top and every other mutation the UI never performs.",
   "windows": ["main"],
-  "permissions": ["core:default", "dialog:default", "opener:default", "core:window:allow-destroy"]
+  "permissions": [
+    "core:default",
+    "dialog:default",
+    "opener:default",
+    "core:window:allow-destroy",
+    "core:window:allow-start-dragging",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-unmaximize",
+    "core:window:allow-close"
+  ]
 }

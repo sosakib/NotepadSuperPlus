@@ -104,8 +104,11 @@ follow your OS light/dark preference.
 
 ### Windows integration
 
-- **"Open with Notepad Super Plus"** in Explorer's right-click menu for `.md`, `.markdown`,
-  `.mdown`, `.mkd`, `.mdx`, `.txt`
+- **Integrated title bar** — one caption bar, drawn by the app, with native dragging, Aero
+  Snap, double-click maximize, and Windows 11 rounded corners
+- **"Open with Notepad Super Plus"** in Explorer's right-click menu for ~85 text and code
+  extensions, without taking over any file type's default handler
+  (Windows 11 lists it under *Show more options*)
 - File associations, **single-instance** launch (a second launch forwards its file and focuses
   the existing window), and files opened from the command line
 - **Per-user install** — no admin rights required

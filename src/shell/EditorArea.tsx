@@ -6,6 +6,7 @@ import { WelcomeScreen } from "../components/WelcomeScreen.tsx";
 import { Button } from "../components/Button.tsx";
 import { TabBar } from "./TabBar.tsx";
 import { getDocText } from "../editor/editorRegistry.ts";
+import { isMarkdownFilename } from "../editor/languageLabels.ts";
 import { renderController } from "../markdown/renderController.ts";
 import { useRenderStore } from "../state/render.ts";
 import { reloadPath } from "../actions/fileActions.ts";
@@ -57,12 +58,25 @@ function ConflictBanner({ docId }: { docId: string }) {
 
 /** Editor area: tab strip plus source / preview / split for the active document. */
 export function EditorArea() {
-  const viewMode = useUiStore((s) => s.viewMode);
+  const storedViewMode = useUiStore((s) => s.viewMode);
   const activeId = useDocumentsStore((s) => s.activeId);
+  const isMarkdown = useDocumentsStore((s) =>
+    activeId ? isMarkdownFilename(s.docs[activeId]?.filename ?? "") : true,
+  );
+
+  /*
+   * The *effective* view mode. `viewMode` is application state, but Preview and Split only
+   * mean something for Markdown: rendering a `.py` through remark turns `#` comments into
+   * headings and `*args` into emphasis. Deriving the mode here rather than storing one per
+   * document keeps the session format unchanged and handles every route into a code file —
+   * opening one while Preview is active, switching tabs, restoring a session — with one rule.
+   */
+  const viewMode = isMarkdown ? storedViewMode : "source";
 
   // Ensure the active document has a render so preview and outline populate even
   // without an edit (e.g. after switching tabs or into preview/split). A document
   // that already has output is left alone — re-parsing it would be pure waste.
+  // Non-Markdown documents are refused by the controller itself, not filtered here.
   useEffect(() => {
     if (!activeId) return;
     if (useRenderStore.getState().results[activeId]) return;

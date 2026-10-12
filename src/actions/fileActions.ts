@@ -17,8 +17,63 @@ import { revealSourceLine } from "../markdown/scrollSync.ts";
  * degrade gracefully when the Tauri runtime is absent (browser dev).
  */
 
+/*
+ * Open/save dialog filters. Markdown stays first — it is what the app is for — but the
+ * editor highlights 223 extensions, and offering only "Markdown" and "All Files" meant
+ * opening a `.rs` required switching to All Files first. The groups below cover what the
+ * editor can actually do without turning the dropdown into a directory of every grammar.
+ */
 const FILTERS = [
-  { name: "Markdown", extensions: ["md", "markdown", "txt"] },
+  { name: "Markdown", extensions: ["md", "markdown", "mdown", "mkd", "mdx"] },
+  {
+    name: "Code",
+    extensions: [
+      "js",
+      "jsx",
+      "mjs",
+      "cjs",
+      "ts",
+      "tsx",
+      "py",
+      "rs",
+      "go",
+      "java",
+      "kt",
+      "kts",
+      "swift",
+      "dart",
+      "c",
+      "h",
+      "cpp",
+      "cc",
+      "cxx",
+      "hpp",
+      "cs",
+      "rb",
+      "php",
+      "lua",
+      "r",
+      "scala",
+      "pl",
+      "sql",
+      "sh",
+      "bash",
+      "zsh",
+      "ps1",
+      "psm1",
+      "bat",
+      "cmd",
+    ],
+  },
+  {
+    name: "Web & styles",
+    extensions: ["html", "htm", "css", "scss", "sass", "less", "vue", "svelte"],
+  },
+  {
+    name: "Data & config",
+    extensions: ["json", "jsonc", "yaml", "yml", "toml", "xml", "ini", "csv", "env", "properties"],
+  },
+  { name: "Text", extensions: ["txt", "log", "rst", "tex", "diff", "patch"] },
   { name: "All Files", extensions: ["*"] },
 ];
 

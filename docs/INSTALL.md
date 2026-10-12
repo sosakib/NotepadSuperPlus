@@ -40,10 +40,18 @@ case-insensitively.
 
 - Installs to `%LOCALAPPDATA%\Programs\Notepad Super Plus` (per-user — no admin prompt)
 - Adds a Start Menu entry
-- Registers **"Open with Notepad Super Plus"** in Explorer's right-click menu for `.md`,
-  `.markdown`, `.mdown`, `.mkd`, `.mdx` and `.txt`
-- Declares file associations for those extensions — it does **not** steal your existing default
-  handler
+- Registers **"Open with Notepad Super Plus"** in Explorer's right-click menu for roughly 85
+  text and code extensions — Markdown, JSON, YAML, TOML, XML, HTML, CSS, JavaScript,
+  TypeScript, Python, Rust, Go, Java, Kotlin, C/C++, C#, Swift, Dart, PHP, SQL, shell and
+  batch scripts, `.gitignore`, and more. The full list is in
+  [`src-tauri/windows/hooks.nsh`](../src-tauri/windows/hooks.nsh).
+  - **On Windows 11 the entry sits under "Show more options"** (or press Shift+F10 to open
+    that menu directly). Windows 11 reserves its compact top-level menu for apps that ship a
+    signed COM handler with package identity; every app without one — including 7-Zip and
+    Notepad++ — appears in the same place. Windows 10 shows the entry directly.
+- Declares file associations for Markdown and `.txt` only — it does **not** steal your
+  existing default handler for anything, and adding the context-menu entry above does not
+  change which application opens a file when you double-click it
 - Adds an entry to *Apps & features* for uninstalling
 
 It does not install a service, a background task, a browser extension, or an updater.

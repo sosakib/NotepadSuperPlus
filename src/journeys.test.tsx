@@ -222,6 +222,50 @@ describe("UI journeys", () => {
     expect(useUiStore.getState().viewMode).toBe("preview");
   });
 
+  it("keeps a code file in Source and refuses to render it as Markdown", async () => {
+    // The v1.0 bug: view mode was global and the render was requested unconditionally, so
+    // opening a .py and pressing Preview ran Python through remark — `#` comments became
+    // headings, `*args` became emphasis — and the outline listed the result.
+    const user = userEvent.setup();
+    render(<App />);
+
+    useDocumentsStore.getState().openDocument({
+      path: "/w/main.py",
+      title: "",
+      encoding: "utf-8",
+      eol: "lf",
+      mtimeMs: 1,
+      readonly: false,
+    });
+    await waitFor(() => expect(useDocumentsStore.getState().activeId).not.toBeNull());
+    const id = useDocumentsStore.getState().activeId as string;
+    expect(useDocumentsStore.getState().docs[id]?.languageId).toBe("Python");
+
+    const modeButton = (name: RegExp): HTMLButtonElement | undefined =>
+      [...document.querySelectorAll<HTMLButtonElement>(".segmented__item")].find((b) =>
+        name.test(b.textContent ?? ""),
+      );
+
+    const preview = modeButton(/preview/i);
+    const split = modeButton(/split/i);
+    expect(preview?.disabled, "Preview should be disabled for a code file").toBe(true);
+    expect(split?.disabled, "Split should be disabled for a code file").toBe(true);
+
+    // Even forcing the store into preview — the route a restored session takes — must not
+    // mount the preview pane or produce a render result.
+    useUiStore.getState().setViewMode("preview");
+    await waitFor(() => expect(document.querySelector(".source-pane")).not.toBeNull());
+    expect(document.querySelector(".preview-pane")).toBeNull();
+    expect(useRenderStore.getState().results[id]).toBeUndefined();
+
+    // A Markdown document in the same session still previews normally — the gate is
+    // per-document, not a global kill switch. (New file comes from the tab strip here: the
+    // welcome screen's button is gone once a document is open.)
+    await user.click(await screen.findByRole("button", { name: /new file/i }));
+    await waitFor(() => expect(document.querySelector(".preview-pane")).not.toBeNull());
+    expect(modeButton(/preview/i)?.disabled).toBe(false);
+  });
+
   it("shows a conflict banner for an externally changed dirty file, and both resolutions clear it", async () => {
     const user = userEvent.setup();
     render(<App />);

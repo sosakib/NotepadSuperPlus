@@ -48,11 +48,12 @@ Unchanged from 1.0.0 unless noted.
 
 | | |
 |---|---|
-| **Installers are unsigned** | SmartScreen will warn on download. See [INSTALL.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/docs/INSTALL.md) for what the warning means and how to verify the download. |
+| **Installers are unsigned** | SmartScreen will warn on download. A code-signing certificate is a purchase, not an engineering step. See [INSTALL.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/docs/INSTALL.md) for what the warning means and how to verify the download. |
 | **Cold start is 0.6–1.5 s, and it depends heavily on your machine** | Most of it is Tauri/WebView2 creating the window *before any app code runs*. Measurements: [STARTUP_PERFORMANCE.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/docs/reports/STARTUP_PERFORMANCE.md). |
 | **No test drives the real window** | 391 TypeScript and 50 Rust tests pass, but the Tauri IPC boundary and real file dialogs are still verified by hand. Scope in [E2E_COVERAGE.md](https://github.com/sosakib/NotepadSuperPlus/blob/main/docs/reports/E2E_COVERAGE.md). |
-| **Fonts are not bundled** | On a stock Windows machine you get Segoe UI and Consolas. |
+| **Fonts are not bundled** | Inter / Geist / JetBrains Mono are named in the token stacks but no font files ship, so on a stock Windows machine you get Segoe UI and Consolas. |
 | **Local images don't show in the preview** | `![](./pic.png)` is blocked by design (privacy and CSP); planned as a scoped feature. |
+| **Screenshots predate the integrated title bar** | The README screenshots were added in `a585e49`; they show the pre-frameless window with a separate Windows caption bar. Re-shoot before the next release. |
 
 **Not in this release:** math (KaTeX), Mermaid diagrams, GitHub callouts, emoji shortcodes,
 `[TOC]`, PDF export, auto-save, crash-draft recovery, smart list continuation, checkbox

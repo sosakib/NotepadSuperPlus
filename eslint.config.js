@@ -42,6 +42,17 @@ export default tseslint.config(
     },
   },
   {
+    // Build scripts run under Node, not the browser: they read the filesystem and report
+    // progress on stdout, neither of which exists in the app's own environment.
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: {
+      "no-console": "off",
+    },
+  },
+  {
     // Config files are type-checked against tsconfig.node.json.
     files: ["*.config.ts"],
     languageOptions: {

@@ -1,4 +1,6 @@
 import { useRenderStore } from "../state/render.ts";
+import { useDocumentsStore } from "../state/documents.ts";
+import { isMarkdownFilename } from "../editor/languageLabels.ts";
 import type { RenderRequest, RenderResponse } from "./md.worker.ts";
 
 /**
@@ -29,8 +31,19 @@ class RenderController {
     return this.worker;
   }
 
-  /** Schedules a render. `getText` is only called if the request survives the debounce. */
+  /**
+   * Schedules a render. `getText` is only called if the request survives the debounce.
+   *
+   * Non-Markdown documents are dropped here rather than at each call site. Four places ask
+   * for a render — open, reload, every keystroke, and the active-document effect — and a code
+   * file must be refused at all of them: the pipeline would turn a `.py`'s `#` comments into
+   * headings and its `*args` into emphasis, and the outline panel would list the result.
+   * Gating in the one place they all route through also means a fifth caller cannot forget.
+   */
   requestRender(docId: string, getText: () => string): void {
+    const doc = useDocumentsStore.getState().docs[docId];
+    if (doc && !isMarkdownFilename(doc.filename)) return;
+
     const version = (this.versions.get(docId) ?? 0) + 1;
     this.versions.set(docId, version);
     this.pending = { docId, version, getText };

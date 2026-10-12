@@ -13,11 +13,17 @@
 }
 
 /* ---- Title bar ---- */
+/*
+ * The window is frameless (tauri.conf.json → decorations: false), so this strip is the
+ * caption bar. Trailing padding is 0: the window controls run to the very edge, the way
+ * every native Windows caption bar does — inset buttons read as a web page pretending to
+ * be a window.
+ */
 .titlebar {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
-  padding: 0 var(--space-2);
+  justify-content: space-between;
+  padding: 0 0 0 var(--space-2);
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   user-select: none;
@@ -37,6 +43,58 @@
 .titlebar__brand:hover {
   background: var(--bg-hover);
 }
+
+/* ---- Window controls ---- */
+/*
+ * Windows 11 caption-button metrics: 46px wide, full caption height, square (no radius —
+ * they meet the window edge), and a full-bleed hover fill. Matching the platform here is
+ * the whole point of the feature; a rounded, inset, gap-separated row would immediately
+ * read as not-a-real-window.
+ */
+.window-controls {
+  display: flex;
+  align-self: stretch;
+  flex: none;
+}
+.window-control {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  align-self: stretch;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--fg-secondary);
+  cursor: default;
+  transition:
+    background var(--dur-instant) var(--ease-out),
+    color var(--dur-instant) var(--ease-out);
+}
+.window-control:hover {
+  background: var(--bg-hover);
+  color: var(--fg-primary);
+}
+.window-control:active {
+  background: var(--bg-active);
+}
+/*
+ * Close uses the theme's own danger token rather than Windows' literal #C42B1C: the shell
+ * carries ten themes and a fixed red clashes with several of them. The behaviour that
+ * matters — close is the one button that turns red — is preserved.
+ */
+.window-control--close:hover {
+  background: var(--danger);
+  color: #fff;
+}
+.window-control--close:active {
+  background: color-mix(in oklab, var(--danger) 80%, #000);
+  color: #fff;
+}
+/* The focus ring is drawn inside, so it is not clipped by the window edge. */
+.window-control:focus-visible {
+  outline-offset: -3px;
+  border-radius: 0;
+}
 /*
  * The brand mark is a full-bleed rounded-square icon that carries its own corner
  * radius and gradient. It never gets a background, and is never clipped with
@@ -52,12 +110,6 @@
   font-weight: 600;
   font-size: 12px;
   color: var(--fg-secondary);
-}
-.titlebar__center {
-  justify-self: center;
-}
-.titlebar__actions {
-  justify-self: end;
 }
 
 /* ---- Activity rail ---- */
@@ -170,6 +222,11 @@
   color: var(--fg-muted);
   padding-left: var(--space-2);
   align-self: center;
+}
+/* The view-mode switch trails the strip; the margin separates it from the new-file button. */
+.tabbar > .segmented {
+  flex: none;
+  margin-left: var(--space-2);
 }
 
 .tab {
@@ -790,6 +847,14 @@
 .segmented__item--active {
   background: var(--bg-active);
   color: var(--fg-primary);
+}
+/* Preview and Split for a non-Markdown document — present, explained, unusable. */
+.segmented__item:disabled {
+  color: var(--fg-muted);
+  cursor: not-allowed;
+}
+.segmented__item:disabled:hover {
+  background: transparent;
 }
 
 /* ---- Buttons ---- */
