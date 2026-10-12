@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, useRef, useCallback, type FormEvent } from "react";
 import { Search, CaseSensitive, WholeWord, Regex, Loader2 } from "lucide-react";
 import { EmptyState } from "../components/EmptyState.tsx";
 import { useWorkspaceStore } from "../state/workspace.ts";
@@ -17,7 +17,52 @@ function groupByFile(matches: SearchMatch[]): [string, SearchMatch[]][] {
   return [...groups.entries()];
 }
 
-/** Workspace text search (docs/01 §7). Requires an open folder. */
+/** Safely renders snippet text with matched query wrapped in <mark> (no innerHTML). */
+function HighlightedSnippet({
+  text,
+  query,
+  options,
+}: {
+  text: string;
+  query: string;
+  options: SearchOptions;
+}) {
+  if (!query.trim()) return <>{text}</>;
+  try {
+    const pattern = options.regex ? query : query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const flags = options.caseSensitive ? "g" : "gi";
+    const re = new RegExp(
+      options.wholeWord && !options.regex ? `\\b${pattern}\\b` : pattern,
+      flags,
+    );
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    let keyIdx = 0;
+    while ((match = re.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+      parts.push(
+        <mark key={keyIdx++} className="search-snippet__mark">
+          {match[0]}
+        </mark>,
+      );
+      lastIndex = re.lastIndex;
+      if (!match[0].length) {
+        re.lastIndex++;
+      }
+    }
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+    return <>{parts.length > 0 ? parts : text}</>;
+  } catch {
+    return <>{text}</>;
+  }
+}
+
+/** Workspace text search (docs/01 §7, docs/21 §5). Requires an open folder. */
 export function SearchPanel() {
   const root = useWorkspaceStore((s) => s.root);
   const [query, setQuery] = useState("");
@@ -30,6 +75,59 @@ export function SearchPanel() {
   const [matches, setMatches] = useState<SearchMatch[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const searchVersion = useRef(0);
+
+  const executeSearch = useCallback(
+    async (searchQuery: string): Promise<void> => {
+      if (!root) return;
+      const trimmed = searchQuery.trim();
+      if (!trimmed) {
+        setMatches([]);
+        setStatus(null);
+        return;
+      }
+
+      const version = ++searchVersion.current;
+      setBusy(true);
+      setStatus(null);
+      try {
+        const res = await searchWorkspace(root, trimmed, options);
+        if (version === searchVersion.current) {
+          setMatches(res.matches);
+          setStatus(
+            res.matches.length === 0
+              ? `No results in ${res.filesSearched} files`
+              : `${res.matches.length}${res.truncated ? "+" : ""} results in ${res.filesSearched} files`,
+          );
+        }
+      } catch (err) {
+        if (version === searchVersion.current) {
+          const e2 = err as { message?: string };
+          setMatches([]);
+          setStatus(e2?.message ?? "Search failed.");
+        }
+      } finally {
+        if (version === searchVersion.current) {
+          setBusy(false);
+        }
+      }
+    },
+    [root, options],
+  );
+
+  // Search-as-you-type (debounced ~200ms)
+  useEffect(() => {
+    if (!root) return;
+    if (!query.trim()) {
+      setMatches([]);
+      setStatus(null);
+      return;
+    }
+    const timer = setTimeout(() => {
+      void executeSearch(query);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [query, executeSearch, root]);
 
   if (!root) {
     return (
@@ -43,24 +141,7 @@ export function SearchPanel() {
 
   const run = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    if (!query.trim()) return;
-    setBusy(true);
-    setStatus(null);
-    try {
-      const res = await searchWorkspace(root, query, options);
-      setMatches(res.matches);
-      setStatus(
-        res.matches.length === 0
-          ? `No results in ${res.filesSearched} files`
-          : `${res.matches.length}${res.truncated ? "+" : ""} results in ${res.filesSearched} files`,
-      );
-    } catch (err) {
-      const e2 = err as { message?: string };
-      setMatches([]);
-      setStatus(e2?.message ?? "Search failed.");
-    } finally {
-      setBusy(false);
-    }
+    await executeSearch(query);
   };
 
   const toggle = (key: keyof SearchOptions): void => setOptions((o) => ({ ...o, [key]: !o[key] }));
@@ -70,13 +151,16 @@ export function SearchPanel() {
   return (
     <div className="search-panel">
       <form onSubmit={(e) => void run(e)}>
-        <input
-          className="search-panel__input"
-          placeholder="Search workspace…"
-          aria-label="Search workspace"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+        <div className="search-panel__input-wrap">
+          <Search size={15} className="search-panel__input-icon" aria-hidden />
+          <input
+            className="search-panel__input"
+            placeholder="Search workspace…"
+            aria-label="Search workspace"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
         <div className="search-panel__options">
           <button
             type="button"
@@ -115,9 +199,10 @@ export function SearchPanel() {
 
       <ul className="search-results">
         {groups.map(([path, hits]) => (
-          <li key={path}>
+          <li key={path} className="search-results__group">
             <div className="search-results__file" title={path}>
-              {basename(path)} <span className="search-results__count">{hits.length}</span>
+              <span className="search-results__filename">{basename(path)}</span>
+              <span className="search-results__count">{hits.length}</span>
             </div>
             <ul>
               {hits.map((m, i) => (
@@ -128,7 +213,9 @@ export function SearchPanel() {
                     onClick={() => void openPath(m.path, m.line)}
                   >
                     <span className="search-results__line">{m.line}</span>
-                    <span className="search-results__preview">{m.preview}</span>
+                    <span className="search-results__preview">
+                      <HighlightedSnippet text={m.preview} query={query} options={options} />
+                    </span>
                   </button>
                 </li>
               ))}

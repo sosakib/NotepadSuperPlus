@@ -106,7 +106,8 @@ function useMaximized(): boolean | null {
         if (cancelled) stop();
         else unlisten = stop;
       } catch {
-        /* no Tauri runtime — controls stay hidden (browser dev) */
+        /* no Tauri runtime (browser dev) — default to false so controls remain visible and testable */
+        if (!cancelled) setMaximized(false);
       }
     })();
 
@@ -124,7 +125,29 @@ export function WindowControls() {
   const maximized = useMaximized();
   if (maximized === null) return null;
 
-  const win = getCurrentWindow();
+  const handleMinimize = () => {
+    try {
+      void getCurrentWindow().minimize();
+    } catch {
+      /* browser dev fallback */
+    }
+  };
+
+  const handleToggleMaximize = () => {
+    try {
+      void getCurrentWindow().toggleMaximize();
+    } catch {
+      /* browser dev fallback */
+    }
+  };
+
+  const handleClose = () => {
+    try {
+      void getCurrentWindow().close();
+    } catch {
+      /* browser dev fallback */
+    }
+  };
 
   return (
     <div className="window-controls">
@@ -133,7 +156,7 @@ export function WindowControls() {
         className="window-control"
         aria-label="Minimize"
         title="Minimize"
-        onClick={() => void win.minimize()}
+        onClick={handleMinimize}
       >
         <MinimizeGlyph />
       </button>
@@ -142,7 +165,7 @@ export function WindowControls() {
         className="window-control"
         aria-label={maximized ? "Restore Down" : "Maximize"}
         title={maximized ? "Restore Down" : "Maximize"}
-        onClick={() => void win.toggleMaximize()}
+        onClick={handleToggleMaximize}
       >
         {maximized ? <RestoreGlyph /> : <MaximizeGlyph />}
       </button>
@@ -151,7 +174,7 @@ export function WindowControls() {
         className="window-control window-control--close"
         aria-label="Close"
         title="Close"
-        onClick={() => void win.close()}
+        onClick={handleClose}
       >
         <CloseGlyph />
       </button>

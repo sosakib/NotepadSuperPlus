@@ -3,7 +3,6 @@ import { X, Plus } from "lucide-react";
 import { useDocumentsStore } from "../state/documents.ts";
 import { closeFile } from "../actions/fileActions.ts";
 import { iconForLanguage } from "../editor/fileIcons.ts";
-import { ViewModeSwitch } from "./ViewModeSwitch.tsx";
 
 /**
  * Editor tab strip: one tab per open document, a new-document button, and the view-mode
@@ -94,7 +93,6 @@ export function TabBar() {
       >
         <Plus size={16} strokeWidth={2.25} />
       </button>
-      <ViewModeSwitch />
     </div>
   );
 }

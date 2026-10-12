@@ -4,7 +4,6 @@ import { useUiStore } from "../state/ui.ts";
 import { useDocumentsStore } from "../state/documents.ts";
 import { WelcomeScreen } from "../components/WelcomeScreen.tsx";
 import { Button } from "../components/Button.tsx";
-import { TabBar } from "./TabBar.tsx";
 import { getDocText } from "../editor/editorRegistry.ts";
 import { isMarkdownFilename } from "../editor/languageLabels.ts";
 import { renderController } from "../markdown/renderController.ts";
@@ -85,7 +84,6 @@ export function EditorArea() {
 
   return (
     <section className="editor-area" aria-label="Editor">
-      <TabBar />
       {activeId ? <ConflictBanner docId={activeId} /> : null}
       <div className={`editor-surface editor-surface--${viewMode}`}>
         {activeId === null ? (

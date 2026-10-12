@@ -1,35 +1,59 @@
+import { Command as CommandIcon } from "lucide-react";
 import { useUiStore } from "../state/ui.ts";
 import { WindowControls } from "./WindowControls.tsx";
+import { TabBar } from "./TabBar.tsx";
+import { ThemeChip } from "./ThemeChip.tsx";
+import { ViewModeSwitch } from "./ViewModeSwitch.tsx";
+import { IconButton } from "../components/IconButton.tsx";
 import brandMark from "../assets/brand-mark.png";
 
 /**
- * Application title bar. The window runs frameless (`decorations: false`), so this *is*
- * the caption bar — there is no OS title bar above it.
+ * Unified application title bar (docs/21 §2).
  *
- * `data-tauri-drag-region="deep"` makes the whole strip draggable, with one exception that
- * Tauri's own handler applies for us: an element that is clickable (button, link, input, or
- * anything with a non-negative tabindex or an interactive ARIA role) blocks the drag, so the
- * brand button and the window controls stay clickable without any hit-testing here
- * (tauri/src/window/scripts/drag.js). Double-click-to-maximize comes from the same handler.
- *
- * Contents are deliberately just the brand and the window controls. Per-document controls
- * live with the document (the view-mode switch sits beside the tab strip) and global toggles
- * live in the activity rail, which keeps the caption bar reading as a caption bar.
+ * Runs frameless (`decorations: false`), serving as the single top caption bar:
+ * - Brand logo & name on the left (opens About)
+ * - Inline document tabs with language icons, close buttons, and `+` new document
+ * - Middle flexible drag region (`data-tauri-drag-region`) for moving / double-click maximize
+ * - Theme chip displaying current theme swatch & name with 10-theme picker popover
+ * - View-mode switch (Source | Preview | Split)
+ * - ⌘ Command Palette button
+ * - Native-styled Window controls (minimize, maximize/restore, close)
  */
 export function TitleBar() {
   const toggleAbout = useUiStore((s) => s.toggleAbout);
+  const togglePalette = useUiStore((s) => s.togglePalette);
 
   return (
     <header className="titlebar" data-tauri-drag-region="deep">
-      <button
-        type="button"
-        className="titlebar__brand"
-        onClick={toggleAbout}
-        title="About Notepad Super Plus"
-      >
-        <img className="titlebar__logo" src={brandMark} alt="" aria-hidden />
-        <span className="titlebar__name">Notepad Super Plus</span>
-      </button>
+      <div className="titlebar__left">
+        <button
+          type="button"
+          className="titlebar__brand"
+          onClick={toggleAbout}
+          title="About Notepad Super Plus"
+        >
+          <img className="titlebar__logo" src={brandMark} alt="" aria-hidden />
+          <span className="titlebar__name">Notepad Super Plus</span>
+        </button>
+        <div className="titlebar__tabs-container">
+          <TabBar />
+        </div>
+      </div>
+
+      <div className="titlebar__spacer" data-tauri-drag-region />
+
+      <div className="titlebar__right">
+        <ThemeChip />
+        <ViewModeSwitch />
+        <IconButton
+          label="Command Palette (Ctrl+Shift+P)"
+          onClick={togglePalette}
+          className="titlebar__palette-btn"
+        >
+          <CommandIcon size={16} />
+        </IconButton>
+      </div>
+
       <WindowControls />
     </header>
   );

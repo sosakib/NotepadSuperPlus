@@ -14,7 +14,7 @@ export function AppShell() {
       <TitleBar />
       <div className="app-body">
         <ActivityRail />
-        {!sidebarCollapsed && <Sidebar />}
+        <Sidebar collapsed={sidebarCollapsed} />
         <EditorArea />
       </div>
       <StatusBar />

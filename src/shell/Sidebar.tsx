@@ -10,8 +10,12 @@ const PANEL_TITLES = {
   search: "Search",
 } as const;
 
-/** Resizable sidebar hosting the active panel. */
-export function Sidebar() {
+interface SidebarProps {
+  collapsed?: boolean;
+}
+
+/** Resizable sidebar hosting the active panel with smooth collapse animation. */
+export function Sidebar({ collapsed = false }: SidebarProps) {
   const activePanel = useUiStore((s) => s.activePanel);
   const width = useUiStore((s) => s.sidebarWidth);
   const setSidebarWidth = useUiStore((s) => s.setSidebarWidth);
@@ -20,7 +24,12 @@ export function Sidebar() {
   const handleResize = (clientX: number): void => setSidebarWidth(clientX - 48);
 
   return (
-    <aside className="sidebar" style={{ width }} aria-label={PANEL_TITLES[activePanel]}>
+    <aside
+      className={`sidebar${collapsed ? " sidebar--collapsed" : ""}`}
+      style={{ width: collapsed ? 0 : width }}
+      aria-label={PANEL_TITLES[activePanel]}
+      aria-hidden={collapsed}
+    >
       <div className="sidebar__inner">
         <div className="sidebar__header">{PANEL_TITLES[activePanel]}</div>
         <div className="sidebar__content">
@@ -29,11 +38,13 @@ export function Sidebar() {
           {activePanel === "search" && <SearchPanel />}
         </div>
       </div>
-      <Resizer
-        label="Resize sidebar"
-        onResize={handleResize}
-        onDoubleClick={() => setSidebarWidth(280)}
-      />
+      {!collapsed && (
+        <Resizer
+          label="Resize sidebar"
+          onResize={handleResize}
+          onDoubleClick={() => setSidebarWidth(280)}
+        />
+      )}
     </aside>
   );
 }
