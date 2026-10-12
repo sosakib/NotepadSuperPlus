@@ -31,6 +31,11 @@ describe("security configuration", () => {
       "dialog:default",
       "opener:default",
       "core:window:allow-destroy",
+      "core:window:allow-start-dragging",
+      "core:window:allow-minimize",
+      "core:window:allow-toggle-maximize",
+      "core:window:allow-unmaximize",
+      "core:window:allow-close",
     ]);
     for (const p of cap.permissions)
       expect(allowed.has(p), `unexpected permission ${p}`).toBe(true);
